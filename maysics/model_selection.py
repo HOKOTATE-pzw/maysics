@@ -6,7 +6,7 @@ This module is ued for estimating and selecting models
 
 import numpy as np
 from matplotlib import pyplot as plt
-from maysics import data_split
+from maysics.utils import data_split
 
 
 class Estimate():
@@ -610,7 +610,7 @@ class Sense():
         清空s_mat和prediction
         
         
-        clear the s_mat and the prediction
+        Clear the s_mat and the prediction
         '''
         self.s_mat = []
         self.prediction = []

@@ -1,33 +1,41 @@
 '''
 本库用于科学计算和快速建模
 
-maysics主要包括七个模块：
+maysics主要包括九个模块：
 
-1、algorithm 储存了几种模拟方法，用于简易模拟；
-2、constant 储存了部分常数；
-3、models 储存了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
+1、algorithm 封装了几种模拟方法，用于简易模拟；
+2、calculus 封装了部分常见的算符算子和积分方法，辅助数学运算；
+3、constant 储存了部分常数；
 4、model_selection 用于评估和选择模型；
-5、operator 储存了部分常见的算符算子，辅助数学运算；
-6、transformation 储存了常用的坐标转换及其他数学变换；
-7、utils 是额外工具箱。
+5、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
+6、preprocess 用于数据预处理；
+7、stats 用于统计分析；
+8、transformation 储存了常用的坐标转换及其他数学变换；
+9、utils 是额外工具箱。
 
 
 This package is used for scientific calculating and fast modeling.
 
-maysics includes seven modules:
+maysics includes nine modules:
 
-1. "algorithm" stores several simulation methods for simple simulation;
-2. "constant" contents some usual constants;
-3. "models" stores several commonly used laws, equations and models of mathematical physics for fast modeling;
+1. "algorithm" packages several simulation methods for simple simulation;
+2. "calculus" packages some common operators and integration method to assist in mathematical operations;
+3. "constant" contents some usual constants;
 4. "model_selection" used for estimating and selecting model;
-5. "calculate" stores some common operators to assist in mathematical operations;
-6. "transformation" stores common coordinate transformations and other mathematical transformations;
-7. "utils" is extra Utils.
+5. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
+6. "preprocess" is used for data preproccessing;
+7. "stats" is uesd for statistical analysis;
+8. "transformation" stores common coordinate transformations and other mathematical transformations;
+9. "utils" is extra Utils.
 
 maysics-|- __init__
+        |
         |- algorithm -------|- GA
         |                   |- MC
         |                   |- SA
+        |
+        |- calculus --------|- Del
+        |                   |- Inte
         |
         |- constant --------|- LP
         |
@@ -43,19 +51,23 @@ maysics-|- __init__
         |                   |- MVD_law
         |                   |- Plancks_law
         |
-        |- operator --------|- Del
-        |                   |- Dif
-        |                   |- H
-        |                   |- Laplace
+        |- preprocess
+        |
+        |- stats -----------|- DFT
         |
         |- transformation --|- Cylinder
         |                   |- Lorentz
         |                   |- Polar
+        |                   |- Rotate
         |                   |- Sphere
-        |- utils
+        |
+        |- utils -----------|- Edis
+        |                   |- Mdis
 '''
 
 import numpy as np
+import pickle
+from maysics import algorithm, calculus, constant, model_selection, models, preprocess, stats, transformation, utils
 
 
 def arr(f):
@@ -160,7 +172,7 @@ def sub(minuend, subtrahend):
 
 def divi(dividend, divisor):
     '''
-    实现函数与同型函数、函数与数之间的减法
+    实现函数与同型函数、函数与数之间的除法
     要求作用函数若输出列表，必须是ndarray格式
     
     参数
@@ -194,26 +206,57 @@ def divi(dividend, divisor):
     return obj
 
 
-def r(*arg):
+def save(data, filename):
     '''
-    相关系数
+    保存为.pkl或.npy文件
     
-    返回值：各数组之间的相关系数矩阵
+    参数
+    ----
+    data：需要保存的数据
+    filename：字符串类型，文件名
     
     
-    correlation coefficient
+    Save as .pkl or .npy file
     
-    return: matrix of correlation coefficient
+    Parameters
+    ----------
+    data: data
+    filename: str, file name
     '''
-    arg = np.array(arg, dtype=float)
-    if len(arg.shape) != 2:
-        raise Exception("Input list should be 1 dimension.")
+    if filename[-4:] == '.pkl':
+        with open(filename, 'wb') as file:
+            pickle.dump(data, file)
     
-    cov_mat = np.cov(arg)
-    var_mat = np.diagonal(cov_mat)**0.5
+    elif filename[-4:] == '.npy':
+        np.save(filename, data)
     
-    for i in range(cov_mat.shape[0]):
-        cov_mat[i] /= var_mat[i]
-        cov_mat[:, i] /= var_mat[i]
+    else:
+        raise Exception("Suffix of filename must be '.pkl' or '.npy'.")
+
+
+def load(filename):
+    '''
+    载入.pkl或.npy文件
     
-    return cov_mat
+    参数
+    ----
+    filename：字符串类型，文件名
+    
+    
+    Load .pkl or .npy file
+    
+    Parameter
+    ---------
+    filename: str, file name
+    '''
+    if filename[-4:] == '.pkl':
+        with open(filename, 'rb') as file:
+            data = pickle.load(file)
+        
+        return data
+    
+    elif filename[-4:] == '.npy':
+        return np.load(filename, allow_pickle=True)
+    
+    else:
+        raise Exception("Suffix of filename must be '.pkl' or '.npy'.")

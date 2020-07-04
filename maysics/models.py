@@ -5,13 +5,13 @@ This module stores some commonly used mathematical physical equations, laws, mat
 '''
 
 import numpy as np
-from maysics import operator
+from maysics.calculus import Del
 from maysics import constant
 from scipy.integrate import solve_ivp
 from scipy.sparse import csr_matrix
 
 
-class Fouriers_law(operator.Del):
+class Fouriers_law(Del):
     '''
     傅里叶定律/热传导定律
     热流量：J=-k▽T

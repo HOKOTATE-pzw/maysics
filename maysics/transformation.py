@@ -25,7 +25,7 @@ class Lorentz():
     '''
     def __init__ (self, v):
         self.v = v
-        self.γ = 1/(1-(v/constant.c)**2)**0.5
+        self.γ = 1 / (1 - (v / constant.c)**2)**0.5
     
 
     def lor(self, x):
@@ -46,8 +46,8 @@ class Lorentz():
         yp = x[1]
         zp = x[2]
         tp = self.γ * (x[3] - self.v * x[0] / constant.c**2)
-        result = np.array([xp, yp, zp, tp])
-        return result
+        
+        return np.array([xp, yp, zp, tp])
     
 
     def ilor(self, xp):
@@ -68,8 +68,8 @@ class Lorentz():
         y = xp[1]
         z = xp[2]
         t = self.γ * (xp[3] + self.v * xp[0] / constant.c**2)
-        result = np.array([x, y, z, t])
-        return result
+        
+        return np.array([x, y, z, t])
     
 
     def vel(self, vo):
@@ -90,8 +90,8 @@ class Lorentz():
         vxp = (vo[0] - self.v) / factor
         vyp = vo[1] * self.γ / factor
         vzp = vo[2] * self.γ / factor
-        result = np.array([vxp, vyp, vzp])
-        return result
+        
+        return np.array([vxp, vyp, vzp])
     
 
     def ivel(self, vp):
@@ -112,8 +112,8 @@ class Lorentz():
         vxo = (vp[0] + self.v) / factor
         vyo = vp[1] * self.γ / factor
         vzo = vp[2] * self.γ / factor
-        result = np.array([vxo, vyo, vzo])
-        return result
+        
+        return np.array([vxo, vyo, vzo])
 
 
 class Polar():
@@ -121,7 +121,7 @@ class Polar():
     极坐标系与直角坐标系转换
     
     
-    polar transformation
+    Polar transformation
     '''
     @classmethod
     def pol(self, x):
@@ -147,35 +147,36 @@ class Polar():
                 theta = 0
         else:
             theta = np.arctan(x[1] / x[0])
-        result = np.array([r, theta])
-        return result
+        
+        return np.array([r, theta])
 
 
     @classmethod
-    def ipol(self, x):
+    def ipol(self, xp):
         '''
         极坐标逆变换
         
         参数
         ----
-        x：列表，(r, θ)
+        xp：列表，(r, θ)
         
         
         Parameters
         ----------
-        x: list, (r, θ)
+        xp: list, (r, θ)
         '''
-        x = x[0] * np.cos(x[1])
-        y = x[0] * np.sin(x[1])
-        result = np.array([x, y])
-        return result
+        x = xp[0] * np.cos(xp[1])
+        y = xp[0] * np.sin(xp[1])
+        
+        return np.array([x, y])
 
 
 class Cylinder():
     '''
     柱坐标系与直角坐标系转换
     
-    cylinder transformation
+    
+    Cylinder transformation
     '''
     @classmethod
     def cyl(self, x):
@@ -202,36 +203,37 @@ class Cylinder():
         else:
             theta = np.arctan(x[1] / x[0])
         z = x[2]
-        result = np.array([r, theta, z])
-        return result
+        
+        return np.array([r, theta, z])
 
 
     @classmethod
-    def icyl(self, x):
+    def icyl(self, xp):
         '''
         柱坐标逆变换
         
         参数
         ----
-        x：列表，(r, θ, z)
+        xp：列表，(r, θ, z)
         
         
         Parameters
         ----------
-        x: list, (r, θ, z)
+        xp: list, (r, θ, z)
         '''
-        x = x[0] * np.cos(x[1])
-        y = x[0] * np.sin(x[1])
-        z = x[2]
-        result = np.array([x, y, z])
-        return result
+        x = xp[0] * np.cos(xp[1])
+        y = xp[0] * np.sin(xp[1])
+        z = xp[2]
+        
+        return np.array([x, y, z])
 
 
 class Sphere():
     '''
     球坐标系与直角坐标系转换
     
-    sphere transformation
+    
+    Sphere transformation
     '''
     @classmethod
     def sph(self, x):
@@ -262,26 +264,84 @@ class Sphere():
                     theta = 0
             else:
                 theta = np.arctan(x[1] / x[0])
-        result = np.array([r, theta, phai])
-        return result
+        
+        return np.array([r, theta, phai])
 
 
     @classmethod
-    def isph(self, x):
+    def isph(self, xp):
         '''
         球坐标逆变换
         
         参数
         ----
-        x：列表，(r, θ, φ)
+        xp：列表，(r, θ, φ)
         
         
         Parameters
         ----------
-        x: list, (r, θ, φ)
+        xp: list, (r, θ, φ)
         '''
-        x = x[0] * np.sin(x[2]) * np.cos(x[1])
-        y = x[0] * np.sin(x[2]) * np.sin(x[1])
-        z = x[0] * np.cos(x[2])
-        result = np.array([x, y, z])
-        return result
+        x = xp[0] * np.sin(xp[2]) * np.cos(xp[1])
+        y = xp[0] * np.sin(xp[2]) * np.sin(xp[1])
+        z = xp[0] * np.cos(xp[2])
+        
+        return np.array([x, y, z])
+
+
+
+class Rotate():
+    '''
+    平面直角坐标系的旋转变换
+    
+    参数
+    ----
+    theta：浮点数类型，坐标系绕原点逆时针旋转的角度
+    
+    
+    Rotation transformation of plane rectangular coordinate system
+    
+    Parameter
+    ---------
+    theta: float, the angle that the coordinate system rotates counterclockwise about the origin
+    '''
+    def __init__(self, theta):
+        self.__theta = theta
+    
+    
+    def rot(self, x):
+        '''
+        旋转正变换
+        
+        参数
+        ----
+        x：列表，(x, y)
+        
+        
+        Parameter
+        ---------
+        x: list, (x, y)
+        '''
+        xp = np.cos(self.__theta) * x[0] + np.sin(self.__theta) * x[1]
+        yp = np.cos(self.__theta) * x[1] - np.sin(self.__theta) * x[0]
+        
+        return np.array([xp, yp])
+    
+    
+    def irot(self, xp):
+        '''
+        旋转逆变换
+        
+        参数
+        ----
+        xp：列表，(x', y')
+        
+        
+        Parameter
+        ---------
+        xp: list, (x', y')
+        '''
+        x = np.cos(self.__theta) * xp[0] - np.sin(self.__theta) * xp[1]
+        y = np.cos(self.__theta) * xp[1] + np.sin(self.__theta) * xp[0]
+        
+        return np.array([x, y])

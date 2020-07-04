@@ -1,177 +1,11 @@
 '''
-本模块用于预处理数据
+本模块是额外工具箱
 
-This module is used for preprocessing data
+This module is extra Utils
 '''
 
 import numpy as np
-
-
-def shuffle(*arg):
-    '''
-    以相同方法打乱多个序列或打乱一个序列
-    
-    返回值：一个ndarray
-    
-    
-    shuffle multiple sequences in the same way or shuffle a sequences
-    
-    return: a ndarray
-    '''
-    state = np.random.get_state()
-    a_new_list = []
-    for li in arg:
-        np.random.set_state(state)
-        np.random.shuffle(li)
-        a_new_list.append(li)
-    return np.array(a_new_list)
-
-
-def data_split(data, targets, train_size=None, test_size=None, shuffle=True, random_state=None):
-    '''
-    分离数据
-    
-    参数
-    ----
-    data：数据
-    targets：指标
-    train_size：浮点数类型，可选，训练集占总数据量的比，取值范围为(0, 1]，默认为0.75
-    test_size：浮点数类型，可选，测试集占总数据量的比，取值范围为[0, 1)，当train_size被定义时，该参数无效
-    shuffle：布尔类型，可选，True表示打乱数据，False表示不打乱数据，默认为True
-    random_state：整型，可选，随机种子
-    
-    
-    split the data
-    
-    Parameters
-    ----------
-    data: data
-    targets: targets
-    train_size: float, callable, ratio of training set to total data, value range is (0, 1], default=0.75
-    test_size: float, callable, ratio of test set to total data, value range is [0, 1)
-    shuffle: bool, callable, 'True' will shuffle the data, 'False' will not, default = True
-    random_state: int, callable, random seed
-    '''
-    if not (train_size or test_size):
-        train_size = 0.75
-    elif test_size:
-        train_size = 1 - test_size
-    
-    if train_size <= 0 or train_size > 1:
-        raise Exception("'train_size' should be in (0, 1], 'test_size' should be in [0, 1)")
-    
-    if shuffle:
-        np.random.seed(random_state)
-        
-        state = np.random.get_state()
-        np.random.shuffle(data)
-        np.random.set_state(state)
-        np.random.shuffle(targets)
-        
-    num_of_data = len(data)
-    train_data = data[:int(num_of_data * train_size)]
-    train_target = targets[:int(num_of_data * train_size)]
-    validation_data = data[int(num_of_data * train_size):]
-    validation_target = targets[int(num_of_data * train_size):]
-    
-    return train_data, train_target, validation_data, validation_target
-
-
-def kfold(data, targets, n, k=5):
-    '''
-    参数
-    ----
-    data：数据
-    targets：指标
-    n：整型，表示将第n折作为验证集，从0开始
-    k：整型，可选，k折验证的折叠数，默认k=5
-    
-    返回值：训练集和验证集的元组
-    
-    
-    Parameters
-    ----------
-    data: data
-    targets: targets
-    n: int, take the nth part as validation set, starting from 0
-    k: int, callable, the number of k-fold, default = 5
-    
-    return: the tuple of training set and validation set
-    '''
-    num_validation_samples = len(data) // k
-    
-    validation_data = data[num_validation_samples * n:
-                           num_validation_samples * (n + 1)]
-    validation_targets = targets[num_validation_samples * n:
-                                 num_validation_samples * (n + 1)]
-    
-    train_data = np.concatenate([data[: num_validation_samples * n],
-                                 data[num_validation_samples * (n + 1):]])
-    train_targets = np.concatenate([targets[: num_validation_samples * n],
-                                    targets[num_validation_samples * (n + 1):]])
-    
-    return train_data, train_targets, validation_data, validation_targets
-
-
-def standard(data, index=None, mean=True, var=True):
-    '''
-    标准化数据
-    z = (x - u) / s
-    z：新数据；  x：原数据；  u：均值；  s：方差
-    如果某一列数据完全相同（即方差s=0），则该列数据全部归零
-    
-    参数
-    ----
-    data：2-D的ndarray数据
-    index：列表形式，需要进行标准化的列的索引，默认为全部
-    mean：布尔类型，是否将均值调整为0
-    var：布尔类型，是否将方差调整为1
-    
-    
-    Standardize data
-    z = (x - u) / s
-    z: new data;  x: origin data;  u: mean value;  s: variance
-    if data in one column are the same(s=0), data in this column will be turned to 0
-    
-    Parameters
-    ----------
-    data: 2-D ndarray
-    index: list, index of columns need to be standardized, defalut to all
-    mean: bool, if adjust the mean value to 0
-    var: bool, if adjust the variance to 0
-    '''
-    data=np.array(data, dtype=np.float)
-    if index:
-        if mean:
-            mean = data[:, index].mean(axis=0)
-        else:
-            mean = 0.0
-        data[:, index] -= mean
-        
-        if var:
-            std = data[:, index].std(axis=0)
-            std_zero_indices = np.nonzero(std == 0)
-            std[std==0] = 1.0
-            data[:, index] /= std
-            if list(std_zero_indices[0]):
-                for i in std_zero_indices[0]:
-                    data[:, index][:, i] *= 0
-    else:
-        if mean:
-            mean = data.mean(axis=0)
-        else:
-            mean = 0.0
-        data -= mean
-        
-        if var:
-            std = data.std(axis=0)
-            std_zero_indices = np.nonzero(std == 0)
-            std[std==0] = 1.0
-            data /= std
-            if list(std_zero_indices[0]):
-                for i in std_zero_indices[0]:
-                    data[:, i] *= 0
-    return data
+from matplotlib import pyplot as plt
 
 
 def time_before(time_list, time, itself=False, sep=True):
@@ -422,3 +256,246 @@ def time_between(time_list, begin, end, begin_itself=False, end_itself=False, se
                 select_index.append(i)
     
     return select_time, select_index
+
+
+def grid_net(*args):
+    '''
+    生成网格点
+    将输入的列表遍历组合
+    
+    
+    Generate grid
+    traverse and combine the input list
+    '''
+    net = np.meshgrid(*args)
+    for i in range(len(net)):
+        net[i] = net[i].flatten()
+    net = np.vstack(tuple(net)).T
+    return net
+
+
+class rc():
+    '''
+    相关系数
+    
+    
+    correlation coefficient
+    '''
+    def fit(self, *arg):
+        arg = np.array(arg, dtype=float)
+        if len(arg.shape) != 2:
+            raise Exception("Input list should be 1-D.")
+        
+        cov_mat = np.cov(arg)
+        var_mat = np.diagonal(cov_mat)**0.5
+        var_mat[var_mat == 0] = 1
+        
+        for i in range(cov_mat.shape[0]):
+            cov_mat[i] /= var_mat[i]
+            cov_mat[:, i] /= var_mat[i]
+        
+        self.rc_mat = cov_mat
+    
+    
+    def show(self, index=None, cmap='Blues'):
+        '''
+        参数
+        ----
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Parameters
+        ----------
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        plt.matshow(self.rc_mat, cmap=cmap)
+        plt.colorbar()
+        if index:
+            n_list = range(len(index))
+            plt.xticks(n_list, index)
+            plt.yticks(n_list, index)
+        plt.show()
+    
+    
+    def savefig(self, filename, index=None, cmap='Blues'):
+        '''
+        参数
+        ----
+        filename：字符串形式，文件名
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Parameters
+        ----------
+        filename: str, file name
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        plt.matshow(self.rc_mat, cmap=cmap)
+        plt.colorbar()
+        if index:
+            n_list = range(len(self.rc_mat))
+            plt.xticks(n_list, index)
+            plt.yticks(n_list, index)
+        plt.savefig(filename)
+
+
+
+class Edis():
+    '''
+    欧式距离
+    
+    参数
+    ----
+    data：一维或二维列表，数据
+    
+    
+    Euclidean distance
+    
+    Parameters
+    ----------
+    data: 1-D or 2-D list, data
+    '''
+    def __init__(self, data):
+        self.__data = np.array(data, dtype=np.float)
+        
+        if len(self.__data.shape) < 3:
+            self.__n = data.shape[-1]
+        else:
+            raise Exception("Parameter 'data' must be 1-D or 2-D.")
+    
+    
+    @classmethod
+    def distance(self, p1, p2):
+        '''
+        求某两个点之间的距离
+        
+        参数
+        ----
+        p1：一维数组，第一个点的位置
+        p2：一维数组，第二个点的位置
+        
+        
+        Calculate the distance between two points
+        
+        Parameters
+        ----------
+        p1: 1-D list, the location of the first point
+        p2: 1-D list, the location of the second point
+        '''
+        p1 = np.array(p1)
+        p2 = np.array(p2)
+        
+        return sum((p1 - p2)**2)**0.5
+    
+    
+    def distances(self, des='o'):
+        '''
+        求data到目标点距离
+        
+        参数
+        ----
+        des：字符串或一维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
+        
+        
+        Calculate the distance between data and destination
+        
+        Parameter
+        ---------
+        des: str or 1-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+        '''
+        if des == 'o' or des == 'O':
+            des = np.zeros(self.__n)
+    
+        elif des == 'mean':
+            des = self.__data.mean(axis=0)
+        
+        else:
+            des = np.array(des)
+    
+        self.__data -= des
+        self.__data = self.__data**2
+        result = self.__data.sum(axis=len(self.__data.shape)-1)
+        result = result**0.5
+        
+        return result
+
+
+
+class Mdis():
+    '''
+    马氏距离
+    
+    参数
+    ----
+    data：二维列表，数据
+    
+    
+    Mahalanobis distance
+    
+    Parameters
+    ----------
+    data: 2-D list, data
+    '''
+    def __init__(self, data):
+        self.__data = np.mat(data, dtype=np.float)
+        self.__dataT = self.__data.T
+        
+        if len(self.__data.shape) != 2:
+            raise Exception("Parameter 'data' must be 2-D.")
+        
+        self.__SI = np.mat(np.cov(self.__dataT)).I
+    
+    
+    def distance(self, p1, p2):
+        '''
+        求某两个点之间的距离
+        
+        参数
+        ----
+        p1：一维或二维数组，第一个点的位置
+        p2：一维或二维数组，第二个点的位置
+        
+        
+        Calculate the distance between two points
+        
+        Parameters
+        ----------
+        p1: 1-D or 2-D list, the location of the first point
+        p2: 1-D or 2-D list, the location of the second point
+        '''
+        p1 = np.mat(p1, dtype=np.float)
+        p2 = np.mat(p2, dtype=np.float)
+        result = (p1 - p2) * self.__SI * (p1 - p2).T
+        
+        return result[0, 0]**0.5
+    
+    
+    def distances(self, des='o'):
+        '''
+        求data到目标点距离
+        
+        参数
+        ----
+        des：字符串或一维或二维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
+        
+        
+        Calculate the distance between data and destination
+        
+        Parameter
+        ---------
+        des: str or 1-D or 2-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+        '''
+        if des == 'o' or des == 'O':
+            des = np.zeros(self.__data.shape[-1])
+        
+        elif des == 'mean':
+            des = self.__data.mean(axis=0)
+        
+        else:
+            des = np.mat(des)
+        
+        return np.diag((self.__data - des) * self.__SI *(self.__dataT - des.T))**0.5
