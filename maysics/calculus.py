@@ -143,6 +143,7 @@ def H(f, m, U, acc=0.05):
         else:
             result += U * f(x)
         return result
+    return obj
 
 
 

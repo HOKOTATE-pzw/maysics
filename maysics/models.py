@@ -45,7 +45,7 @@ class Fouriers_law(Del):
         ---------
         T: temperature distribution function
         '''
-        j = operator.Del.grad(self, T)
+        j = Del.grad(self, T)
         def j2(x):
             j1 = -self.k * j(x)
             return j1

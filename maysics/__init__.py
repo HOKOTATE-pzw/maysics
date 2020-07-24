@@ -55,14 +55,9 @@ maysics-|- __init__
         |
         |- stats -----------|- DFT
         |
-        |- transformation --|- Cylinder
-        |                   |- Lorentz
-        |                   |- Polar
-        |                   |- Rotate
-        |                   |- Sphere
+        |- transformation
         |
-        |- utils -----------|- Edis
-        |                   |- Mdis
+        |- utils -----------|- rc
 '''
 
 import numpy as np

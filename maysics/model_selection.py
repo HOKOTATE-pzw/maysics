@@ -6,7 +6,7 @@ This module is ued for estimating and selecting models
 
 import numpy as np
 from matplotlib import pyplot as plt
-from maysics.utils import data_split
+from maysics.preprocess import data_split
 
 
 class Estimate():
@@ -74,10 +74,6 @@ class Estimate():
         random_state: int, callable, random seed
         '''
         self.__num_epochs = num_epochs
-        val_loss = np.zeros(num_epochs)
-        val_acc = np.zeros(num_epochs)
-        loss = np.zeros(num_epochs)
-        acc = np.zeros(num_epochs)
         np.random.seed(random_state)
         
         if shuffle:
@@ -144,10 +140,6 @@ class Estimate():
         '''
         self.__num_epochs = num_epochs
         num_validation_samples = len(self.data) // k
-        val_loss = np.zeros(num_epochs)
-        val_acc = np.zeros(num_epochs)
-        loss = np.zeros(num_epochs)
-        acc = np.zeros(num_epochs)
         np.random.seed(random_state)
         
         for i in range(n):

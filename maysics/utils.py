@@ -341,161 +341,138 @@ class rc():
             plt.xticks(n_list, index)
             plt.yticks(n_list, index)
         plt.savefig(filename)
+    
+    
 
-
-
-class Edis():
+def e_distance(p1, p2):
     '''
-    欧式距离
+    求某两个点之间的欧式距离
+    
+    参数
+    ----
+    p1：一维数组，第一个点的位置
+    p2：一维数组，第二个点的位置
+    
+    
+    Calculate the Euclidean distance between two points
+    
+    Parameters
+    ----------
+    p1: 1-D list, the location of the first point
+    p2: 1-D list, the location of the second point
+    '''
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    
+    return sum((p1 - p2)**2)**0.5
+    
+    
+def e_distances(data, des='o'):
+    '''
+    求data到目标点的欧式距离
     
     参数
     ----
     data：一维或二维列表，数据
+    des：字符串或一维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
     
-    Euclidean distance
+    Calculate the Euclidean distances between data and destination
     
-    Parameters
-    ----------
+    Parameter
+    ---------
     data: 1-D or 2-D list, data
+    des: str or 1-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
     '''
-    def __init__(self, data):
-        self.__data = np.array(data, dtype=np.float)
-        
-        if len(self.__data.shape) < 3:
-            self.__n = data.shape[-1]
-        else:
-            raise Exception("Parameter 'data' must be 1-D or 2-D.")
-    
-    
-    @classmethod
-    def distance(self, p1, p2):
-        '''
-        求某两个点之间的距离
-        
-        参数
-        ----
-        p1：一维数组，第一个点的位置
-        p2：一维数组，第二个点的位置
-        
-        
-        Calculate the distance between two points
-        
-        Parameters
-        ----------
-        p1: 1-D list, the location of the first point
-        p2: 1-D list, the location of the second point
-        '''
-        p1 = np.array(p1)
-        p2 = np.array(p2)
-        
-        return sum((p1 - p2)**2)**0.5
-    
-    
-    def distances(self, des='o'):
-        '''
-        求data到目标点距离
-        
-        参数
-        ----
-        des：字符串或一维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
-        
-        
-        Calculate the distance between data and destination
-        
-        Parameter
-        ---------
-        des: str or 1-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
-        '''
-        if des == 'o' or des == 'O':
-            des = np.zeros(self.__n)
-    
-        elif des == 'mean':
-            des = self.__data.mean(axis=0)
-        
-        else:
-            des = np.array(des)
-    
-        self.__data -= des
-        self.__data = self.__data**2
-        result = self.__data.sum(axis=len(self.__data.shape)-1)
-        result = result**0.5
-        
-        return result
+    data = np.array(data, dtype=np.float)
+    if len(data.shape) < 3:
+        n = data.shape[-1]
+    else:
+        raise Exception("Parameter 'data' must be 1-D or 2-D.")
 
+    if des == 'o' or des == 'O':
+        des = np.zeros(n)
 
+    elif des == 'mean':
+        des = data.mean(axis=0)
+        
+    else:
+        des = np.array(des)
+    
+    data -= des
+    data = data**2
+    result = data.sum(axis=len(data.shape)-1)
+    result = result**0.5
+    
+    return result
 
-class Mdis():
+    
+def m_distance(data, p1, p2):
     '''
-    马氏距离
+    求某两个点之间的马氏距离
     
     参数
     ----
     data：二维列表，数据
+    p1：一维或二维数组，第一个点的位置
+    p2：一维或二维数组，第二个点的位置
     
     
-    Mahalanobis distance
+    Calculate the Mahalanobis distance between two points
     
     Parameters
     ----------
     data: 2-D list, data
+    p1: 1-D or 2-D list, the location of the first point
+    p2: 1-D or 2-D list, the location of the second point
     '''
-    def __init__(self, data):
-        self.__data = np.mat(data, dtype=np.float)
-        self.__dataT = self.__data.T
-        
-        if len(self.__data.shape) != 2:
-            raise Exception("Parameter 'data' must be 2-D.")
-        
-        self.__SI = np.mat(np.cov(self.__dataT)).I
+    data = np.mat(data, dtype=np.float)
+    dataT = data.T
+    
+    if len(data.shape) != 2:
+        raise Exception("Parameter 'data' must be 2-D.")
+    
+    SI = np.mat(np.cov(dataT)).I
+
+    p1 = np.mat(p1, dtype=np.float)
+    p2 = np.mat(p2, dtype=np.float)
+    result = (p1 - p2) * SI * (p1 - p2).T
+    
+    return result[0, 0]**0.5
+
+
+def m_distances(data, des='o'):
+    '''
+    求data到目标点的马氏距离
+    
+    参数
+    ----
+    data：二维列表，数据
+    des：字符串或一维或二维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
     
-    def distance(self, p1, p2):
-        '''
-        求某两个点之间的距离
-        
-        参数
-        ----
-        p1：一维或二维数组，第一个点的位置
-        p2：一维或二维数组，第二个点的位置
-        
-        
-        Calculate the distance between two points
-        
-        Parameters
-        ----------
-        p1: 1-D or 2-D list, the location of the first point
-        p2: 1-D or 2-D list, the location of the second point
-        '''
-        p1 = np.mat(p1, dtype=np.float)
-        p2 = np.mat(p2, dtype=np.float)
-        result = (p1 - p2) * self.__SI * (p1 - p2).T
-        
-        return result[0, 0]**0.5
+    Calculate the Mahalanobis distance between data and destination
     
+    Parameter
+    ---------
+    data: 2-D list, data
+    des: str or 1-D or 2-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+    '''
+    data = np.mat(data, dtype=np.float)
+    dataT = data.T
     
-    def distances(self, des='o'):
-        '''
-        求data到目标点距离
-        
-        参数
-        ----
-        des：字符串或一维或二维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
-        
-        
-        Calculate the distance between data and destination
-        
-        Parameter
-        ---------
-        des: str or 1-D or 2-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
-        '''
-        if des == 'o' or des == 'O':
-            des = np.zeros(self.__data.shape[-1])
-        
-        elif des == 'mean':
-            des = self.__data.mean(axis=0)
-        
-        else:
-            des = np.mat(des)
-        
-        return np.diag((self.__data - des) * self.__SI *(self.__dataT - des.T))**0.5
+    if len(data.shape) != 2:
+        raise Exception("Parameter 'data' must be 2-D.")
+    
+    SI = np.mat(np.cov(dataT)).I
+
+    if des == 'o' or des == 'O':
+        des = np.zeros(data.shape[-1])
+    
+    elif des == 'mean':
+        des = data.mean(axis=0)
+    
+    else:
+        des = np.mat(des)
+    
+    return np.diag((data - des) * SI *(dataT - des.T))**0.5

@@ -4,7 +4,7 @@
 This module is used for data preproccessing
 '''
 import numpy as np
-from utils import Edis
+from maysics.utils import e_distances
 
 
 def shuffle(*arg):
@@ -236,17 +236,13 @@ def normalizer(data, index=None):
     data = np.array(data, dtype=np.float)
     
     if index:
-        distance_list = data[:, index]**2
-        distance_list = distance_list.sum(axis=1)**0.5
-        distance_list = np.array([distance_list]).T
+        distance_list = e_distances(data[:, index])
         distance_list[distance_list == 0] = 1
         print(distance_list)
         data[:, index] /= distance_list
     
     else:
-        distance_list = data**2
-        distance_list = distance_list.sum(axis=1)**0.5
-        distance_list = np.array([distance_list]).T
+        distance_list = e_distances(data)
         distance_list[distance_list == 0] = 1
         print(distance_list)
         data /= distance_list
