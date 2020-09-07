@@ -1,68 +1,41 @@
 '''
 本库用于科学计算和快速建模
 
-maysics主要包括九个模块：
+maysics主要包括十一个模块：
 
 1、algorithm 封装了几种模拟方法，用于简易模拟；
 2、calculus 封装了部分常见的算符算子和积分方法，辅助数学运算；
 3、constant 储存了部分常数；
-4、model_selection 用于评估和选择模型；
-5、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
-6、preprocess 用于数据预处理；
-7、stats 用于统计分析；
-8、transformation 储存了常用的坐标转换及其他数学变换；
-9、utils 是额外工具箱。
+4、equation 封装了部分方程求解运算；
+5、graph 用于图论分析；
+6、model_selection 用于评估和选择模型；
+7、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
+8、preprocess 用于数据预处理；
+9、stats 用于统计分析；
+10、transformation 储存了常用的坐标转换及其他数学变换；
+11、utils 是额外工具箱。
 
 
 This package is used for scientific calculating and fast modeling.
 
-maysics includes nine modules:
+maysics includes eleven modules:
 
 1. "algorithm" packages several simulation methods for simple simulation;
 2. "calculus" packages some common operators and integration method to assist in mathematical operations;
 3. "constant" contents some usual constants;
-4. "model_selection" used for estimating and selecting model;
-5. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
-6. "preprocess" is used for data preproccessing;
-7. "stats" is uesd for statistical analysis;
-8. "transformation" stores common coordinate transformations and other mathematical transformations;
-9. "utils" is extra Utils.
-
-maysics-|- __init__
-        |
-        |- algorithm -------|- GA
-        |                   |- MC
-        |                   |- SA
-        |
-        |- calculus --------|- Del
-        |                   |- Inte
-        |
-        |- constant --------|- LP
-        |
-        |- model_selection -|- Error
-        |                   |- Estimate
-        |                   |- Search
-        |                   |- Sense
-        |
-        |- models ----------|- ED
-        |                   |- Fouriers_law
-        |                   |- Leslie
-        |                   |- Logistic
-        |                   |- MVD_law
-        |                   |- Plancks_law
-        |
-        |- preprocess
-        |
-        |- stats -----------|- DFT
-        |
-        |- transformation
-        |
-        |- utils -----------|- rc
+4. "equation" packages some equation solving operation;
+5. "grapg" used for graph theory analysis;
+6. "model_selection" used for estimating and selecting model;
+7. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
+8. "preprocess" is used for data preproccessing;
+9. "stats" is uesd for statistical analysis;
+10. "transformation" stores common coordinate transformations and other mathematical transformations;
+11. "utils" is extra Utils.
 '''
 
 import numpy as np
 import pickle
-from maysics import algorithm, calculus, constant, model_selection, models, preprocess, stats, transformation, utils
+from maysics import algorithm, calculus, constant, equation, graph, model_selection, models, preprocess, stats, transformation, utils
 
 
 def arr(f):
@@ -165,7 +138,7 @@ def sub(minuend, subtrahend):
     return obj
 
 
-def divi(dividend, divisor):
+def div(dividend, divisor):
     '''
     实现函数与同型函数、函数与数之间的除法
     要求作用函数若输出列表，必须是ndarray格式

@@ -19,11 +19,11 @@ URL = 'https://github.com/HOKOTATE-pzw/maysics.git'
 EMAIL = 'pangzewei2010@foxmail.com'
 AUTHOR = 'HOKOTATE'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-     'matplotlib >= 3.2.0', 'numpy >= 1.18.1', 'scipy >= 1.3.0',
+     'matplotlib >= 3.2.0', 'numpy >= 1.18.1', 'scipy >= 1.3.0', 'lxml >= 4.5.2',
 ]
 
 # What packages are optional?

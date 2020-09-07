@@ -13,7 +13,7 @@ golden: 黄金比例 / golden ratio
 K: 兰道-拉马努金常数 / Landau–Ramanujan constant
 K0: 辛钦常数 / Khintchine constant
 pi: 圆周率 / Ratio of circumference to diameter
-LP(): 勒让德多项式 / Legendre Polynomials
+lp(): 勒让德多项式 / Legendre Polynomials
 
 
 物理方面 / physics
@@ -63,96 +63,57 @@ chaos_1 = 4.669201609102990           #第一费根鲍姆常数
 chaos_2 = 2.502907875095892           #第二费根鲍姆常数
 K0 = 2.6854520010                     #辛钦常数
 
-class LP():
+
+def lpN(l):
     '''
-    勒让德多项式
+    l阶勒让德多项式的模
+    
+    参数
+    ----
+    l：整型，阶数
+    
+    返回值：一个数
     
     
-    Legendre Polynomials
+    module of Legendre Polynomials at degree l
+    
+    Paramater
+    ---------
+    l: int, degree
+    
+    return: a number
     '''
-    @classmethod
-    def N(self, l):
-        '''
-        l阶勒让德多项式的模
-        
-        参数
-        ----
-        l：整型，阶数
-        
-        返回值：一个数
-        
-        
-        module of Legendre Polynomials at degree l
-        
-        Paramater
-        ---------
-        l: int, degree
-        
-        return: a number
-        '''
-        return (2 / (2 * l + 1))**0.5
+    return (2 / (2 * l + 1))**0.5
     
-    @classmethod
-    def P(self, x, l):
-        '''
-        l阶勒让德多项式的值
-        
-        参数
-        ----
-        x：输入值
-        l：整型，阶数
-        
-        返回值：一个数
-        
-        
-        value of Legendre Polynomials at degree l
-        
-        Parameters
-        ----------
-        x: input value
-        l: int, degree
-        
-        return: a number
-        '''
-        result = 0
-        for k in range(int(l/2) + 1):
-            result += (-1)**k * factorial(2 * l - 2 * k)\
-            / 2**l / factorial(k) / factorial(l - k) / factorial(l - 2 * k)\
-            * x**(l - 2 * k)
-        return result
+
+def lp(x, l):
+    '''
+    l阶勒让德多项式的值
     
-    @classmethod
-    def P_mat(self, x, l):
-        '''
-        l阶勒让德多项式的值的矩阵
-        
-        参数
-        ----
-        x: 输入值
-        l：列表形式，阶数的起止列表
-        
-        返回值：numpy.matrix
-        
-        
-        matrix of values of Legendre Polynomials at degree l
-        
-        Parameters
-        ----------
-        x: input value
-        l: list, the begin l and the end l
-        
-        return: numpy.matrix
-        '''
-        result_matrix = []
-        for i in range(l[0], l[1] + 1):
-            result = 0
-            for k in range(int(i/2) + 1):
-                result += (-1)**k * factorial(2 * i - 2 * k)\
-                / 2**i / factorial(k) / factorial(i - k) / factorial(i - 2 * k)\
-                * x**(i - 2 * k)
-            result_matrix.append(result)
-        return np.mat(result_matrix)
-        
+    参数
+    ----
+    x：输入值
+    l：整型，阶数
+    
+    返回值：一个数
+    
+    
+    value of Legendre Polynomials at degree l
+    
+    Parameters
+    ----------
+    x: input value
+    l: int, degree
+    
+    return: a number
+    '''
+    result = 0
+    for k in range(int(l/2) + 1):
+        result += (-1)**k * factorial(2 * l - 2 * k)\
+        / 2**l / factorial(k) / factorial(l - k) / factorial(l - 2 * k)\
+        * x**(l - 2 * k)
+    return result
+
 
 
 # physics

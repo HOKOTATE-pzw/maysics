@@ -44,7 +44,7 @@ class Estimate():
         return train_data, train_targets, validation_data, validation_targets
 
 
-    def keras_normal(self, build_model, num_epochs, batch_size, train_size=None, val_size=None, param=None, shuffle=True, random_state=None):
+    def keras_normal(self, build_model, num_epochs, batch_size, train_size=None, val_size=None, param={}, shuffle=True, random_state=None):
         ''' 
         对keras模型或与keras模型相同架构的模型进行数据分割和训练
         
@@ -70,7 +70,7 @@ class Estimate():
         train_size: float, callable, ratio of training set to total data, value range is (0, 1], default=0.75
         val_size: float, callable, ratio of test set to total data, value range is [0, 1)
         shuffle: bool, callable, 'True' will shuffle the data, 'False' will not, default = True
-        param: dict, callable, when build_model() has non-default parameters, param needs to be input a dictionary with parm_name as key and param_value as value
+        param: dict, callable, when build_model() has non-default parameters, 'param' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
         random_state: int, callable, random seed
         '''
         self.__num_epochs = num_epochs
@@ -109,7 +109,7 @@ class Estimate():
         self.history = history.history
     
     
-    def keras_rekfold(self, build_model, num_epochs, batch_size, k=5, n=3, shuffle=True, param=None, random_state=None):
+    def keras_rekfold(self, build_model, num_epochs, batch_size, k=5, n=3, shuffle=True, param={}, random_state=None):
         '''
         对keras模型或与keras模型相同架构的模型进行重复的k折验证
         
@@ -135,7 +135,7 @@ class Estimate():
         k: int, callable, the number of k-fold, default = 5
         n: int, callable, the number of repetition of k-fold, default = 3
         shuffle: bool, callable, 'True' will shuffle the data, 'False' will not, default = True
-        param: dict, callable, when build_model() has non-default parameters, param needs to be input a dictionary with parm_name as key and param_value as value
+        param: dict, callable, when build_model() has non-default parameters, 'param' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
         random_state: int, callable, random seed
         '''
         self.__num_epochs = num_epochs

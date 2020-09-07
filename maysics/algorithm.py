@@ -15,7 +15,7 @@ class MC():
     参数
     ----
     loop：整型，可选，循环次数，默认为1000
-    random_type：字符串类型，可选，可以取'random'和'randint'，默认'random'
+    random_type：字符串类型或函数类型，可选，可以取'random'、'randint'或自定义函数(无参数，需输出length * dim的二维ndarray)，默认'random'
     random_state：整型，可选，随机种子
     begin：整型，可选，表示整数随机序列的开始数字，仅当random_type='randint'时起作用
     end：整型，可选，表示整数随机序列的结束数字，仅当random_type='randint'时起作用
@@ -33,7 +33,7 @@ class MC():
     Parameters
     ----------
     loop: int, callable, loop count, default = 10000
-    random_type: str, callable, 'random' and 'randint' are optional, default = 'random'
+    random_type: str or function, callable, 'random', 'randint' and function(no parameter, output a 2-D ndarray with size length * dim) are optional, default = 'random'
     random_state: int, callable, random seed
     begin: int, callable, beginning number of the random sequence, it's used only when random_type='randint'
     end: int, callable, end number of the random sequence, it's used only when random_type='randint'
@@ -175,7 +175,7 @@ class MC():
             random_list_ = np.random.randint(self.__begin, self.__end, size=(length, dimen))
         
         else:
-            raise Exception("'random_type' must be one of 'random' and 'randint'.")
+            random_list_ = self.random_type()
 
         #如果随机序列满足select，就算实验成功输出1，否则算失败输出0
         if type(select).__name__ == 'function':

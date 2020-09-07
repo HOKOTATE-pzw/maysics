@@ -15,6 +15,7 @@ When calling operators in the module, pay attention to:
 import numpy as np
 from scipy import constants as C
 from maysics.utils import grid_net
+from matplotlib import pyplot as plt
 
 
 def lim(func, x0, acc=0.01, method='both'):
@@ -325,8 +326,8 @@ class Del():
 
 
 
-class inte():
-    def __init__(self, condition=None, method='rect', dim=1, random_state=None):
+class Inte():
+    def __init__(self, method='rect', dim=1):
         '''
         定积分
         
@@ -341,7 +342,6 @@ class inte():
         
         参数
         ----
-        condition：函数类型，可选，条件函数，符合条件的输出Ture，否则输出False，条件函数的输入须为1维数组
         method：字符串类型，可选'rect'、'mc'，默认为'rect'
         dim：整型，1表示被积函数的输入为1维数组，适用于普通自定义函数，2表示被积函数的输入为2维数组，适用于机器学习模型，默认为1
         
@@ -363,7 +363,6 @@ class inte():
         
         Parameters
         ----------
-        condition: function, callable, condition function with input as 1-D list, if input if qualified, ouput True, otherwise output False
         method: str, callable, 'rect' and 'mc' are optional, default='rect'
         dim: int, 1 means the input of integrand is 1-D list, like normal functions, 2 means the input of integrand is 2-D list, like machine learning models, default=1
         
@@ -371,7 +370,6 @@ class inte():
         ---------
         history: list, stores every integral result
         '''
-        self.__condition = condition
         self.method = method
         self.__dim = dim
         self.history = []
@@ -383,7 +381,7 @@ class inte():
             raise Exception("Parameter 'method' must be one of 'rect' and 'mc'.")
     
     
-    def __mc_fit(self, func, area, loop, height, random_state):
+    def __mc_fit(self, func, area, condition, param, loop, height, random_state):
         '''
         蒙特卡洛法
         
@@ -402,13 +400,13 @@ class inte():
         effect_points = 0
         if self.__dim == 1:
             for i in range(loop):
-                if func_points[i] <= func(area_points[i]) and self.__condition(area_points[i]):
+                if func_points[i] <= func(area_points[i]) and condition(area_points[i], **param):
                     effect_points += 1
         
         elif self.__dim == 2:
             func_points_2 = func(area_points)
             for i in range(loop):
-                if func_points[i] <= func_points_2[i] and self.__condition(area_points[i]):
+                if func_points[i] <= func_points_2[i] and condition(area_points[i], **param):
                     effect_points += 1
         
         effect_points_rate = effect_points / loop
@@ -416,7 +414,7 @@ class inte():
         return V * effect_points_rate
     
     
-    def __rect_fit(self, func, area, acc):
+    def __rect_fit(self, func, area, condition, parm, acc):
         '''
         矩形法
         
@@ -434,14 +432,14 @@ class inte():
         if self.__dim == 1:
             func_points=[]
             for i in points_net:
-                if self.__condition(i):
+                if condition(i, **param):
                     func_points.append(func(i))
             func_points = np.array(func_points) * dv
         
         elif self.__dim == 2:
             points_net = points_net.tolist()
             for i in points_net[:]:
-                if not self.__condition(i):
+                if not condition(i, **param):
                     points_net.remove(i)
             points_net = np.array(points_net)
             func_points = func(points_net) * dv
@@ -449,7 +447,7 @@ class inte():
         return func_points.sum()
     
     
-    def fit(self, func, area,  acc=0.1, loop=10000, height=1, random_state=None):
+    def fit(self, func, area, condition=None, param={}, acc=0.1, loop=10000, height=1, dim=1, random_state=None):
         '''
         积分
         
@@ -457,6 +455,8 @@ class inte():
         ----
         func：函数类型，被积函数
         area：二维列表，积分区域
+        condition：函数类型，可选，条件函数，符合条件的输出Ture，否则输出False，条件函数的第一个参数的输入须为1维数组
+        param：字典类型，可选，当条件函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         acc：浮点数或列表类型，可选，积分精度，只有method='rect'时才有效，默认为0.1
         loop：整型，可选，产生的随机数数目，只有method='mc'时才有效，默认为10000
         height：浮点数类型，可选，高度，只有method='mc'时才有效，默认为1
@@ -469,6 +469,8 @@ class inte():
         ----------
         func: function, integrand
         area: 2-D list, integral region
+        condition: function, callable, condition function with the input of the first parameter as 1-D list, if input if qualified, ouput True, otherwise output False
+        param: dict, callable, when condtition function has other non-default parameters, 'param' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
         acc: float or list, callable, integration accuracy, it's effective only when method='rect', default=0.1
         loop: int, callable, the number of generated random numbers, it's effective only when method='mc', default=10000
         height: float, callable, height, it's effective only when method='mc', default=1
@@ -477,10 +479,10 @@ class inte():
         if self.method == 'rect':
             if type(acc).__name__ == 'float' or type(acc).__name__ == 'int':
                 acc = np.ones(len(area)) * acc
-            self.history.append(inte.__rect_fit(self, func=func, area=area, acc=acc))
+            self.history.append(inte.__rect_fit(self, func=func, area=area, condition=condition, param=param, acc=acc))
         
         elif self.method == 'mc':
-            self.history.append(inte.__mc_fit(self, func=func, area=area, 
+            self.history.append(inte.__mc_fit(self, func=func, area=area, condition=condtion, param=param,
                                               loop=loop, height=height, random_state=random_state))
     
     
@@ -492,3 +494,61 @@ class inte():
         Clear the history
         '''
         self.history = []
+    
+    
+    def show(self, x=None, scatter=False):
+        '''
+        作积分值图并显示
+        
+        参数
+        ----
+        x：列表类型，可选，自变量
+        scatter：布尔类型，可选，True代表绘制散点图，False代表绘制折线图，默认为False
+        
+        
+        Display the integral value image
+        
+        Parameters
+        ----------
+        x: list, callable, independent variable
+        scatter: bool, callable, 'True' means drawing the scatter image, 'False' means drawing the line image, default=False
+        '''
+        if not x:
+            x = np.arange(len(self.history))
+        
+        if not scatter:
+            plt.plot(x, self.history)
+        else:
+            plt.scatter(x, self.history)
+        
+        plt.show()
+    
+    
+    def savefig(self, filename, x=None, scatter=False):
+        '''
+        作积分值图并储存
+        
+        参数
+        ----
+        filename：字符串类型，文件名
+        x：列表类型，可选，自变量
+        scatter：布尔类型，可选，True代表绘制散点图，False代表绘制折线图，默认为False
+        
+        
+        Save the integral value image
+        
+        Parameters
+        ----------
+        filename: str, file name
+        x: list, callable, independent variable
+        scatter: bool, callable, 'True' means drawing the scatter image, 'False' means drawing the line image, default=False
+        '''
+        if not x:
+            x=np.arange(len(self.history))
+        
+        if not scatter:
+            plt.plot(x, self.history)
+        else:
+            plt.scatter(x, self.history)
+        
+        plt.savefig(filename)

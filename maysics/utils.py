@@ -6,6 +6,10 @@ This module is extra Utils
 
 import numpy as np
 from matplotlib import pyplot as plt
+from urllib import request
+from lxml import etree
+from urllib import parse
+import string
 
 
 def time_before(time_list, time, itself=False, sep=True):
@@ -262,10 +266,16 @@ def grid_net(*args):
     '''
     生成网格点
     将输入的列表遍历组合
+    如：
+    grid_net([a, b], [c, d]) 或 grid_net(*[[a, b], [c, d]])
+    返回：array([[a, c], [b, c], [a, d], [b, d]])
     
     
     Generate grid
     traverse and combine the input list
+    e.g.
+    grid_net([a, b], [c, d]) or grid_net(*[[a, b], [c, d]])
+    return: array([[a, c], [b, c], [a, d], [b, d]])
     '''
     net = np.meshgrid(*args)
     for i in range(len(net)):
@@ -476,3 +486,133 @@ def m_distances(data, des='o'):
         des = np.mat(des)
     
     return np.diag((data - des) * SI *(dataT - des.T))**0.5
+
+
+class Crawler():
+    '''
+    用于简单的爬虫
+    
+    参数
+    ----
+    url：链接
+    headers：字典类型，可选
+    encoding：编码类型
+    timeout：等待时间，单位为秒，默认为全局时间
+    
+    属性
+    ----
+    html：爬取的html文本
+    
+    
+    Used for simple web crawlers
+    
+    Parameters
+    ----------
+    url: URL
+    headers: dict, callable
+    encoding: encode type
+    timeout: waiting time, in seconds, default to global time
+    
+    Attribute
+    ---------
+    html: crawled html text
+    '''
+    def __init__(self, url, headers={}, encoding='utf-8', timeout=None):
+        url = parse.quote(url, safe = string.printable)
+        
+        if url[:4] == 'http':
+            self.__file = False
+            r = request.Request(url, headers=headers)
+            self.__response = request.urlopen(r, timeout=timeout)
+            self.html = self.__response.read().decode(encoding)
+        else:
+            self.__file = True
+            with open(url) as self.__response:
+                self.html = self.__response.read()
+    
+    
+    def getcode(self):
+        '''
+        获取http状态码
+        
+        
+        Get http status code
+        '''
+        if not self.__file:
+            return self.__response.getcode()
+        else:
+            return 'local'
+    
+    
+    def xpath_find(self, nod):
+        '''
+        以XPath的方式查找节点
+        
+        参数
+        ----
+        nod：字符串类型，节点
+        
+        
+        Find nodes with XPath
+        
+        Parameter
+        ---------
+        nod: str, nod
+        '''
+        html = etree.HTML(self.html)
+        return html.xpath(nod)
+    
+    
+    def easy_find(self, nod, search='text'):
+        '''
+        以列表形式查找节点
+        
+        参数
+        ----
+        nod：字符串或一维、二维列表形式，列表形式为[节点名, 匹配属性]，若仅用到一个节点且无需属性匹配，可用字符串；若用到多个节点，则使用二维列表
+            例如：
+            要查找<div> text </div>中的text，则可以
+            nod='div'
+            
+            要查找<div, class="class-name"><a> text </a></div>中的text，则可以
+            nod=[['div', 'class="class-name"'], [a]]
+        search：要查找的内容，可以是属性和文本，默认为'text'
+        
+        
+        Find nodes with list
+        
+        Parameters
+        ----------
+        nod: str, 1-D or 2-D list, the form of the list is [node name, matching attribute], if only one node is used and no attribute matching is required, string is available; if multiple nodes are used, then use 2-D list
+            e.g.
+            to find the text in <div> text </div>
+            nod='div'
+            
+            to find the text in <div, class = "class name"><a> text </a></div>
+            nod=[['div', 'class="class-name"'], [a]]
+        search: the content to be searched, attribute or text, default='text'
+        '''
+        nod_list = ''
+        
+        if not nod:
+            pass
+        
+        elif isinstance(nod, str):
+            nod_list = '//' + nod
+        
+        elif not isinstance(nod[0], list):
+            nod = [nod]
+            for i in nod:
+                if len(i) == 1:
+                    nod_list = nod_list + '//' + i[0]
+                else:
+                    nod_list = nod_list + '//' + i[0] + '[@' + i[1] + ']'
+        
+        if search == 'text':
+            nod_list += '//text()'
+        
+        else:
+            nod_list = nod_list + '@' + search
+        
+        html = etree.HTML(self.html)
+        return html.xpath(nod_list)
