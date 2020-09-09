@@ -17,12 +17,20 @@ class Estimate():
     targets：ndarray形式，因变量
     verbose：整型，可选，可以是0、1、2，默认为0
     
+    属性
+    ----
+    history：历史评估值
+    
     
     Parameters
     ----------
     data: ndarray
     targets: ndarray
     verbose: int, callable, can be 0, 1, 2, default = 0
+    
+    Attribute
+    ---------
+    history: estimation values
     '''
     def __init__(self, data, targets, verbose=0):
         self.data = data
@@ -272,8 +280,8 @@ class Search():
     targets: dependent variable
     verbose: int, callable, can be 0, 1, 2, default = 0
     
-    Atrributes
-    ----------
+    Atrribute
+    ---------
     comb: the best combination
     '''
     def __init__(self, data, targets, verbose=0):
@@ -351,9 +359,6 @@ class Search():
             final_epoch = val_m_loc[final_loc]
             
             return final_dict, final_val_m, final_epoch
-            self.collocation = {'collocation': final_dict,
-                                'loss': final_val_m,
-                                'epoch': final_epoch}
         
         elif select_method[1] == 'min':
             final_loc = np.argmax(val_m)
@@ -362,9 +367,6 @@ class Search():
             final_epoch = val_m_loc[final_loc]
             
             return final_dict, final_val_m, final_epoch
-            self.collocation = {'collocation': final_dict,
-                                'acc': final_val_m,
-                                'epoch': final_epoch}
     
     
     def gridsearch(self, build_model, num_epochs, batch_size, param, k=5, n=1, select_method=('loss', 'min'), shuffle=True, random_state=None):
@@ -532,7 +534,7 @@ class Sense():
     
     参数
     ----
-    func：函数类型，模型的预测函数
+    func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
     x_index：列表类型，可选，需要求灵敏度的特征索引列表，默认为全部
     acc：浮点数类型，可选，求导的精度，默认为0.05
     
@@ -550,7 +552,7 @@ class Sense():
     
     Parameters
     ----------
-    func: function, predicting function of models
+    func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
     x_index: list, callable, index of features whose sensitivity needs to be calculated, default to all
     acc: float, callable, accuracy of derivation, default=0.05
     
@@ -570,31 +572,58 @@ class Sense():
         '''
         参数
         ----
-        x0：特征的初始值
+        x0：数，1-D或2-D ndarray，特征的初始值
         
         
         Parameter
         ---------
-        x0: initial values of features
+        x0: num, 1-D or 2-D ndarray, initial values of features
         '''
-        if not self.x_index:
-            self.x_index = range(len(x0))
-        
         acc2 = 2 * self.acc
         func0 = self.__func(x0)
         self.prediction.append(func0)
         s_list = []
         
-        for i in self.x_index:
-            x0[i] += self.acc
+        if len(np.array(x0).shape) == 0:
+            #func仅输入一个数
+            x0 += self.acc
             func1 = self.__func(x0)
-            x0[i] -= acc2
+            x0 -= acc2
             func2 = self.__func(x0)
-            de = (func1 - func2) / (acc2 * func0) * x0[i]
-            x0[i] += self.acc
-            s_list.append(de)
+            de = (func1 - func2) / (acc2 * func0) * x0
+            self.s_mat.append(de)
         
-        self.s_mat.append(s_list)
+        elif len(np.array(x0).shape) == 1:
+            x0 = np.array(x0)
+            if not self.x_index:
+                self.x_index = range(len(x0))
+            
+            for i in self.x_index:
+                x0[i] += self.acc
+                func1 = self.__func(x0)
+                x0[i] -= acc2
+                func2 = self.__func(x0)
+                de = (func1 - func2) / (acc2 * func0) * x0[i]
+                x0[i] += self.acc
+                s_list.append(de)
+            
+            self.s_mat.append(s_list)
+        
+        elif len(np.array(x0).shape) == 2:
+            x0 = np.array(x0)
+            if not self.x_index:
+                self.x_index = range(len(x0[0]))
+            
+            for i in self.x_index:
+                x0[0][i] += self.acc
+                func1 = self.__func(x0)
+                x0[0][i] -= acc2
+                func2 = self.__func(x0)
+                de = (func1 - func2) / (acc2 * func0) * x0[0][i]
+                x0[0][i] += self.acc
+                s_list.append(de)
+            
+            self.s_mat.append(s_list)
     
     
     def clr(self):

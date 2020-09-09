@@ -64,7 +64,7 @@ class Scatter():
         func_list = []
         self.y_new = []
         for i in range(len(self.x)):
-            func = interp1d(self.x[i], self.y[i], kind)
+            func = interp1d(self.x[i], self.y[i], kind=kind)
             func_list.append(func)
             self.y_new.append(func(self.x_new))
         

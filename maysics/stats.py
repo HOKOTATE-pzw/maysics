@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from scipy.integrate import quad
 from scipy.stats import chi2
 from scipy.optimize import minimize
-
+from scipy.interpolate import interp1d
 
 
 def r_moment(data, a=None, b=None, k=1):
@@ -226,6 +226,91 @@ def mle(func, data, num, p_range=(-1, 1), method=None, tol=None):
     res = minimize(Lmin, x0, method=method, constraints=constraints, tol=tol)
         
     return res.x
+
+
+
+class DF1d():
+    '''
+    一维分布拟合
+    用频率分布函数逼近概率密度函数
+    
+    参数
+    ----
+    sample：1-D列表，样本点
+    span：1-D列表，区间间隔，如span = [a, b, c]则将区间分为[a, b]和[b, c]，并统计各区间频率
+    kind：浮点数类型或整型，可选，将插值类型指定为字符串('linear'、'nearest'、'zero'、'slinear'、'squardic'、'previous'、'next'，其中'zero'、'slinear'、'squared'和'cubic'表示零阶、一阶、二阶或三阶样条曲线插值；'previous'和'next'只返回点的上一个或下一个值)或作为一个整数指定要使用的样条曲线插值器的顺序。默认为'linear'
+    
+    属性
+    ----
+    f：概率密度函数
+    
+    
+    One-dimension distribution fitting
+    Approximation of probability density function by frequency distribution function
+    
+    Parameters
+    ----------
+    sample: 1-D list, samples
+    span: 1-D list, span of intervals, e.g. span = [a, b, c] will divide the interval into [a, b] and [b, c], and count the frequency of each interval
+    kind: float or int, callable, specifies the kind of interpolation as a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'previous', 'next', where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first, second or third order; 'previous' and 'next' simply return the previous or next value of the point) or as an integer specifying the order of the spline interpolator to use. default='linear'
+    
+    Attribution
+    -----------
+    f: probability density function
+    '''
+    def __init__(self, sample, span, kind='linear'):
+        x_list = []
+        y_list = []
+        sample = np.array(sample)
+        total_num = len(sample)
+        for i in range(len(span)-1):
+            num = len(sample[sample < span[i+1]]) - len(sample[sample < span[i]])
+            y_list.append(num / total_num)
+            x_list.append(0.5 * (span[i] + span[i+1]))
+        self.f = interp1d(x_list, y_list, kind=kind)
+        self.__minmax = [min(x_list), max(x_list)]
+    
+    
+    def show(self, acc=0.01):
+        '''
+        作图并显示
+        
+        参数
+        ----
+        acc：浮点数类型，精度
+        
+        
+        Display the image
+        
+        Parameters
+        ----------
+        acc: float, accuracy
+        '''
+        x = np.arange(self.__minmax[0], self.__minmax[1], acc)
+        plt.plot(x, self.f(x))
+        plt.show()
+    
+    
+    def savefig(self, filename, acc=0.01):
+        '''
+        作图并保存
+        
+        参数
+        ----
+        filename：字符串类型，保存的文件名
+        acc：浮点数类型，精度
+        
+        
+        Save the image
+        
+        Parameters
+        ----------
+        filename: str, file name
+        acc: float, accuracy
+        '''
+        x = np.arange(self.__minmax[0], self.__minmax[1], acc)
+        plt.plot(x, self.f(x))
+        plt.savefig(filename)
 
 
 

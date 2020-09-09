@@ -5,53 +5,81 @@ This module stores some commonly used mathematical physical equations, laws, mat
 '''
 
 import numpy as np
-from maysics.calculus import Del
 from maysics import constant
 from scipy.integrate import solve_ivp
 from scipy.sparse import csr_matrix
 
 
-class Fouriers_law(Del):
+def Fouriers_law(T0, T, k, acc=0.1):
     '''
     傅里叶定律/热传导定律
     热流量：J=-k▽T
     
     参数
     ----
-    k：热导率
+    T0：一维列表，某一位置的温度
+    T：函数类型，温度分布函数
+    k：浮点数类型，热导率
     acc：浮点数类型，可选，求导精度，默认为0.1
     
     
     Fourier's Law: J=-k▽T
     
-    Parameters
-    ----------
-    k: coefficient of thermal conductivity
+    Parameter
+    ---------
+    T0: 1-D list, the temperature of one point
+    T: function, temperature distribution function
+    k: float, coefficient of thermal conductivity
     acc: float, callable, accuracy of derivation, default=0.1
     '''
-    def __init__(self, k, acc=0.1):
-        self.acc = acc
-        self.k = k
-    
-    
-    def fit(self, T):
-        '''
-        参数
-        ----
-        T：温度分布函数
-        
-        
-        Parameter
-        ---------
-        T: temperature distribution function
-        '''
-        j = Del.grad(self, T)
-        def j2(x):
-            j1 = -self.k * j(x)
-            return j1
-        
-        self.J = j2
+    T0 = np.array(T0, dtype=float)
+    dim = len(T0)
+    result = []
+    for i in range(dim):
+        T0[i] += acc
+        func1 = T(T0)
+        T0[i] -= 2 * acc
+        func2 = T(T0)
+        T0[i] += acc
+        de = (func1 - func2) / (acc + acc)
+        result.append(de)
+    result = np.array(result)
+    return -k * result
 
+
+def Logistic(t, N0, r, K):
+    '''
+    Logistic人口增长模型
+    该模型可得到解析解
+    解的形式为：Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
+    其中，Nt是t时刻的人口数
+    
+    参数
+    ----
+    t：时间
+    N0：数，现有人口数
+    r：数，人口自然增长率
+    K：数，环境资源允许的稳定人口数
+    
+    返回值：Nt
+    
+    
+    Logisyic population growth models
+    solution: Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
+    Nt is the population at time 't'
+    
+    Parameters
+    ----------
+    t: time
+    N0: number or list, initial population
+    r: number, natural population growth rate
+    K: number, stable population allowed by environmental resources
+    
+    return: Nt
+    '''
+    Nt_pre_down_ = N0 + (K - N0) * np.e**(-r * t)
+    Nt = K * N0 / Nt_pre_down_
+    return Nt
 
 
 class MVD_law():
@@ -341,6 +369,10 @@ class Leslie():
     s：数，各年龄层到下一个年龄层的存活率
     age_range：整型，年龄段的跨度，默认为1
     
+    属性
+    ----
+    Leslie_matrix：莱斯利矩阵
+    
     
     Leslie model
     solution: Nt = M**t * N0
@@ -352,6 +384,10 @@ class Leslie():
     r: number, reproductive rate of each age group
     s: number, survival rate to next age group of each group
     age_range: int, the span of age groups, default=1
+    
+    Attribute
+    ---------
+    Leslie_matrix: Leslie matrix 
     '''
     def __init__(self, N0, r, s, age_range=1):
         self.N0 = np.mat(N0).T
@@ -384,55 +420,4 @@ class Leslie():
         t_times = t // self.age_range
         dense_Leslie_matrix = self.Leslie_matrix.todense()
         Nt = dense_Leslie_matrix**t_times * self.N0
-        return Nt
-
-
-
-class Logistic():
-    '''
-    Logistic人口增长模型
-    该模型可得到解析解
-    解的形式为：Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
-    其中，Nt是t时刻的人口数
-    
-    参数
-    ----
-    N0：数，现有人口数
-    r：数，人口自然增长率
-    K：数，环境资源允许的稳定人口数
-    
-    
-    Logisyic population growth models
-    solution: Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
-    Nt is the population at time 't'
-    
-    Parameters
-    ----------
-    N0: number or list, initial population
-    r: number, natural population growth rate
-    K: number, stable population allowed by environmental resources
-    '''
-    def __init__(self, N0, r, K):
-        self.N0 = N0
-        self.r = r
-        self.K = K
-    
-    
-    def predict(self, t):
-        '''
-        参数
-        ----
-        t：时间
-        
-        返回值：Nt
-        
-        
-        Parameter
-        ---------
-        t: time
-        
-        return: Nt
-        '''
-        Nt_pre_down_ = self.N0 + (self.K - self.N0) * np.e**(-self.r * t)
-        Nt = self.K * self.N0 / Nt_pre_down_
         return Nt

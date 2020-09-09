@@ -288,10 +288,26 @@ class rc():
     '''
     相关系数
     
+    参数
+    ----
+    *arg：列表类型
+    
+    属性
+    ----
+    rc_mat：相关系数矩阵
+    
     
     correlation coefficient
+    
+    Parameter
+    ---------
+    *arg: list
+    
+    Attribute
+    ---------
+    rc_mat: correlation coefficient matrix
     '''
-    def fit(self, *arg):
+    def __init__(self, *arg):
         arg = np.array(arg, dtype=float)
         if len(arg.shape) != 2:
             raise Exception("Input list should be 1-D.")
@@ -309,11 +325,15 @@ class rc():
     
     def show(self, index=None, cmap='Blues'):
         '''
+        作图并显示
+        
         参数
         ----
         index：列表形式，可选，各数组名称
         cmap：字符串形式，可选，颜色板，默认为'Blues'
         
+        
+        Display the image
         
         Parameters
         ----------
@@ -331,12 +351,16 @@ class rc():
     
     def savefig(self, filename, index=None, cmap='Blues'):
         '''
+        作图并保存
+        
         参数
         ----
         filename：字符串形式，文件名
         index：列表形式，可选，各数组名称
         cmap：字符串形式，可选，颜色板，默认为'Blues'
         
+        
+        Save the image
         
         Parameters
         ----------
