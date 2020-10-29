@@ -1,3 +1,8 @@
+'''
+本模块用于部分方程求解运算
+
+This module is used for solving equations
+'''
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
@@ -156,3 +161,35 @@ class Scatter():
         '''
         Scatter.__image_process(self, scatter=scatter)
         plt.savefig(filename)
+
+
+
+def linear(A, b):
+    '''
+    求解线性方程组Ax = b
+    
+    参数
+    ----
+    A: 二维列表，系数矩阵
+    b：二维列表
+    
+    返回
+    ----
+    二维ndarray，方程的解
+    
+    
+    Solve linear system of equations Ax = b
+    
+    Parameters
+    ----------
+    A: 2-D list, coefficient matrix
+    b: 2-D list
+    
+    Return
+    ------
+    2-D ndarray, the solution of the equations
+    '''
+    A = np.array(A)
+    b = np.array(b)
+    A = np.linalg.pinv(A)
+    return np.dot(A, b)

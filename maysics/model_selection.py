@@ -9,6 +9,20 @@ from matplotlib import pyplot as plt
 from maysics.preprocess import data_split
 
 
+def _part_of_kfold(self, num_validation_samples, num_part):
+        validation_data = self.data[num_validation_samples * num_part:
+                                    num_validation_samples * (num_part + 1)]
+        validation_targets = self.targets[num_validation_samples * num_part:
+                                          num_validation_samples * (num_part + 1)]
+        
+        train_data = np.concatenate([self.data[: num_validation_samples * num_part],
+                                     self.data[num_validation_samples * (num_part + 1):]])
+        train_targets = np.concatenate([self.targets[: num_validation_samples * num_part],
+                                        self.targets[num_validation_samples * (num_part + 1):]])
+        
+        return train_data, train_targets, validation_data, validation_targets
+
+
 class Estimate():
     '''
     参数
@@ -36,20 +50,6 @@ class Estimate():
         self.data = data
         self.targets = targets
         self.__verbose = verbose
-    
-    
-    def __part_of_kfold(self, num_validation_samples, num_part):
-        validation_data = self.data[num_validation_samples * num_part:
-                                    num_validation_samples * (num_part + 1)]
-        validation_targets = self.targets[num_validation_samples * num_part:
-                                          num_validation_samples * (num_part + 1)]
-        
-        train_data = np.concatenate([self.data[: num_validation_samples * num_part],
-                                     self.data[num_validation_samples * (num_part + 1):]])
-        train_targets = np.concatenate([self.targets[: num_validation_samples * num_part],
-                                        self.targets[num_validation_samples * (num_part + 1):]])
-        
-        return train_data, train_targets, validation_data, validation_targets
 
 
     def keras_normal(self, build_model, num_epochs, batch_size, train_size=None, val_size=None, param={}, shuffle=True, random_state=None):
@@ -160,7 +160,7 @@ class Estimate():
                 np.random.shuffle(local_targets)
             for j in range(k):
                 train_data, train_targets,\
-                validation_data, validation_targets = Estimate.__part_of_kfold(
+                validation_data, validation_targets = _part_of_kfold(
                     self, num_validation_samples=num_validation_samples, num_part=j)
                 
                 if param:
@@ -290,20 +290,6 @@ class Search():
         self.__verbose = verbose
     
     
-    def __part_of_kfold(self, num_validation_samples, num_part):
-        validation_data = self.data[num_validation_samples * num_part:
-                                    num_validation_samples * (num_part + 1)]
-        validation_targets = self.targets[num_validation_samples * num_part:
-                                          num_validation_samples * (num_part + 1)]
-        
-        train_data = np.concatenate([self.data[: num_validation_samples * num_part],
-                                     self.data[num_validation_samples * (num_part + 1):]])
-        train_targets = np.concatenate([self.targets[: num_validation_samples * num_part],
-                                        self.targets[num_validation_samples * (num_part + 1):]])
-        
-        return train_data, train_targets, validation_data, validation_targets
-    
-    
     def __part_of_gridsearch(self, build_model, num_epochs, batch_size, param, k, n, select_method, verbose, shuffle):
         num_validation_samples = len(self.data) // k
         
@@ -332,7 +318,7 @@ class Search():
                     np.random.shuffle(local_targets)
                 for j in range(k):
                     train_data, train_targets,\
-                    validation_data, validation_targets = Search.__part_of_kfold(
+                    validation_data, validation_targets = _part_of_kfold(
                         self, num_validation_samples=num_validation_samples, num_part=j)
                     model = build_model(**param_dict)
                     history = model.fit(train_data, train_targets,

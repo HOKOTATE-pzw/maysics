@@ -73,7 +73,9 @@ def dif(f, dim=0, acc=0.05):
     dim：整型，可选，对第dim个自变量求导，默认为0
     acc：浮点数类型，可选，求导的精度，默认为0.05
     
-    返回值：一个导函数
+    返回
+    ----
+    导函数
     
     
     derivative operator for multivariate function( same derivation to each component)
@@ -86,7 +88,9 @@ def dif(f, dim=0, acc=0.05):
     dim: int, callable, derivation of the dim independent variable, default=0
     acc: float, callable, accuracy of derivation, default=0.05
     
-    return: a derivative function
+    Return
+    ------
+    derivative function
     '''
     def obj(x):
         x = np.array(x, dtype=float)
@@ -104,9 +108,9 @@ def dif(f, dim=0, acc=0.05):
 
 
 
-def H(f, m, U, acc=0.05):
+def ha(f, m, U, acc=0.05):
     '''
-    哈密顿算符：H = - hr**2 / 2m * ▽**2 + U
+    哈密顿算符：ha = - hr**2 / 2m * ▽**2 + U
     
     参数
     ----
@@ -115,8 +119,12 @@ def H(f, m, U, acc=0.05):
     U：数或函数，势能
     acc：浮点数类型，可选，求导的精度，默认为0.05
     
+    返回
+    ----
+    函数
     
-    Hamilton: H = - hr**2 / 2m * ▽**2 + U
+    
+    Hamilton: ha = - hr**2 / 2m * ▽**2 + U
     
     Parameters
     ----------
@@ -124,6 +132,10 @@ def H(f, m, U, acc=0.05):
     U: number or function, potential energy
     acc: float, callable, accuracy of derivation, default=0.05
     f: function
+    
+    Return
+    ------
+    function
     '''
     def obj(x):
         x = np.array(x, dtype=float)
@@ -178,7 +190,9 @@ class Del():
         f：函数，要求函数f返回一个数值
         dim：整型，求导的维度，默认全部求导
         
-        返回值：一个梯度函数
+        返回
+        ----
+        梯度函数▽f
         
         
         gradient of scalar function: ▽f(r)
@@ -188,7 +202,9 @@ class Del():
         f: function, the function should return a number
         dim: int, dimensions for derivation, default: all
         
-        return: a gradient function
+        Return
+        ------
+        gradient function ▽f
         '''
         def obj(x):
             x = np.array(x, dtype=float)
@@ -216,7 +232,9 @@ class Del():
         ----
         f：函数，要求函数f返回一个列表
 
-        返回值：一个新函数
+        返回
+        ----
+        函数▽·f
         
         
         dot product between ▽ and vector function: ▽·f(r)
@@ -225,7 +243,9 @@ class Del():
         ---------
         f: function, the function should return a list
         
-        return: a new function
+        Return
+        ------
+        function ▽·f
         '''
         def obj(x):
             x = np.array(x, dtype=float)
@@ -264,7 +284,9 @@ class Del():
         ----
         f：函数，要求函数是三维矢量函数
 
-        返回值：一个新函数
+        返回
+        ----
+        函数 ▽×f
         
         
         ▽ cross vector function: ▽×f(r)
@@ -273,7 +295,9 @@ class Del():
         ---------
         f: function, the function should be a three-dimension vector function
         
-        return: a new function
+        Return
+        ------
+        function ▽×f
         '''
         def obj(x):
             x = np.array(x, dtype=float)
@@ -297,7 +321,9 @@ class Del():
         ----
         f：函数
         
-        返回值：一个新函数
+        返回
+        ----
+        函数△f
         
         
         Laplace operator: △ = ▽**2
@@ -307,7 +333,9 @@ class Del():
         ---------
         f: function
         
-        return: a new function
+        Return
+        ------
+        function △f
         '''
         def obj(x):
             x = np.array(x, dtype=float)
@@ -399,22 +427,34 @@ class Inte():
         
         effect_points = 0
         if self.__dim == 1:
-            for i in range(loop):
-                if func_points[i] <= func(area_points[i]) and condition(area_points[i], **param):
-                    effect_points += 1
+            if not condition:
+                for i in range(loop):
+                    if func_points[i] <= func(area_points[i]):
+                        effect_points += 1
+            
+            else:
+                for i in range(loop):
+                    if func_points[i] <= func(area_points[i]) and condition(area_points[i], **param):
+                        effect_points += 1
         
         elif self.__dim == 2:
             func_points_2 = func(area_points)
-            for i in range(loop):
-                if func_points[i] <= func_points_2[i] and condition(area_points[i], **param):
-                    effect_points += 1
+            if not condition:
+                for i in range(loop):
+                    if func_points[i] <= func_points_2[i]:
+                        effect_points += 1
+            
+            else:
+                for i in range(loop):
+                    if func_points[i] <= func_points_2[i] and condition(area_points[i], **param):
+                        effect_points += 1
         
         effect_points_rate = effect_points / loop
         
         return V * effect_points_rate
     
     
-    def __rect_fit(self, func, area, condition, parm, acc):
+    def __rect_fit(self, func, area, condition, param, acc):
         '''
         矩形法
         
@@ -431,16 +471,23 @@ class Inte():
         
         if self.__dim == 1:
             func_points=[]
-            for i in points_net:
-                if condition(i, **param):
+            if not condition:
+                for i in points_net:
                     func_points.append(func(i))
+            
+            else:
+                for i in points_net:
+                    if condition(i, **param):
+                        func_points.append(func(i))
+            
             func_points = np.array(func_points) * dv
         
         elif self.__dim == 2:
             points_net = points_net.tolist()
-            for i in points_net[:]:
-                if not condition(i, **param):
-                    points_net.remove(i)
+            if condition:
+                for i in points_net[:]:
+                    if not condition(i, **param):
+                        points_net.remove(i)
             points_net = np.array(points_net)
             func_points = func(points_net) * dv
         
@@ -454,7 +501,9 @@ class Inte():
         参数
         ----
         func：函数类型，被积函数
-        area：二维列表，积分区域
+        area：二维列表，积分区域，由自变量上下限列表组成
+            如：积分区域为[a, b]时，area=[[a, b]]
+                积分区域为二维区域x1∈[a1, b1]，x2属于[a2, b2]时，area=[[a1, b1], [a2, b2]]
         condition：函数类型，可选，条件函数，符合条件的输出Ture，否则输出False，条件函数的第一个参数的输入须为1维数组
         param：字典类型，可选，当条件函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         acc：浮点数或列表类型，可选，积分精度，只有method='rect'时才有效，默认为0.1
@@ -468,7 +517,9 @@ class Inte():
         Parameters
         ----------
         func: function, integrand
-        area: 2-D list, integral region
+        area: 2-D list, integral region, composed of a list of upper and lower limits of independent variables
+            e.g. when the integral region is [a, b], area = [[a, b]]
+                 when the 2-D integral region is x1∈[a1, b1] and x2∈[a2, b2], area=[[a1, b1], [a2, b2]]
         condition: function, callable, condition function with the input of the first parameter as 1-D list, if input if qualified, ouput True, otherwise output False
         param: dict, callable, when condtition function has other non-default parameters, 'param' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
         acc: float or list, callable, integration accuracy, it's effective only when method='rect', default=0.1
@@ -479,10 +530,10 @@ class Inte():
         if self.method == 'rect':
             if type(acc).__name__ == 'float' or type(acc).__name__ == 'int':
                 acc = np.ones(len(area)) * acc
-            self.history.append(inte.__rect_fit(self, func=func, area=area, condition=condition, param=param, acc=acc))
+            self.history.append(Inte.__rect_fit(self, func=func, area=area, condition=condition, param=param, acc=acc))
         
         elif self.method == 'mc':
-            self.history.append(inte.__mc_fit(self, func=func, area=area, condition=condtion, param=param,
+            self.history.append(Inte.__mc_fit(self, func=func, area=area, condition=condition, param=param,
                                               loop=loop, height=height, random_state=random_state))
     
     

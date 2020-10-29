@@ -3,7 +3,7 @@
 
 This module contents some usual constants
 
-数学方面 / math
+数学 / math
 
 chaos_1: 第一费根鲍姆常数 / the first Feigenbaum constant
 chaos_2: 第二费根鲍姆常数 / the second Feigenbaum constant
@@ -14,9 +14,10 @@ K: 兰道-拉马努金常数 / Landau–Ramanujan constant
 K0: 辛钦常数 / Khintchine constant
 pi: 圆周率 / Ratio of circumference to diameter
 lp(): 勒让德多项式 / Legendre Polynomials
+lpN()：勒让德多项式的模 / Module of Legendre Polynomials
 
 
-物理方面 / physics
+物理 / physics
 
 AU: 天文单位 / astronomical unit
 atm: 标准大气压 / standard atmospheric pressure
@@ -47,6 +48,7 @@ SB: 斯特藩-玻尔兹曼常量 / Stefan-Boltzmann constant
 v1: 第一宇宙速度 / first cosmic velocity
 v2: 第二宇宙速度 / second cosmic velocity
 v3: 第三宇宙速度 / third cosmic velocity
+hp()：厄米多项式 / Hermite Polynomials
 '''
 
 import numpy as np
@@ -56,12 +58,12 @@ from scipy.special import factorial
 # math
 pi = 3.141592653589793
 e = 2.718281828459045
-golden = 1.618033988749895            #黄金比例
-gamma = 0.57721566490153286060651209  #欧拉-马歇罗尼常数
-K = 0.76422365358922066299069873125   #兰道-拉马努金常数
-chaos_1 = 4.669201609102990           #第一费根鲍姆常数
-chaos_2 = 2.502907875095892           #第二费根鲍姆常数
-K0 = 2.6854520010                     #辛钦常数
+golden = 1.618033988749895
+gamma = 0.57721566490153286060651209
+K = 0.76422365358922066299069873125
+chaos_1 = 4.669201609102990
+chaos_2 = 2.502907875095892
+K0 = 2.6854520010
 
 
 def lpN(l):
@@ -72,16 +74,20 @@ def lpN(l):
     ----
     l：整型，阶数
     
-    返回值：一个数
+    返回
+    ----
+    数类型
     
     
-    module of Legendre Polynomials at degree l
+    Module of Legendre Polynomials at degree l
     
     Paramater
     ---------
     l: int, degree
     
-    return: a number
+    Return
+    ------
+    num
     '''
     return (2 / (2 * l + 1))**0.5
     
@@ -92,20 +98,24 @@ def lp(x, l):
     
     参数
     ----
-    x：输入值
+    x：数，输入值
     l：整型，阶数
     
-    返回值：一个数
+    返回
+    ----
+    数
     
     
-    value of Legendre Polynomials at degree l
+    Value of Legendre Polynomials at degree l
     
     Parameters
     ----------
-    x: input value
+    x: num, input value
     l: int, degree
     
-    return: a number
+    Return
+    ------
+    num
     '''
     result = 0
     for k in range(int(l/2) + 1):
@@ -115,34 +125,87 @@ def lp(x, l):
     return result
 
 
-
 # physics
-atm = 101325                          #标准大气压
+atm = 101325
 c = 299792458.0
 c_e = 1.602176634e-19
-m_e = 9.1093837015e-31                #电子质量
-m_earth = 5.965e24                    #地球质量
-m_n = 1.67492749804e-27               #中子质量
-m_p = 1.67262192369e-27               #质子质量
-m_sun = 1.9891e30                     #太阳质量
+m_e = 9.1093837015e-31
+m_earth = 5.965e24
+m_n = 1.67492749804e-27
+m_p = 1.67262192369e-27
+m_sun = 1.9891e30
 G = 6.6743e-11
 g = 9.80665
 h = 6.62607015e-34
-hr = 1.0545718176461565e-34           #约化普朗克常数
-k = 1.380649e-23                      #玻尔兹曼常量
-miu = 1.2566370614359173e-06          #真空磁导率
-epsilon = 8.85e-12                    #真空介电常数
-NA = 6.02214179e23                    #阿伏伽德罗常数
+hr = 1.0545718176461565e-34
+k = 1.380649e-23
+miu = 1.2566370614359173e-06
+epsilon = 8.85e-12
+NA = 6.02214179e23
 R = 8.31446114959365
-r_earth = 6371393                     #地球平均半径
-r_sun = 6.955e8                       #太阳平均半径
-r_moon = 384403000                    #地月平均距离
-lambdac = 2.4263102175e-12            #康普顿波长
-ly = 9460730472580800                 #光年
-AU = 149597870700                     #天文单位
-pc = 3.0856775814671915808e16         #秒差距
-Platonic_year = 26000                 #柏拉图年
-SB = 5.670367e-8                      #斯特藩-玻尔兹曼常量
-v1 = 7900                             #第一宇宙速度
-v2 = 11200                            #第二宇宙速度
-v3 = 16700                            #第三宇宙速度
+r_earth = 6371393
+r_sun = 6.955e8
+r_moon = 384403000
+lambdac = 2.4263102175e-12
+ly = 9460730472580800
+AU = 149597870700
+pc = 3.0856775814671915808e16
+Platonic_year = 26000
+SB = 5.670367e-8
+v1 = 7900
+v2 = 11200
+v3 = 16700
+
+
+def hp(x, n, li=False):
+    '''
+    n阶厄米多项式
+
+    参数
+    ----
+    x：数，输入值
+    n：整型，阶数
+    li：布尔类型，可选，True表示将0到n阶勒让德多项式组成一维ndarray返回，默认为False
+
+    返回
+    ----
+    数或一维ndarray
+
+
+    Value of Hermite Polynomials at degree n
+
+    Parameters
+    ----------
+    x: num, input value
+    n: int, degree
+    li: bool, callable, True means that 0 to n order Legendre polynomials are formed into 1-D ndarray and returned, default=False
+    
+    Reuturn
+    -------
+    num or 1-D ndarray
+    '''
+    if n <= 0:
+        n = 0
+    
+    if not li:
+        if n == 0:
+            return 1
+
+        elif n == 1:
+            return 2 * x
+
+        else:
+            return 2 * x * hp(x, n-1) - 2 * (n-1) * hp(x, n-2)
+    
+    else:
+        hp_list = []
+        for i in range(n+1):
+            if i == 0:
+                hp_list.append(1)
+            
+            elif i == 1:
+                hp_list.append(2 * x)
+            
+            else:
+                hp_list.append(2 * x * hp_list[i-1] - 2 * (i-1) * hp_list[i-2])
+        return np.array(hp_list)

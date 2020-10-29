@@ -23,6 +23,10 @@ def r_moment(data, a=None, b=None, k=1):
     b：浮点数类型，可选，计算上限
     k：整型，可选，阶数
     
+    返回
+    ----
+    数，原点矩
+    
     
     Calculate raw moment
     
@@ -32,6 +36,10 @@ def r_moment(data, a=None, b=None, k=1):
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
     k: int, callable, orders
+    
+    Return
+    ------
+    num, raw moment
     '''
     if type(data).__name__ == 'function':
         def ex_func(x):
@@ -44,7 +52,7 @@ def r_moment(data, a=None, b=None, k=1):
         return data.mean()
 
 
-def EX(data, a=None, b=None):
+def ex(data, a=None, b=None):
     '''
     计算数学期望，等价于一阶原点矩
     
@@ -54,6 +62,10 @@ def EX(data, a=None, b=None):
     a：浮点数类型，可选，计算下限
     b：浮点数类型，可选，计算上限
     
+    返回
+    ----
+    数，数学期望
+    
     
     Calculate mathematical expectation, which is equivalent to one order raw moment
     
@@ -62,6 +74,10 @@ def EX(data, a=None, b=None):
     fdata: 1-D list or function, a sample or probability density function
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
+    
+    Return
+    ------
+    num, mathematical expectation
     '''
     if type(data).__name__ == 'function':
         def ex_func(x):
@@ -85,6 +101,10 @@ def c_moment(data, k, a=None, b=None):
     b：浮点数类型，可选，计算上限
     k：整型，可选，阶数
     
+    返回
+    ----
+    数，中心矩
+    
     
     Calculate central moment
     
@@ -94,8 +114,12 @@ def c_moment(data, k, a=None, b=None):
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
     k: int, callable, orders
+    
+    Return
+    ------
+    num, central moment
     '''
-    raw_exp = EX(data, a, b)
+    raw_exp = ex(data, a, b)
     
     if type(data).__name__ == 'function':
         def ex_func(x):
@@ -108,7 +132,7 @@ def c_moment(data, k, a=None, b=None):
         return r_moment(data, k=k)
 
 
-def DX(data, a=None, b=None):
+def dx(data, a=None, b=None):
     '''
     计算方差，等价于二阶中心矩
     
@@ -118,6 +142,10 @@ def DX(data, a=None, b=None):
     a：浮点数类型，可选，计算下限
     b：浮点数类型，可选，计算上限
     
+    返回
+    ----
+    数，方差
+    
     
     Calculate variance, which is equivalent to two orders central moment
     
@@ -126,6 +154,10 @@ def DX(data, a=None, b=None):
     data: 1-D list or function, a sample or probability density function
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
+    
+    Return
+    ------
+    num, variance
     '''
     return c_moment(data, 2, a, b)
 
@@ -140,6 +172,10 @@ def skew(data, a=None, b=None):
     a：浮点数类型，可选，计算下限
     b：浮点数类型，可选，计算上限
     
+    返回
+    ----
+    数，偏度
+    
     
     Calculate skewness, which is equivalent to three orders central moment
     
@@ -148,6 +184,10 @@ def skew(data, a=None, b=None):
     data: 1-D list or function, a sample or probability density function
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
+    
+    Return
+    ------
+    num, skewness
     '''
     return c_moment(data, 3, a, b)
 
@@ -162,6 +202,10 @@ def kurt(data, a=None, b=None):
     a：浮点数类型，可选，计算下限
     b：浮点数类型，可选，计算上限
     
+    返回
+    ----
+    数，峰度
+    
     
     Calculate kurtosis, which is equivalent to four orders central moment
     
@@ -170,6 +214,10 @@ def kurt(data, a=None, b=None):
     data: 1-D list or function, a sample or probability density function
     a: float, callable, lower limit of calculation
     b: float, callable, upper limit of calculation
+    
+    Return
+    ------
+    num, kurtosis
     '''
     return c_moment(data, 4, a, b)
 
@@ -189,6 +237,10 @@ def mle(func, data, num, p_range=(-1, 1), method=None, tol=None):
     p_range：一维或二维列表，未确定参数的取值范围，若为一维列表，则代表所有未确定参数的取值范围都一样，默认为(-1, 1)
     method：字符串类型，求最大值的方法，可选'Nelder-Mead'、'Powell'、'CG'、'BFGS'、'Newton-CG'、'L-BFGS-B'、'TNC'、'COBYLA'、'SLSQP'、'trust-constr'、'dogleg'、'trust-ncg'、'trust-exact'、'trust-krylov'
     tol：误差
+    
+    返回
+    ----
+    1-D ndarray，最佳的参数值
 
 
     Maximum Likelihood Estimate
@@ -204,6 +256,10 @@ def mle(func, data, num, p_range=(-1, 1), method=None, tol=None):
     p_range：1-D or 2-D list, value range of undetermined parameters, in case of one-dimensional list，all the undetermined parameters are in the same range, default=(-1, 1)
     method：str，the method of finding the maximum, 'Nelder-Mead'、'Powell'、'CG'、'BFGS'、'Newton-CG'、'L-BFGS-B'、'TNC'、'COBYLA'、'SLSQP'、'trust-constr'、'dogleg'、'trust-ncg'、'trust-exact'、'trust-krylov' are optional
     tol：error
+    
+    Return
+    ------
+    1-D ndarray, the best parameter value
     '''
     # 构建似然函数的相反数
     def Lmin(theta):

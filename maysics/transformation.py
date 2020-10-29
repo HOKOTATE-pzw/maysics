@@ -17,6 +17,10 @@ def lorentz(v, x):
     v：惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
     x：列表，(x, y, z, t)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Lorentz coordinate transformation, S ←→ S'
     
@@ -24,6 +28,10 @@ def lorentz(v, x):
     ----------
     v: relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
     x: list, (x, y, z, t)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     γ = 1 / (1 - (v / constant.c)**2)**0.5
     xp = γ * (x[0] - v * x[3])
@@ -43,6 +51,10 @@ def lorentz_v(v, vo):
     v：惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
     vo：列表，(vx, vy, vz)
     
+    返回
+    ----
+    1-D ndarray，转换后的速度
+    
     
     Lorentz speed transformation, S ←→ S'
     
@@ -50,6 +62,10 @@ def lorentz_v(v, vo):
     ----------
     v: relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
     vo: list, (vx, vy, vz)
+    
+    Return
+    ------
+    1-D ndarray, converted velocity
     '''
     γ = 1 / (1 - (v / constant.c)**2)**0.5
     factor = 1 - v * vo[0] / constant.c**2
@@ -68,12 +84,20 @@ def polar(x):
     ----
     x：列表，(x, y)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Polar positive transformation
     
     Parameters
     ----------
     x: list, (x, y)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     r = (x[0]**2 + x[1]**2)**0.5
     if x[0] == 0:
@@ -97,10 +121,18 @@ def ipolar(xp):
     ----
     xp：列表，(r, θ)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Parameters
     ----------
     xp: list, (r, θ)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     x = xp[0] * np.cos(xp[1])
     y = xp[0] * np.sin(xp[1])
@@ -116,12 +148,20 @@ def cylinder(x):
     ----
     x：列表，(x, y, z)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Cylinder positive transformation
     
     Parameters
     ----------
     x: list, (x, y, z)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     r = (x[0]**2 + x[1]**2)**0.5
     if x[0] == 0:
@@ -146,12 +186,20 @@ def icylinder(xp):
     ----
     xp：列表，(r, θ, z)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Cylinder inverse transformation
     
     Parameters
     ----------
     xp: list, (r, θ, z)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     x = xp[0] * np.cos(xp[1])
     y = xp[0] * np.sin(xp[1])
@@ -168,12 +216,20 @@ def sphere(x):
     ----
     x：列表，(x, y, z)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Sphere positive transformation
     
     Parameters
     ----------
     x: list, (x, y, z)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     r = (x[0]**2 + x[1]**2 + x[2]**2)**0.5
     if r == 0:
@@ -202,12 +258,20 @@ def isphere(xp):
     ----
     xp：列表，(r, θ, φ)
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Sphere inverse transformation
     
     Parameters
     ----------
     xp: list, (r, θ, φ)
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     x = xp[0] * np.sin(xp[2]) * np.cos(xp[1])
     y = xp[0] * np.sin(xp[2]) * np.sin(xp[1])
@@ -226,6 +290,10 @@ def rotate(theta, x):
     x：列表，(x, y)
     theta：浮点数类型，坐标系绕原点逆时针旋转的角度
     
+    返回
+    ----
+    1-D ndarray，转换后的坐标
+    
     
     Rotation transformation of plane rectangular coordinate system
     'theta' is positive when rotating anticlockwise and negative when rotating clockwise
@@ -234,6 +302,10 @@ def rotate(theta, x):
     ---------
     x: list, (x, y)
     theta: float, the angle that the coordinate system rotates counterclockwise about the origin
+    
+    Return
+    ------
+    1-D ndarray, converted coordinates
     '''
     xp = np.cos(theta) * x[0] + np.sin(theta) * x[1]
     yp = np.cos(theta) * x[1] - np.sin(theta) * x[0]

@@ -10,7 +10,7 @@ from scipy.integrate import solve_ivp
 from scipy.sparse import csr_matrix
 
 
-def Fouriers_law(T0, T, k, acc=0.1):
+def fouriers_law(T0, T, k, acc=0.1):
     '''
     傅里叶定律/热传导定律
     热流量：J=-k▽T
@@ -22,6 +22,10 @@ def Fouriers_law(T0, T, k, acc=0.1):
     k：浮点数类型，热导率
     acc：浮点数类型，可选，求导精度，默认为0.1
     
+    返回
+    ----
+    数，热流量
+    
     
     Fourier's Law: J=-k▽T
     
@@ -31,6 +35,10 @@ def Fouriers_law(T0, T, k, acc=0.1):
     T: function, temperature distribution function
     k: float, coefficient of thermal conductivity
     acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    num, heat flow
     '''
     T0 = np.array(T0, dtype=float)
     dim = len(T0)
@@ -47,7 +55,7 @@ def Fouriers_law(T0, T, k, acc=0.1):
     return -k * result
 
 
-def Logistic(t, N0, r, K):
+def logistic(t, N0, r, K):
     '''
     Logistic人口增长模型
     该模型可得到解析解
@@ -61,7 +69,9 @@ def Logistic(t, N0, r, K):
     r：数，人口自然增长率
     K：数，环境资源允许的稳定人口数
     
-    返回值：Nt
+    返回
+    ----
+    数，Nt
     
     
     Logisyic population growth models
@@ -75,7 +85,9 @@ def Logistic(t, N0, r, K):
     r: number, natural population growth rate
     K: number, stable population allowed by environmental resources
     
-    return: Nt
+    Return
+    ------
+    num, Nt
     '''
     Nt_pre_down_ = N0 + (K - N0) * np.e**(-r * t)
     Nt = K * N0 / Nt_pre_down_
@@ -85,38 +97,34 @@ def Logistic(t, N0, r, K):
 class MVD_law():
     '''
     麦克斯韦速率分布律
+    参数
+    ----
+    m：气体分子质量, 单位：kg
+    T：气体温度, 单位：K
+    
+    属性
+    ----
+    fv：速率分布函数
+    v_mean：平均速率
+    v_p：最概然速率
+    v_rms：均方根速率
     
     
     Maxwell's Velocity Distribution Law
+    
+    Parameters
+    ----------
+    m: mass of gas molecule, unit: kg
+    T: temperature of gas, unit: K
+    
+    Attributes
+    ----------
+    fv: velocity distribution function
+    v_mean: average velocity
+    v_p: most probable velocity
+    v_rms: root-mean-square velocity
     '''
-    @classmethod
-    def fit(self, m, T):
-        '''
-        参数
-        ----
-        m：气体分子质量, 单位：kg
-        T：气体温度, 单位：K
-        
-        属性
-        ----
-        fv：速率分布函数
-        v_mean：平均速率
-        v_p：最概然速率
-        v_rms：均方根速率
-        
-        
-        Parameters
-        ----------
-        m: mass of gas molecule, unit: kg
-        T: temperature of gas, unit: K
-        
-        Attributes
-        ----------
-        fv: velocity distribution function
-        v_mean: average velocity
-        v_p: most probable velocity
-        v_rms: root-mean-square velocity
-        '''
+    def __init__(self, m, T):
         def func_of_v(v):
             f_v_1 = 4 * np.pi * v**2
             f_v_2 = m / (2 * np.pi * constant.k * T)**1.5
@@ -135,6 +143,10 @@ class Plancks_law():
     '''
     普朗克黑体辐射定律
     
+    参数
+    ----
+    T：黑体温度，单位：K
+    
     属性
     ----
     Mf：频率形式的普朗克公式，频率单位：10^10 kHz
@@ -143,23 +155,16 @@ class Plancks_law():
     
     Planck's Blackbody Radiation Law
     
+    Parameter
+    ---------
+    T: temperature of blackbody, unit: K
+    
     Attributes
     ----------
     Mf: Planck's formula in the form of frequency, unit of frequency: 10^10 kHz
     Ml: Planck's formula in the form of wave length, unit of wave length: 100 nm
     '''
-    @classmethod
-    def fit(self, T):
-        '''
-        参数
-        ----
-        T：黑体温度，单位：K
-        
-        
-        Parameter
-        ---------
-        T: temperature of blackbody, unit: K
-        '''
+    def __init__(self, T):
         h_k = constant.h / constant.k
         def Mf(f):
             f = f * 1e13
@@ -222,14 +227,18 @@ class ED():
         该模型不需要再额外输入参数，且可得到解析解
         解的形式为：I = K*(1-(K-I0)/(K+I0+I0*np.e**(beta*K*t)))
 
-        返回值：元组形式，(I(t), S(t))
+        返回
+        ----
+        函数形式，函数的返回值为(I(t), S(t))
         
         
         SI:
         no more parameters
         solution: I = K*(1-(K-I0)/(K+I0+I0*np.e**(beta*K*t)))
         
-        return: tuple, (I(t), S(t))
+        Return
+        ------
+        function, the value returned by the function is (I(t), S(t))
         '''
         def obj(t):
             I_pre_down_ = self.K + self.I0 * (np.e**(self.beta * self.K * t) - 1)
@@ -252,7 +261,9 @@ class ED():
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
         t_eval：数组形式，可选，每当t等于该数组中的值时，会生成一个数值解
 
-        返回值：solve_ivp数值解，顺序是I, S, R
+        返回
+        ----
+        solve_ivp数值解，顺序是I, S, R
         
         
         SIR:
@@ -264,7 +275,9 @@ class ED():
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
         t_eval: list, callable, when 't' equals the value in the list, it will generate a numerical solution
         
-        return: numerical solution of solve_ivp, the order is I, S, R
+        Return
+        ------
+        numerical solution of solve_ivp, the order is I, S, R
         '''
         y0 = [self.I0, self.S, self.R]
         def epis_equas(t, x):
@@ -289,7 +302,9 @@ class ED():
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
         t_eval：数组形式，可选，每当t等于该数组中的值时，会生成一个数值解
 
-        返回值：solve_ivp数值解，顺序是I, S, R
+        返回
+        ----
+        solve_ivp数值解，顺序是I, S, R
         
         
         SIRS:
@@ -302,7 +317,9 @@ class ED():
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
         t_eval: list, callable, when 't' equals the value in the list, it will generate a numerical solution
         
-        return: numerical solution of solve_ivp, the order is I, S, R
+        Return
+        ------
+        numerical solution of solve_ivp, the order is I, S, R
         '''
         y0= [self.I0, self.S, self.R]
         def epis_equas(t, x):
@@ -328,7 +345,9 @@ class ED():
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
         t_eval：数组形式，可选，每当t等于该数组中的值时，会生成一个数值解
 
-        返回值：solve_ivp数值解，顺序是I, S, R, E
+        返回
+        ----
+        solve_ivp数值解，顺序是I, S, R, E
         
         
         SEIR:
@@ -342,7 +361,9 @@ class ED():
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
         t_eval: list, callable, when 't' equals the value in the list, it will generate a numerical solution
         
-        return: numerical solution of solve_ivp, the order is I, S, R, E
+        Return
+        ------
+        numerical solution of solve_ivp, the order is I, S, R, E
         '''
         y0 = [self.I0, self.S, self.R, self.E]
         def epis_equas(t, x):
@@ -408,14 +429,18 @@ class Leslie():
         ----
         t：时间
         
-        返回值：Nt
+        返回
+        ----
+        数，Nt
         
         
         Parameter
         ---------
         t: time
         
-        return: Nt
+        Return
+        ------
+        num, Nt
         '''
         t_times = t // self.age_range
         dense_Leslie_matrix = self.Leslie_matrix.todense()

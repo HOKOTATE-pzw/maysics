@@ -1,3 +1,8 @@
+'''
+本模块用于图论分析
+
+This module is used for graph theory analysis
+'''
 import numpy as np
 
 
@@ -12,6 +17,10 @@ def ek(G, ori, des):
     ori：整型，起点
     des：整型，终点
     
+    返回
+    ----
+    数类型，最大流
+    
     
     Edmond-Karp Algorithm
     Solve maximum flow problem by BFS
@@ -21,6 +30,10 @@ def ek(G, ori, des):
     G: adjacency matrix(the weight(flow) of the edge between non-adjacent nodes is inf, negative or 0)
     ori: int, origin
     des: int, destination
+    
+    Return
+    ------
+    num, maximum flow
     '''
     G = np.array(G, dtype=np.float)
     n = len(G)
@@ -72,7 +85,7 @@ def ek(G, ori, des):
             G[path[i], path[i+1]] += mindis
 
 
-def Kruskal(G):
+def kruskal(G):
     '''
     克鲁斯卡尔算法
     生成最小生成树
@@ -81,7 +94,9 @@ def Kruskal(G):
     ----
     G：图的邻接矩阵(非邻接点间的边权重为inf或负数)
     
-    返回值：列表，(权值，起点，终点)
+    返回
+    ----
+    2-D列表类型，每个一维元素为：[权值，起点，终点]
     
     
     Kruskal Algorithm
@@ -91,7 +106,9 @@ def Kruskal(G):
     ---------
     G: adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     
-    return: list, (weight, origin, destination)
+    Return
+    ------
+    2-D list, every element is [weight, origin, destination]
     '''
     G = np.array(G, dtype=np.float)
     n = len(G)
@@ -182,6 +199,10 @@ class Floyd():
         ori：整型，起点
         des：整型，终点
         
+        返回
+        ----
+        元组类型，(最短路径的长度, 最短路径(list))
+        
         
         Find the shortest path between two nodes
         
@@ -189,6 +210,10 @@ class Floyd():
         ----------
         ori: int, origin
         des: int, destination
+        
+        Return
+        ------
+        tuple, (the length of the path, path(list))
         '''
         if self.A[ori, des] == float('inf'):
             raise Exception('Unable to reach the destination from the origin.')
@@ -216,12 +241,20 @@ class Floyd():
         ----
         point：整型或浮点数类型，节点
         
+        返回
+        ----
+        元组类型，(最短环的长度, 最短环(list))
+        
         
         Find the shortest directed circle of a node
         
         Parameter
         ---------
         point: int or float, node
+        
+        Return
+        ------
+        tuple, (the length of the circle, circle(list))
         '''
         circle_distance_list = self.A[point] + self.A[:, point]
         circle_distance_list[point] = float('inf')
@@ -309,12 +342,20 @@ class Dijkstra():
         ----
         des：整型，终点
         
+        返回
+        ----
+        元组类型，(最短路径的长度, 最短路径(list))
+        
         
         Find the shortest path from ori to des
         
         Parameter
         ---------
         des: int, destination
+        
+        Return
+        ------
+        tuple, (the length of the path, path(list))
         '''
         if self.__path[des] == -1:
             raise Exception('Unable to reach the destination from the origin.')
@@ -332,3 +373,74 @@ class Dijkstra():
             path.reverse()
             
             return distance, path
+
+
+
+class Markov():
+    '''
+    马尔科夫链
+    
+    参数
+    ----
+    P：2-D ndarray，转移矩阵
+    
+    
+    Markov Chain
+    
+    Parameter
+    ---------
+    P: 2-D ndarray, transition matrix
+    '''
+    def __init__(self, P):
+        self.P = np.array(P)
+    
+    
+    def k(self, k):
+        '''
+        参数
+        ----
+        k：整型，步长
+        
+        返回
+        ----
+        2-D ndarray，k步转移矩阵
+        
+        
+        Parameter
+        ---------
+        k: int, length
+        
+        Return
+        ------
+        2-D ndarray, K-step transition matrix
+        '''
+        P0 = self.P
+        P = P0
+        for i in range(k-1):
+            P = np.dot(P, P0)
+        return P
+    
+    
+    def w(self):
+        '''
+        稳态分布
+        
+        返回
+        ----
+        1-D ndarray，稳态分布
+        
+        
+        Steady State Distribution
+        
+        Return
+        ------
+        1-D ndarray, steady state distribution
+        '''
+        A = self.P.T - np.identity(self.P.shape[0])
+        A = np.vstack((A, np.ones((1, A.shape[1]))))
+        b = np.zeros((self.P.shape[0] + 1, 1))
+        b[-1] = 1
+        Ai = np.linalg.pinv(A)
+        w = np.dot(Ai, b).T
+        w = w[0]
+        return w

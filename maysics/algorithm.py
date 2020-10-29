@@ -3,7 +3,6 @@
 
 This module stores Monte Carlo, Genetic Algorithm and Simulated Annealing Algorithm for simple simulation
 '''
-
 import random
 import numpy as np
 
@@ -63,7 +62,9 @@ class MC():
         ----
         condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
 
-        返回值：一个新函数
+        返回
+        ----
+        一个新函数
 
 
         for quick construction of condition function
@@ -74,7 +75,9 @@ class MC():
         ----------
         condition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
 
-        return: a new function
+        Return
+        ------
+        a new function
         '''
         def obj(x):
             for i in x:
@@ -95,7 +98,9 @@ class MC():
         n：int类型
         condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
 
-        返回值：一个新函数
+        返回
+        ----
+        一个新函数
 
 
         for quick construction of condition function
@@ -107,7 +112,9 @@ class MC():
         n: int
         condition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
 
-        return: a new function
+        Return
+        ------
+        a new function
         '''
         def obj(x):
             calcu_ = 0
@@ -134,7 +141,9 @@ class MC():
         n：int类型
         condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
 
-        返回值：一个新函数
+        返回
+        ----
+        一个新函数
 
 
         for quick construction of condition function
@@ -146,7 +155,9 @@ class MC():
         n: int
         condtition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
         
-        return: a new function
+        Return
+        ------
+        a new function
         '''
         def obj(x):
             calcu_ = 0
@@ -204,13 +215,13 @@ class MC():
             select若为函数列表，则要求每个函数只能输出1或0
 
         
-        simulate
+        Simulate
         
         Parameters
         ----------
         length: int, the length of random sequence
         dimen: int, dimension of elements in random sequence
-        select: function or function list, select function should take 2-dimension ndarray( length * dim) as independent variable
+        select: function or function list, select function should take 2-dimension ndarray(length * dim) as independent variable
             select function used for Identifying whether the random matrix meets the expectation, if meets, output 1, otherwise output 0
             select function can also output other values to meet the actual demand
             if select is a list, every function in the list can only output 1 or 0
@@ -391,11 +402,11 @@ class GA():
     def __st(self, parent_matrix, fitness, num_dead):
         '''
         随机竞争选择
-        num_dead: 死亡的数量
+        num_dead: 整型，死亡的数量
         
         
         Stochastic Tournament
-        num_dead: the number of dead individual
+        num_dead: int, the number of dead individual
         '''
         num_of_parents = len(parent_matrix)
         
@@ -443,16 +454,16 @@ class GA():
         
         参数
         ----
-        length：染色体长度
-        fitness：适应度函数
+        length：整型，染色体长度
+        fitness：函数类型，适应度函数
         
         
-        simulate
+        Simulate
         
         Parameters
         ----------
-        length: the length of chromosome
-        fitness: fitness function
+        length: int, the length of chromosome
+        fitness: funtion, fitness function
         '''
         self.__fitness = fitness
         if self.random_type == 'random':
@@ -536,7 +547,7 @@ class SA():
     solution: optimal solution
     value: function value of optimal solution
     '''
-    def __init__(self, anneal=0.9, step=1, n=10, random_state=None):
+    def __init__(self, anneal=0.9, step=0.1, n=10, random_state=None):
         self.anneal = anneal
         self.step = step
         self.n = n
@@ -547,24 +558,23 @@ class SA():
         '''
         参数
         ----
-        initial：列表，初始解
-        T：初始温度
-        T0：退火温度
+        initial：列表，初始解，select函数的输入值
+        T：浮点数类型，初始温度
+        T0：浮点数类型，退火温度
         select：函数，评估函数
         
         
         Parameters
         ----------
-        initial: list, initial solution
-        T: initial temperature
-        T0: annealing temperature
+        initial: list, initial solution, the input value of select function
+        T: float, initial temperature
+        T0: float, annealing temperature
         select: function, evaluation function
         '''
         initial = np.array(initial, dtype=np.float)
-        dim = len(initial)
         while T > T0:
             for i in range(self.n):
-                random_x = 2 * self.step * (np.random.rand(dim) - 0.5)
+                random_x = 2 * self.step * (np.random.rand(*initial.shape) - 0.5)
                 initial_copy = initial.copy()
                 initial_copy += random_x
                 if select(initial_copy) < select(initial):

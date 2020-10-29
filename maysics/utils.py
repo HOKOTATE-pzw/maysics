@@ -26,6 +26,10 @@ def time_before(time_list, time, itself=False, sep=True):
     itself：布尔类型，寻找时是否包括设定的时间点本身
     sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
     
+    返回
+    ----
+    元组形式，(筛选到的时间(列表), 筛选到的时间索引(列表))
+    
     
     Search special time
     search all then time in time list which are before the point you set
@@ -38,6 +42,10 @@ def time_before(time_list, time, itself=False, sep=True):
     time: str, the time point
     itself: bool, if include the time point itself when searching
     sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    
+    Return
+    ------
+    tuple, (filtered time(list), index of the filtered time(list))
     '''
     select_time = []
     select_index = []
@@ -76,6 +84,10 @@ def time_after(time_list, time, itself=False, sep=True):
     itself：布尔类型，寻找时是否包括设定的时间点本身
     sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
     
+    返回
+    ----
+    元组形式，(筛选到的时间(列表), 筛选到的时间索引(列表))
+    
     
     Search special time
     search all then time in time list which are after the point you set
@@ -88,6 +100,10 @@ def time_after(time_list, time, itself=False, sep=True):
     time: str, the time point
     itself: bool, if include the time point itself when searching
     sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    
+    Return
+    ------
+    tuple, (filtered time(list), index of the filtered time(list))
     '''
     select_time = []
     select_index = []
@@ -126,6 +142,10 @@ def time_equal(time_list, time, sep=True, equal=True):
     sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
     equal：布尔类型，True表示搜索与time相同的时间，False表示搜索与time不相同的时间
     
+    返回
+    ----
+    元组形式，(筛选到的时间(列表), 筛选到的时间索引(列表))
+    
     
     Search index of special time
     search all then time in time list which are the same as the point you set
@@ -138,6 +158,10 @@ def time_equal(time_list, time, sep=True, equal=True):
     time: list, the time point list
     sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
     equal: bool, True means searching the time in "time", False means searching the time not in "time"
+    
+    Return
+    ------
+    tuple, (filtered time(list), index of the filtered time(list))
     '''
     select_index = []
     select_time = []
@@ -187,6 +211,10 @@ def time_between(time_list, begin, end, begin_itself=False, end_itself=False, se
     end_itself：布尔类型，寻找时是否包括设定的结束时间点本身
     sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
     
+    返回
+    ----
+    元组形式，(筛选到的时间(列表), 筛选到的时间索引(列表))
+    
     
     Search special time
     search all then time in time list which are after the point you set
@@ -201,6 +229,10 @@ def time_between(time_list, begin, end, begin_itself=False, end_itself=False, se
     bengin_itself: bool, if include the beginning time point itself when searching
     end_itself: bool, if include the end time point itself when searching
     sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    
+    Return
+    ------
+    tuple, (filtered time(list), index of the filtered time(list))
     '''
     select_time = []
     select_index = []
@@ -282,99 +314,6 @@ def grid_net(*args):
         net[i] = net[i].flatten()
     net = np.vstack(tuple(net)).T
     return net
-
-
-class rc():
-    '''
-    相关系数
-    
-    参数
-    ----
-    *arg：列表类型
-    
-    属性
-    ----
-    rc_mat：相关系数矩阵
-    
-    
-    correlation coefficient
-    
-    Parameter
-    ---------
-    *arg: list
-    
-    Attribute
-    ---------
-    rc_mat: correlation coefficient matrix
-    '''
-    def __init__(self, *arg):
-        arg = np.array(arg, dtype=float)
-        if len(arg.shape) != 2:
-            raise Exception("Input list should be 1-D.")
-        
-        cov_mat = np.cov(arg)
-        var_mat = np.diagonal(cov_mat)**0.5
-        var_mat[var_mat == 0] = 1
-        
-        for i in range(cov_mat.shape[0]):
-            cov_mat[i] /= var_mat[i]
-            cov_mat[:, i] /= var_mat[i]
-        
-        self.rc_mat = cov_mat
-    
-    
-    def show(self, index=None, cmap='Blues'):
-        '''
-        作图并显示
-        
-        参数
-        ----
-        index：列表形式，可选，各数组名称
-        cmap：字符串形式，可选，颜色板，默认为'Blues'
-        
-        
-        Display the image
-        
-        Parameters
-        ----------
-        index: list, callable, names of each array
-        cmap: str, callable, color board, default='Blues'
-        '''
-        plt.matshow(self.rc_mat, cmap=cmap)
-        plt.colorbar()
-        if index:
-            n_list = range(len(index))
-            plt.xticks(n_list, index)
-            plt.yticks(n_list, index)
-        plt.show()
-    
-    
-    def savefig(self, filename, index=None, cmap='Blues'):
-        '''
-        作图并保存
-        
-        参数
-        ----
-        filename：字符串形式，文件名
-        index：列表形式，可选，各数组名称
-        cmap：字符串形式，可选，颜色板，默认为'Blues'
-        
-        
-        Save the image
-        
-        Parameters
-        ----------
-        filename: str, file name
-        index: list, callable, names of each array
-        cmap: str, callable, color board, default='Blues'
-        '''
-        plt.matshow(self.rc_mat, cmap=cmap)
-        plt.colorbar()
-        if index:
-            n_list = range(len(self.rc_mat))
-            plt.xticks(n_list, index)
-            plt.yticks(n_list, index)
-        plt.savefig(filename)
     
     
 
@@ -387,6 +326,10 @@ def e_distance(p1, p2):
     p1：一维数组，第一个点的位置
     p2：一维数组，第二个点的位置
     
+    返回
+    ---
+    浮点数类型，距离
+    
     
     Calculate the Euclidean distance between two points
     
@@ -394,6 +337,10 @@ def e_distance(p1, p2):
     ----------
     p1: 1-D list, the location of the first point
     p2: 1-D list, the location of the second point
+    
+    Return
+    ------
+    float, the distance
     '''
     p1 = np.array(p1)
     p2 = np.array(p2)
@@ -410,6 +357,10 @@ def e_distances(data, des='o'):
     data：一维或二维列表，数据
     des：字符串或一维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
+    返回
+    ----
+    ndarray类型，距离数组
+    
     
     Calculate the Euclidean distances between data and destination
     
@@ -417,6 +368,10 @@ def e_distances(data, des='o'):
     ---------
     data: 1-D or 2-D list, data
     des: str or 1-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+    
+    Return
+    ------
+    ndarray, the distances
     '''
     data = np.array(data, dtype=np.float)
     if len(data.shape) < 3:
@@ -451,6 +406,10 @@ def m_distance(data, p1, p2):
     p1：一维或二维数组，第一个点的位置
     p2：一维或二维数组，第二个点的位置
     
+    返回
+    ---
+    浮点数类型，距离
+    
     
     Calculate the Mahalanobis distance between two points
     
@@ -459,6 +418,10 @@ def m_distance(data, p1, p2):
     data: 2-D list, data
     p1: 1-D or 2-D list, the location of the first point
     p2: 1-D or 2-D list, the location of the second point
+    
+    Return
+    ------
+    float, the distance
     '''
     data = np.mat(data, dtype=np.float)
     dataT = data.T
@@ -484,6 +447,10 @@ def m_distances(data, des='o'):
     data：二维列表，数据
     des：字符串或一维或二维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
+    返回
+    ----
+    ndarray类型，距离数组
+    
     
     Calculate the Mahalanobis distance between data and destination
     
@@ -491,6 +458,10 @@ def m_distances(data, des='o'):
     ---------
     data: 2-D list, data
     des: str or 1-D or 2-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+    
+    Return
+    ------
+    ndarray, the distances
     '''
     data = np.mat(data, dtype=np.float)
     dataT = data.T
@@ -559,8 +530,16 @@ class Crawler():
         '''
         获取http状态码
         
+        返回
+        ----
+        整数类型或字符串类型，http状态码
+        
         
         Get http status code
+        
+        Return
+        ------
+        int or str, http status code
         '''
         if not self.__file:
             return self.__response.getcode()
@@ -576,12 +555,20 @@ class Crawler():
         ----
         nod：字符串类型，节点
         
+        返回
+        ----
+        字符串类型，查找到的内容
+        
         
         Find nodes with XPath
         
         Parameter
         ---------
         nod: str, nod
+        
+        Return
+        ------
+        str, found content
         '''
         html = etree.HTML(self.html)
         return html.xpath(nod)
@@ -602,6 +589,10 @@ class Crawler():
             nod=[['div', 'class="class-name"'], [a]]
         search：要查找的内容，可以是属性和文本，默认为'text'
         
+        返回
+        ----
+        字符串类型，查找到的内容
+        
         
         Find nodes with list
         
@@ -615,6 +606,10 @@ class Crawler():
             to find the text in <div, class = "class name"><a> text </a></div>
             nod=[['div', 'class="class-name"'], [a]]
         search: the content to be searched, attribute or text, default='text'
+        
+        Return
+        ------
+        str, found content
         '''
         nod_list = ''
         
