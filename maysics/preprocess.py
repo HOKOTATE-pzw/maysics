@@ -6,9 +6,172 @@ This module is used for data preproccessing
 import numpy as np
 from maysics.utils import e_distances
 from matplotlib import pyplot as plt
+plt.rcParams['font.sans-serif'] = ['FangSong']
+plt.rcParams['axes.unicode_minus'] = False
+from io import BytesIO
+from lxml import etree
+import base64
 
 
-def pad(seq, maxlen=None, value=0, padding='pre', dtype='int32'):
+def _rc(*arg):
+    cov_mat = np.cov(arg)
+    var_mat = np.diagonal(cov_mat)**0.5
+    var_mat[var_mat == 0] = 1
+    
+    for i in range(cov_mat.shape[0]):
+        cov_mat[i] /= var_mat[i]
+        cov_mat[:, i] /= var_mat[i]
+    
+    return cov_mat
+
+
+def _preview_process(data, value_round):
+    '''
+    预览处理
+    '''
+    data = np.array(data, dtype=np.float)
+    
+    name_list = ['平均值', '中位数', '方差', '标准差', '最大值', '最小值', '偏度', '峰度']
+    value_list = []
+    mean_ = data.mean(axis=0)
+    value_list.append(np.round(mean_, value_round))
+    value_list.append(np.round(np.median(data, axis=0), value_round))
+    value_list.append(np.round(data.var(axis=0), value_round))
+    value_list.append(np.round(data.std(axis=0), value_round))
+    value_list.append(np.round(data.max(axis=0), value_round))
+    value_list.append(np.round(data.min(axis=0), value_round))
+    value_list.append(np.round(((data - mean_)**3).mean(axis=0), value_round))
+    value_list.append(np.round(((data - mean_)**4).mean(axis=0), value_round))
+    value_list = np.array(value_list).flatten()
+    
+    style = '''
+    <style>
+    table{
+        border-collapse: collapse;
+    }
+    table, table tr td {
+        border:1px solid #ccc;
+    }
+    table tr td{
+        padding: 5px 10px;
+    }
+    </style>
+    '''
+    table = '<h2 style="padding-left:50px; border-top:1px solid #ccc">数值特征</h2>' + style + '<table align="center"><caption></caption>'
+    for i in range(8):
+        table += '<tr><td>' + name_list[i] + '</td>' + '<td>%s</td>' * data.shape[1] + '</tr>'
+    table = '<h1 style="padding-left:50px;">数据信息</h1>' + table % tuple(value_list) + '</table>'
+    
+    
+    data = data.T
+    num = data.shape[0]
+    plt.figure(figsize=(9, 3 * num))
+    for i in range(num):
+        q1, q2, q3 = np.percentile(data[i], [25, 50, 75])
+        plt.scatter(mean_[i], i+1, marker='o', color='white', s=30, zorder=3)
+        plt.hlines(i+1, q1, q3, color='k', linestyle='-', lw=1)
+    ax = plt.violinplot(data.tolist(), showextrema=False, vert=False)
+    plt.title('分布图')
+    
+    buffer = BytesIO()
+    plt.savefig(buffer)
+    plot_data = buffer.getvalue()
+    imb = base64.b64encode(plot_data)
+    ims = imb.decode()
+    imd = 'data:image/png;base64,' + ims
+    im1 = '<div align="center"><img src="%s"></div>' % imd
+    im1 = '<br></br><h2 style="padding-left:50px; border-top:1px solid #ccc">密度分布</h2>' + im1
+    
+    cov_mat = _rc(*data)
+    matrix = '<table border="0"><caption></caption>'
+    
+    for i in range(num):
+        matrix += '<tr>' + '<td>%s</td>' * num + '</tr>'
+    matrix = matrix % tuple(np.round(cov_mat.flatten(), value_round)) + '</table>'
+    
+    
+    plt.figure(figsize=(8, 8))
+    plt.matshow(cov_mat, fignum=0, cmap='Blues')
+    plt.colorbar()
+    plt.title('相关系数图')
+    
+    buffer = BytesIO()
+    plt.savefig(buffer)
+    plot_data = buffer.getvalue()
+    imb = base64.b64encode(plot_data)
+    ims = imb.decode()
+    imd = 'data:image/png;base64,' + ims
+    im2 = '<div style="display:flex;flex-direction:row;vertical-align:middle;justify-content:center;width:100%;height:80vh"><div style="margin:auto 0;white-space:pre-wrap;max-width:50%">'
+    im2 = im2 +'相关矩阵：'+ matrix + '</div><img style="object-fit:contain;max-width:45%;max-height:80vh" src="{}"/></div>'.format(imd)
+    im2 = '<br></br><h2 style="padding-left:50px; border-top:1px solid #ccc">相关性</h2>' + im2
+    
+    
+    plt.figure(figsize=(2.5 * num, 2.5 * num))
+    for i in range(num * num):
+        ax = plt.subplot(num, num, i+1)
+        ax.plot(data[i//num], data[i%num], 'o')
+    
+    buffer = BytesIO()
+    plt.savefig(buffer)
+    plot_data = buffer.getvalue()
+    imb = base64.b64encode(plot_data)
+    ims = imb.decode()
+    imd = "data:image/png;base64," + ims
+    im3 = '<div align="center"><img src="%s"></div>' % imd
+    im3 = '<br></br><h2 style="padding-left:50px; border-top:1px solid #ccc">散点关系</h2>' + im3
+    
+    return '<title>数据信息预览</title>' + table + im1 + im2 + im3
+
+
+def preview_file(filename, data, value_round=3):
+    '''
+    生成数据预览报告文件
+    
+    参数
+    ----
+    filename：字符串类型，文件名
+    data：二维数组，数据
+    value_round：整型，数字特征保留的小数点后的位数
+    
+    
+    Generate preview report file
+    
+    Parameters
+    ----------
+    filename: str, file name
+    data: 2-D array, data
+    value_round: int, the number of digits after the decimal point retained by numeric features
+    '''
+    root = _preview_process(data=data, value_round=value_round)
+    html = etree.HTML(root)
+    tree = etree.ElementTree(html)
+    tree.write(filename)
+
+
+def preview(data, value_round=3):
+    '''
+    显示数据预览报告
+    
+    参数
+    ----
+    data：二维数组，数据
+    value_round：整型，数字特征保留的小数点后的位数
+    
+    
+    Display preview report
+    
+    Parameters
+    ----------
+    data: 2-D array, data
+    value_round: int, the number of digits after the decimal point retained by numeric features
+    '''
+    root = _preview_process(data=data, value_round=value_round)
+    
+    from IPython.core.display import display, HTML
+    display(HTML(root))
+
+
+def length_pad(seq, maxlen=None, value=0, padding='pre', dtype='int32'):
     '''
     填充二维列表，使得每行长度都为maxlen
     
@@ -61,6 +224,82 @@ def pad(seq, maxlen=None, value=0, padding='pre', dtype='int32'):
                 seq[i] = seq[i][:maxlen]
     
     return np.array(seq, dtype=dtype)
+
+
+def sample_pad(data, index=0, padding=None):
+    '''
+    对二维数据进行样本填充
+    先对data中的每个二维数据进行遍历，以各个index列的值作为全集，再对data的每个二维数据进行填充
+    如：data1 = [[0, 1],
+                 [1, 2],
+                 [2, 3]]
+        data2 = [[2, 3],
+                 [3, 4],
+                 [4, 5]]
+        data = (data1, data2)
+        则得到输出：
+        output = [array([[0, 1],
+                        [1, 2],
+                        [2, 3],
+                        [3, nan],
+                        [4, nan]]),
+                  
+                  array([[0, nan],
+                         [1,nan],
+                         [2, 3],
+                         [3, 4],
+                         [4, 5]])]
+    
+    data：元组或列表类型，数据
+    index：整型，作为扩充全集的标准列的索引
+    padding：填充值，可选，默认为None
+    
+    
+    Sample filling for 2D data
+    Values of each index column will be taken as the complete set, then each two-dimensional data of data is padded
+    e.g. data1 = [[0, 1],
+                 [1, 2],
+                 [2, 3]]
+         data2 = [[2, 3],
+                  [3, 4],
+                  [4, 5]]
+         data = (data1, data2)
+         output = [array([[0, 1],
+                          [1, 2],
+                          [2, 3],
+                          [3, nan],
+                          [4, nan]]),
+                    
+                    array([[0, nan],
+                           [1,nan],
+                           [2, 3],
+                           [3, 4],
+                           [4, 5]])]
+    
+    data: tuple or list, data
+    index: int, the index of a standard column as an extended complete set
+    padding: padding value, optional, default=None
+    '''
+    time_set = set()
+    result = []
+    if not padding:
+        padding = [np.nan] * (len(data[0][0]) - 1)
+    else:
+        padding = list(padding)
+    
+    for i in range(len(data)):
+        data_part = np.array(data[i], dtype=np.object)
+        result.append(data_part)
+        time_set = time_set | set(data_part[:, index])
+    
+    for i in range(len(result)):
+        different_set_list = np.array([list(time_set - set(result[i][:, index]))], dtype=np.object).T
+        num = len(different_set_list)
+        padding_new = np.array(padding * num, dtype=np.object).reshape(num, -1)
+        different_set_list = np.hstack((different_set_list, padding_new))
+        result[i] = np.vstack((result[i], different_set_list))
+    
+    return result
 
 
 def shuffle(*arg):
@@ -346,7 +585,6 @@ def normalizer(data, index=None):
     return data
 
 
-
 class Standard():
     '''
     标准化数据
@@ -440,7 +678,6 @@ class Standard():
         return data
 
 
-
 class Minmax():
     '''
     归一化数据
@@ -518,7 +755,6 @@ class Minmax():
         return data
 
 
-
 class RC():
     '''
     相关系数
@@ -546,16 +782,17 @@ class RC():
         arg = np.array(arg, dtype=float)
         if len(arg.shape) != 2:
             raise Exception("Input list should be 1-D.")
-        
-        cov_mat = np.cov(arg)
-        var_mat = np.diagonal(cov_mat)**0.5
-        var_mat[var_mat == 0] = 1
-        
-        for i in range(cov_mat.shape[0]):
-            cov_mat[i] /= var_mat[i]
-            cov_mat[:, i] /= var_mat[i]
-        
-        self.rc_mat = cov_mat
+        else:
+            self.rc_mat = _rc(*arg)
+    
+    
+    def __img_process(self, index, cmap):
+        plt.matshow(self.rc_mat, cmap=cmap)
+        plt.colorbar()
+        if index:
+            n_list = range(len(index))
+            plt.xticks(n_list, index)
+            plt.yticks(n_list, index)
     
     
     def show(self, index=None, cmap='Blues'):
@@ -575,12 +812,7 @@ class RC():
         index: list, callable, names of each array
         cmap: str, callable, color board, default='Blues'
         '''
-        plt.matshow(self.rc_mat, cmap=cmap)
-        plt.colorbar()
-        if index:
-            n_list = range(len(index))
-            plt.xticks(n_list, index)
-            plt.yticks(n_list, index)
+        RC.__img_process(self, index=index, cmap=cmap)
         plt.show()
     
     
@@ -603,10 +835,5 @@ class RC():
         index: list, callable, names of each array
         cmap: str, callable, color board, default='Blues'
         '''
-        plt.matshow(self.rc_mat, cmap=cmap)
-        plt.colorbar()
-        if index:
-            n_list = range(len(self.rc_mat))
-            plt.xticks(n_list, index)
-            plt.yticks(n_list, index)
+        RC.__img_process(self, index=index, cmap=cmap)
         plt.savefig(filename)

@@ -21,10 +21,11 @@ class MC():
     
     属性
     ----
-    loop：循环次数
-    random_type：取随机的方法
-    EX：select函数输出值的数学期望
-    DX：select函数输出值的方差
+    loop：整型，循环次数
+    random_type：字符串类型，取随机的方法
+    EX：数类型，select函数返回值的数学期望
+    DX：数类型，select函数返回值的方差
+    history：字典类型，历史EX和DX值
     
     
     Monte Carlo
@@ -39,14 +40,16 @@ class MC():
     
     Atrributes
     ----------
-    loop: loop count
-    random_type: the method of generating random number
-    EX: mathematical expectation of output of select function
-    DX: variance of output of select function
+    loop: int, loop count
+    random_type: str, the method of generating random number
+    EX: num, mathematical expectation of return value of select function
+    DX: num, variance of return value of select function
+    history: dict, historical EX and DX
     '''
     def __init__(self, loop=1000, random_type='random', random_state=None, begin=None, end=None):
         self.loop = loop
         self.random_type = random_type
+        self.history = {'EX':[], 'DX':[]}
         self.__begin = begin
         self.__end = end
         np.random.seed(random_state)
@@ -56,11 +59,11 @@ class MC():
         '''
         用于快速构建条件函数
         将condition函数作用于随机序列全部元素
-        任意一个元素满足condition，则会输出1，否则输出0
+        任意一个状态满足condition，则会输出1，否则输出0
         
         参数
         ----
-        condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
+        condition：函数，判断一个状态是否符合条件的函数，要求符合则输出True，不符合则输出False
 
         返回
         ----
@@ -69,11 +72,11 @@ class MC():
 
         for quick construction of condition function
         apply condition function to all elements of random sequence
-        if any element is qualified, 1(True) will be reutrn, otherwise 0(False) will be return
+        if any state is qualified, 1 will be reutrn, otherwise 0 will be return
         
         Parameters
         ----------
-        condition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
+        condition: function, a function that determines if a state is qualified. If qualified, return True, otherwise reutrn False
 
         Return
         ------
@@ -91,12 +94,12 @@ class MC():
         '''
         用于快速构建条件函数
         将condition函数作用于随机序列全部元素
-        至少任意n个元素满足condition，则会输出1，否则输出0
+        至少任意n个状态满足condition，则会输出1，否则输出0
         
         参数
         ----
         n：int类型
-        condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
+        condition：函数，判断一个状态是否符合条件的函数，要求符合则输出True，不符合则输出False
 
         返回
         ----
@@ -105,12 +108,12 @@ class MC():
 
         for quick construction of condition function
         apply condition function to all elements of random sequence
-        if at least any_n elements are qualified, 1(True) will be reutrn, otherwise 0(False) will be return
+        if at least any_n states are qualified, 1 will be reutrn, otherwise 0 will be return
         
         Parameters
         ----------
         n: int
-        condition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
+        condition: function, a function that determines if a state is qualified. If qualified, return True, otherwise reutrn False
 
         Return
         ------
@@ -134,12 +137,12 @@ class MC():
         '''
         用于快速构建条件函数
         将condition函数作用于随机序列全部元素
-        至少连续n个元素满足condition，则会输出1，否则输出0
+        至少连续n个状态满足condition，则会输出1，否则输出0
         
         参数
         ----
         n：int类型
-        condition：函数，判断一个元素是否符合条件的函数，要求符合则输出1(True)，不符合则输出0(False)
+        condition：函数，判断一个状态是否符合条件的函数，要求符合则输出True，不符合则输出False
 
         返回
         ----
@@ -148,12 +151,12 @@ class MC():
 
         for quick construction of condition function
         apply condition function to all elements of random sequence
-        if at least con_n consecutive elements are qualified, 1(True) will be reutrn, otherwise 0(False) will be return
+        if at least con_n consecutive states are qualified, 1 will be reutrn, otherwise 0 will be return
         
         Parameters
         ----------
         n: int
-        condtition: function, a function that determines if an element is qualified. If qualified, return 1 (true), otherwise reutrn 0 (false)
+        condtition: function, a function that determines if a state is qualified. If qualified, return True, otherwise reutrn False
         
         Return
         ------
@@ -175,15 +178,15 @@ class MC():
         return obj
     
     
-    def __one_experiment(self, length, dimen, select):
+    def __one_experiment(self, length, dim, select):
         '''
         进行一次完整的实验
         '''
         if self.random_type == 'random':
-            random_list_ = np.random.rand(length, dimen)
+            random_list_ = np.random.rand(length, dim)
 
         elif self.random_type == 'randint':
-            random_list_ = np.random.randint(self.__begin, self.__end, size=(length, dimen))
+            random_list_ = np.random.randint(self.__begin, self.__end + 1, size=(length, dim))
         
         else:
             random_list_ = self.random_type()
@@ -201,14 +204,14 @@ class MC():
             return judge_
 
 
-    def fit(self, length, dimen, select):
+    def fit(self, length, dim, select):
         '''
         进行蒙特卡洛模拟
         
         参数
         ----
         length：整型，随机序列长度
-        dimen：整型，随机序列元素维度
+        dim：整型，随机序列元素维度
         select：条件函数或函数列表，select函数应该以length * dim的二维ndarray为自变量
             select函数用于甄别某一个随机矩阵是否符合预期，符合输出1，不符合输出0
             select函数同时也可以输出其他值以满足实际需求
@@ -220,7 +223,7 @@ class MC():
         Parameters
         ----------
         length: int, the length of random sequence
-        dimen: int, dimension of elements in random sequence
+        dim: int, dimension of elements in random sequence
         select: function or function list, select function should take 2-dimension ndarray(length * dim) as independent variable
             select function used for Identifying whether the random matrix meets the expectation, if meets, output 1, otherwise output 0
             select function can also output other values to meet the actual demand
@@ -229,11 +232,13 @@ class MC():
         final_propability_ = []
         for i in range(self.loop):
             freq_ = MC.__one_experiment(self, length=length,\
-                dimen=dimen, select=select)
+                dim=dim, select=select)
             final_propability_.append(freq_)
         
         self.EX = np.mean(final_propability_)
         self.DX = np.var(final_propability_)
+        self.history['EX'].append(self.EX)
+        self.history['DX'].append(self.DX)
 
 
 class GA():
@@ -257,16 +262,17 @@ class GA():
     select_rate：浮点数类型，可选，选择率（存活率），默认0.3
     mutate_rate：浮点数类型，可选，变异率，默认0.05
     crossover_rate：浮点数类型，可选，基因交叉概率，默认0.5
+    repeat：布尔类型，可选，是否允许序列元素重复，默认为True，仅在random_type='randint'时起作用
     
     属性
     ----
-    population：种群数
-    iteration：迭代次数（自然选择次数）
-    random_type：取随机的方法
-    select：选择个体的方法
-    crossover：交叉互换的方法
-    dom：优势种群
-    dom_fitness：优势种群的适应度
+    population：整型，种群数
+    iteration：整型，迭代次数（自然选择次数）
+    random_type：字符串类型，取随机的方法
+    select：字符串类型，选择个体的方法
+    crossover：字符串类型，交叉互换的方法
+    dom：二维ndarray，优势种群
+    dom_fitness：一维ndarray，优势种群的适应度
     
 
     
@@ -289,18 +295,20 @@ class GA():
     select_rate: float, callable, selection rate( survival rate), default=0.3
     mutate_rate: float, callable, variation rate, default=0.05
     crossover_rate: float, callable, gene crossover probability, default=0.5
+    repeat: bool, callable, whether sequence elements are allowed to repeat, default=True, only works when random_type='randint'
     
     Atrributes
     ----------
-    population: the population size
-    iteration: the times of iterations( the times of natural selection)
-    random_type: the method of generating random number
-    select: the method of selecting individuals
-    crossover: the method of crossing over
-    dom: the dominance
-    dom_fitness: the fitness of the dominance
+    population: int, the population size
+    iteration: int, the times of iterations( the times of natural selection)
+    random_type: str, the method of generating random number
+    select: str, the method of selecting individuals
+    crossover: str, the method of crossing over
+    dom: 2-D ndarray, the dominance
+    dom_fitness: 1-D ndarray, the fitness of the dominance
     '''
-    def __init__(self, population=1000, iteration=100, random_type='random', select='rw', crossover='uniform', begin=None, end=None, random_state=None, select_rate=0.3, mutate_rate=0.05, crossover_rate=0.5):
+    def __init__(self, population=1000, iteration=100, random_type='random', select='rw', crossover='uniform', begin=None,
+                 end=None, random_state=None, select_rate=0.3, mutate_rate=0.05, crossover_rate=0.5, repeat=True):
         self.population = population
         self.iteration = iteration
         self.random_type = random_type
@@ -311,6 +319,7 @@ class GA():
         self.__select_rate = select_rate
         self.__mutate_rate = mutate_rate
         self.__crossover_rate = crossover_rate
+        self.__repeat = repeat
         np.random.seed(random_state)
     
     
@@ -318,85 +327,128 @@ class GA():
         '''
         完成对新一代的变异
         '''
-        random_mutate_matrix = np.random.rand(self.population, length)
-        for i in range(self.population):
-            for j in range(length):
-                if random_mutate_matrix <= self.__mutate_rate:
-                    if self.random_type == 'random':
-                        populations_matrix[i][j] = random.random()
-                    elif self.random_type == 'randint':
-                        populations_matrix[i][j] = random.randint(self.__begin, self.__end)
+        mutate_matrix = np.random.rand(self.population, length) - self.__mutate_rate
+        mutate_matrix = np.argwhere(mutate_matrix <= 0)
+
+        if self.random_type == 'random':
+            for i in mutate_matrix:
+                populations_matrix[i[0], i[1]] = random.random()
+        
+        elif self.random_type == 'randint':
+            if self.__repeat:
+                for i in mutate_matrix:
+                    populations_matrix[i[0], i[1]] = random.randint(self.__begin, self.__end)
+                
+            else:
+                for i in mutate_matrix:
+                    random_value = random.randint(self.__begin, self.__end)
+                    index = np.where(populations_matrix[i[0]]==random_value)[0]
+                    if len(index) == 0:
+                        populations_matrix[i[0], i[1]] = random_value
+                    else:
+                        populations_matrix[i[0], index[0]] = populations_matrix[i[0], i[1]]
+                        populations_matrix[i[0], i[1]] = random_value
+        
+        return populations_matrix
     
     
-    def __point_crossover(self, num_point, length, parent_matrix):
+    def __repeat_adjust(self, child_individual_1, child_individual_2, random_loc_list):
+        '''
+        调整序列使得序列不存在重复元素
+        '''
+        mask = np.ones(child_individual_1.shape[0], bool)
+        mask[random_loc_list] = False
+        d_loc_list = np.where(mask)[0]
+        child_11 = child_individual_1[random_loc_list].copy()    # 被交叉互换的片段
+        child_12 = child_individual_1[d_loc_list].copy()         # 未被交叉互换的片段
+        child_21 = child_individual_2[random_loc_list].copy()    # 被交叉互换的片段
+        child_22 = child_individual_2[d_loc_list].copy()         # 未被交叉互换的片段
+
+        for i in range(len(child_12)):
+            while child_12[i] in child_11:
+                index = np.where(child_11 == child_12[i])[0][0]
+                child_12[i] = child_21[index]
+            child_individual_1[d_loc_list] = child_12
+        
+        for i in range(len(child_22)):
+            while child_22[i] in child_21:
+                index = np.where(child_21 == child_22[i])[0][0]
+                child_22[i] = child_11[index]
+            child_individual_2[d_loc_list] = child_22
+        
+        return child_individual_1, child_individual_2
+    
+    
+    def __crossover(self, num_point, length, parent_matrix, func_type):
+        '''
+        交叉
+        '''
+        #begin
+        if num_point:
+            if num_point > length:
+                raise Exception("'num_point' should be less than 'length'.")
+        #end
+        
+        num_of_parents = len(parent_matrix)
+        child_matrix = []
+        child_population = self.population - num_of_parents
+        
+        while len(child_matrix) < child_population:
+            while True:
+                random_num_1 = random.randint(0, num_of_parents - 1)
+                random_num_2 = random.randint(0, num_of_parents - 1)
+                if random_num_1 != random_num_2:
+                    break
+            child_individual_1 = parent_matrix[random_num_1]
+            child_individual_2 = parent_matrix[random_num_2]
+            #begin
+            child_individual_1, child_individual_2, random_loc_list = func_type(self, num_point, length, child_individual_1, child_individual_2)
+            if not self.__repeat:
+                child_individual_1, child_individual_2 = GA.__repeat_adjust(self, child_individual_1, child_individual_2, random_loc_list)
+            #end
+            child_matrix.append(child_individual_1)
+            child_matrix.append(child_individual_2)
+        child_matrix = np.array(child_matrix)
+        child_matrix = np.concatenate([parent_matrix, child_matrix])
+        return child_matrix
+    
+
+    def __point_crossover(self, num_point, length, child_individual_1, child_individual_2):
         '''
         多点交叉
         
         
         Multi-point Crossover
         '''
-        if num_point > length:
-            raise Exception("'num_point' should be less than 'length'.")
-        
-        num_of_parents = len(parent_matrix)
-        child_matrix = []
-        child_population = self.population - num_of_parents
-        
-        while len(child_matrix) < child_population:
+        random_loc_list = []
+        for j in range(num_point):
             while True:
-                random_num_1 = random.randint(0, num_of_parents)
-                random_num_2 = random.randint(0, num_of_parents)
-                if random_num_1 != random_num_2:
+                random_loc = random.randint(0, length - 1)
+                if random_loc not in random_loc_list:
+                    random_loc_list.append(random_loc)
                     break
-            child_individual_1 = parent_matrix[random_num_1]
-            child_individual_2 = parent_matrix[random_num_2]
-            random_loc_list = []
-            for j in range(num_point):
-                while True:
-                    random_loc = random.randint(0, length)
-                    if random_loc not in random_loc_list:
-                        random_loc_list.append(random_loc)
-                        break
-                medium_gene = child_individual_1[random_loc]
-                child_individual_1[random_loc] = child_individual_2[random_loc]
-                child_individual_2[random_loc] = medium_gene
-            child_matrix.append(child_individual_1)
-            child_matrix.append(child_individual_2)
-        child_matrix = np.array(child_matrix)
-        child_matrix = np.concatenate([parent_matrix, child_matrix])
-        return child_matrix
+            medium_gene = child_individual_1[random_loc]
+            child_individual_1[random_loc] = child_individual_2[random_loc]
+            child_individual_2[random_loc] = medium_gene
+        return child_individual_1, child_individual_2, random_loc_list
     
     
-    def __uniform_crossover(self, length, parent_matrix):
+    def __uniform_crossover(self, num_point, length, child_individual_1, child_individual_2):
         '''
         均匀交叉
         
         
         Uniform Crossover
         '''
-        num_of_parents = len(parent_matrix)
-        child_matrix = []
-        child_population = self.population - num_of_parents
-        
-        while len(child_matrix) < child_population:
-            while True:
-                random_num_1 = random.randint(0, num_of_parents)
-                random_num_2 = random.randint(0, num_of_parents)
-                if random_num_1 != random_num_2:
-                    break
-            child_individual_1 = parent_matrix[random_num_1]
-            child_individual_2 = parent_matrix[random_num_2]
-            for j in range(length):
-                crossover_possibility = random.random()
-                if crossover_possibility <= self.__crossover_rate:
-                    medium_gene = child_individual_1[j]
-                    child_individual_1[j] = child_individual_2[j]
-                    child_individual_2[j] = medium_gene
-            child_matrix.append(child_individual_1)
-            child_matrix.append(child_individual_2)
-        child_matrix = np.array(child_matrix)
-        child_matrix = np.concatenate([parent_matrix, child_matrix])
-        return child_matrix
+        random_loc_list = []
+        for j in range(length):
+            crossover_possibility = random.random()
+            if crossover_possibility <= self.__crossover_rate:
+                medium_gene = child_individual_1[j]
+                child_individual_1[j] = child_individual_2[j]
+                child_individual_2[j] = medium_gene
+                random_loc_list.append(j)
+        return child_individual_1, child_individual_2, random_loc_list
     
     
     def __st(self, parent_matrix, fitness, num_dead):
@@ -412,8 +464,8 @@ class GA():
         
         for i in range(num_dead):
             while True:
-                random_num_1 = random.randint(0, num_of_parents - i)
-                random_num_2 = random.randint(0, num_of_parents - i)
+                random_num_1 = random.randint(0, num_of_parents - i - 1)
+                random_num_2 = random.randint(0, num_of_parents - i - 1)
                 if random_num_1 != random_num_2:
                     break
             if fitness(parent_matrix[random_num_1]) <= fitness(parent_matrix[random_num_2]):
@@ -436,11 +488,12 @@ class GA():
         for parent_individual in parent_matrix:
             fitness_list.append(fitness(parent_individual))
         max_fitness = max(fitness_list)
-        parent_matrix = list(parent_matrix)
         
         while len(child_matrix) < num_alive:
             ind = np.random.randint(0, len(parent_matrix))
-            if np.random.rand() > fitness_list[ind] / max_fitness or parent_matrix[ind] in child_matrix:
+            a = np.random.rand()
+            if np.random.rand() > fitness_list[ind] / max_fitness or\
+                parent_matrix[ind].tolist() in np.array(child_matrix).tolist():
                 pass
             else:
                 child_matrix.append(parent_matrix[ind])
@@ -469,7 +522,14 @@ class GA():
         if self.random_type == 'random':
             parent_matrix = np.random.rand(self.population, length)
         elif self.random_type == 'randint':
-            parent_matrix = np.random.randint(self.__begin, self.__end, size=(self.population, length))
+            if not self.__repeat:
+                parent_matrix = []
+                for i in range(self.population):
+                    parent_matrix.append(random.sample(range(self.__begin, self.__end+1), length))
+                parent_matrix = np.array(parent_matrix)
+            
+            else:
+                parent_matrix = np.random.randint(self.__begin, self.__end, size=(self.population, length))
         else:
             raise Exception("'random_type' must be one of 'random' and 'randint'.")
         
@@ -486,16 +546,18 @@ class GA():
                 parent_matrix == self.select(parent_matrix, fitness)
             
             if self.crossover == 'uniform':
-                parent_matrix = GA.__uniform_crossover(self, length=length, parent_matrix=parent_matrix)
+                parent_matrix = GA.__crossover(self, num_point=None, length=length,
+                                               parent_matrix=parent_matrix, func_type=GA.__uniform_crossover)
             elif self.crossover == 'point':
-                parent_matrix = GA.__point_crossover(self, num_point=num_point, length=length, parent_matrix=parent_matrix)
-            elif type(self.select).__name__ == 'function':
-                parent_matrix == self.select(parent_matrix, fitness)
+                parent_matrix = GA.__crossover(self, num_point=num_point, length=length,
+                                               parent_matrix=parent_matrix, func_type=GA.__point_crossover)
+            
+            parent_matrix = GA.__mutate_func(self, length, parent_matrix)
         
         if self.select == 'rw':
-            GA.__rw(self, parent_matrix=parent_matrix, fitness=fitness, num_alive=num_alive)
+            parent_matrix = GA.__rw(self, parent_matrix=parent_matrix, fitness=fitness, num_alive=num_alive)
         elif self.select == 'st':
-            GA.__st(self, parent_matrix=parent_matrix, fitness=fitness, num_dead=num_dead)
+            parent_matrix = GA.__st(self, parent_matrix=parent_matrix, fitness=fitness, num_dead=num_dead)
         elif type(self.select).__name__ == 'function':
             parent_matrix == self.select(parent_matrix, fitness)
         
@@ -507,7 +569,6 @@ class GA():
         self.dom_fitness = np.array(dominance_fitness)
 
 
-
 class SA():
     '''
     模拟退火算法
@@ -516,17 +577,17 @@ class SA():
     参数
     ----
     anneal：浮点数类型或函数类型，可选，退火方法，若为浮点数，则按T = anneal * T退火，默认为0.9
-    step：可选，步长倍率，每次生成的步长为k乘一个属于(-1, 1)的随机数，默认为1
+    step：浮点数类型，可选，步长倍率，每次生成的步长为step乘一个属于(-1, 1)的随机数，默认为1
     n：整型，可选，等温时迭代次数，默认为10
     random_state：整型，可选，随机种子
     
     属性
     ----
-    anneal：退火方法
-    step：步长倍率
-    n：等温时迭代次数
-    solution：最优解
-    value：最优解的函数值
+    anneal：浮点数类型或函数类型，退火方法
+    step：浮点数类型，步长倍率
+    n：整型，等温时迭代次数
+    solution：浮点数类型，最优解
+    value：浮点数类型，最优解的函数值
     
     
     Simulated Annealing Algorithm
@@ -535,17 +596,17 @@ class SA():
     Parameters
     ----------
     anneal: float or function, callable, annealing method, if type is float, it will be annealed with T = anneal * T, default=0.9
-    step: callable, step, each generated step = k * a random number belonging to (-1, 1), default=1
+    step: float, callable, step, each generated step length = step * a random number belonging to (-1, 1), default=1
     n: int, callable, isothermal iterations, default=10
     random_state: int, callable, random seed
     
     Attributes
     ----------
-    anneal: annealing method
-    step: step
-    n: isothermal iterations
-    solution: optimal solution
-    value: function value of optimal solution
+    anneal: float or function, annealing method
+    step: float, step
+    n: int, isothermal iterations
+    solution: float, optimal solution
+    value: float, function value of optimal solution
     '''
     def __init__(self, anneal=0.9, step=0.1, n=10, random_state=None):
         self.anneal = anneal
@@ -590,6 +651,63 @@ class SA():
                 T = self.anneal(T)
             else:
                 raise Exception("Type of 'anneal' must be one of 'float' and 'function'.")
+        
+        self.solution = initial
+        self.value = select(initial)
+
+
+class GD():
+    '''
+    梯度下降法
+    沿函数负梯度方向逐步下降进而得到函数的最优解，最优解默认为最小值
+    
+    参数
+    ----
+    ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.1
+    step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，默认为0.1
+    acc：浮点数类型，可选，求导精度，默认为0.05
+    
+    属性
+    ----
+    solution：浮点数类型，最优解
+    value：浮点数类型，最优解的函数值
+    
+    
+    Gradient Descent
+    The optimal solution of the function is obtained by gradually decreasing along the negative gradient direction
+    The optimal solution is the minimum value by default
+    
+    Parameters
+    ----------
+    ytol: float, callable, when △f of two successive iterations is less than ytol, the iteration will stop, default=0.1
+    step: float, callable, step, each generated step length = - step * gradient, default=1
+    acc: float, callable, accuracy of derivation, default=0.05
+    
+    Attributes
+    ----------
+    solution: float, optimal solution
+    value: float, function value of optimal solution
+    '''
+    def __init__(self, ytol=0.1, step=0.1, acc=0.05):
+        self.ytol = ytol
+        self.step = step
+        self.acc = acc
+    
+    
+    def fit(self, initial, select):
+        initial = np.array(initial, dtype=np.float)
+        f_change = float('inf')
+        
+        while f_change > self.ytol:
+            # 计算偏导矩阵
+            dy = select(initial + self.acc) - select(initial - self.acc)
+            dx = np.ones_like(initial) * self.acc
+            dy_dx = dy / dx
+            
+            # 计算函数值变化量
+            f_change = select(initial)
+            initial = initial - dy_dx * self.step
+            f_change = select(initial) - f_change
         
         self.solution = initial
         self.value = select(initial)

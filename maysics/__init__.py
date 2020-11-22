@@ -32,11 +32,11 @@ maysics includes eleven modules:
 10. "transformation" stores common coordinate transformations and other mathematical transformations;
 11. "utils" is extra Utils.
 '''
-
 import numpy as np
 import pickle, csv
 from PIL import Image
 from maysics import algorithm, calculus, constant, equation, graph, model_selection, models, preprocess, stats, transformation, utils
+from maysics.preprocess import preview, preview_file
 
 
 def arr(f):

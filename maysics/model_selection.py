@@ -3,7 +3,6 @@
 
 This module is ued for estimating and selecting models
 '''
-
 import numpy as np
 from matplotlib import pyplot as plt
 from maysics.preprocess import data_split
@@ -203,7 +202,6 @@ class Estimate():
             ax.set_title(metric)
             
             cal_num += 1
-        
     
     
     def show(self, epochs_range=None, metrics_list='all'):
@@ -254,7 +252,6 @@ class Estimate():
         Estimate.__img_process(self, epochs_range, metrics_list=metrics_list)
         plt.tight_layout()
         plt.savefig(filename)
-
 
 
 class Search():
@@ -419,7 +416,6 @@ class Search():
         self.comb = {'comb': final_dict, select_method[0]: final_val_m, 'epoch': final_epoch}
 
 
-
 class Error():
     '''
     误差分析
@@ -507,7 +503,6 @@ class Error():
     @property
     def mape(self):
         return sum(self.rel_error) / self.__num_data
-
 
 
 class Sense():

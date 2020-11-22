@@ -3,7 +3,6 @@
 
 This module stores some commonly used mathematical physical equations, laws, mathematical models, etc
 '''
-
 import numpy as np
 from maysics import constant
 from scipy.integrate import solve_ivp
@@ -138,7 +137,6 @@ class MVD_law():
         self.v_rms = 3**0.5 * v_part
 
 
-
 class Plancks_law():
     '''
     普朗克黑体辐射定律
@@ -180,7 +178,6 @@ class Plancks_law():
         
         self.Mf = Mf
         self.Ml = Ml
-
 
 
 class ED():
@@ -374,7 +371,6 @@ class ED():
             return y1, y2, y3, y4
         result = solve_ivp(epis_equas, t_span=t_span, y0=y0, method=method, t_eval=t_eval)
         return result
-
 
 
 class Leslie():

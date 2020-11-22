@@ -50,7 +50,6 @@ v2: 第二宇宙速度 / second cosmic velocity
 v3: 第三宇宙速度 / third cosmic velocity
 hp()：厄米多项式 / Hermite Polynomials
 '''
-
 import numpy as np
 from scipy.special import factorial
 

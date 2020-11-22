@@ -3,7 +3,6 @@
 
 This module is uesd for statistical analysis
 '''
-
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.integrate import quad
@@ -284,7 +283,6 @@ def mle(func, data, num, p_range=(-1, 1), method=None, tol=None):
     return res.x
 
 
-
 class DF1d():
     '''
     一维分布拟合
@@ -367,7 +365,6 @@ class DF1d():
         x = np.arange(self.__minmax[0], self.__minmax[1], acc)
         plt.plot(x, self.f(x))
         plt.savefig(filename)
-
 
 
 class DFT():

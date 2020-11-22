@@ -140,7 +140,6 @@ def kruskal(G):
     return path
 
 
-
 class Floyd():
     '''
     弗洛伊德算法
@@ -373,7 +372,6 @@ class Dijkstra():
             path.reverse()
             
             return distance, path
-
 
 
 class Markov():

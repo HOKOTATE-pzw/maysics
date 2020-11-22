@@ -3,7 +3,6 @@
 
 This module is extra Utils
 '''
-
 import numpy as np
 from matplotlib import pyplot as plt
 from urllib import request
@@ -314,8 +313,7 @@ def grid_net(*args):
         net[i] = net[i].flatten()
     net = np.vstack(tuple(net)).T
     return net
-    
-    
+
 
 def e_distance(p1, p2):
     '''
@@ -346,8 +344,8 @@ def e_distance(p1, p2):
     p2 = np.array(p2)
     
     return sum((p1 - p2)**2)**0.5
-    
-    
+
+
 def e_distances(data, des='o'):
     '''
     求data到目标点的欧式距离
@@ -395,7 +393,7 @@ def e_distances(data, des='o'):
     
     return result
 
-    
+
 def m_distance(data, p1, p2):
     '''
     求某两个点之间的马氏距离

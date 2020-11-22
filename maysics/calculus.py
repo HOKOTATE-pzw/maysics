@@ -60,7 +60,6 @@ def lim(func, x0, acc=0.01, method='both'):
         raise Exception("Parameter 'method' must be one of 'both', 'right', '+', 'left', '-'.")
 
 
-
 def dif(f, dim=0, acc=0.05):
     '''
     对多元函数的求导算子，对矢量函数则相当于对每个分量函数都进行了相同的求导
@@ -105,7 +104,6 @@ def dif(f, dim=0, acc=0.05):
         de = (func1 - func2) / (acc + acc)
         return de
     return obj
-
 
 
 def ha(f, m, U, acc=0.05):
@@ -157,7 +155,6 @@ def ha(f, m, U, acc=0.05):
             result += U * f(x)
         return result
     return obj
-
 
 
 class Del():
@@ -351,7 +348,6 @@ class Del():
                 result += de
             return result
         return obj
-
 
 
 class Inte():
