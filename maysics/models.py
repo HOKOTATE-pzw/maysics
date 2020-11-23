@@ -43,12 +43,12 @@ def fouriers_law(T0, T, k, acc=0.1):
     dim = len(T0)
     result = []
     for i in range(dim):
-        T0[i] += acc
+        T0[i] += acc * 0.5
         func1 = T(T0)
-        T0[i] -= 2 * acc
+        T0[i] -= acc
         func2 = T(T0)
-        T0[i] += acc
-        de = (func1 - func2) / (acc + acc)
+        T0[i] += acc * 0.5
+        de = (func1 - func2) / acc
         result.append(de)
     result = np.array(result)
     return -k * result

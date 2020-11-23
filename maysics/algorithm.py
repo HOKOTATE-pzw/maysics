@@ -665,7 +665,7 @@ class GD():
     ----
     ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.1
     step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，默认为0.1
-    acc：浮点数类型，可选，求导精度，默认为0.05
+    acc：浮点数类型，可选，求导精度，默认为0.1
     
     属性
     ----
@@ -681,14 +681,14 @@ class GD():
     ----------
     ytol: float, callable, when △f of two successive iterations is less than ytol, the iteration will stop, default=0.1
     step: float, callable, step, each generated step length = - step * gradient, default=1
-    acc: float, callable, accuracy of derivation, default=0.05
+    acc: float, callable, accuracy of derivation, default=0.1
     
     Attributes
     ----------
     solution: float, optimal solution
     value: float, function value of optimal solution
     '''
-    def __init__(self, ytol=0.1, step=0.1, acc=0.05):
+    def __init__(self, ytol=0.1, step=0.1, acc=0.1):
         self.ytol = ytol
         self.step = step
         self.acc = acc
@@ -700,7 +700,7 @@ class GD():
         
         while f_change > self.ytol:
             # 计算偏导矩阵
-            dy = select(initial + self.acc) - select(initial - self.acc)
+            dy = select(initial + self.acc / 2) - select(initial - self.acc / 2)
             dx = np.ones_like(initial) * self.acc
             dy_dx = dy / dx
             

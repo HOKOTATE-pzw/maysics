@@ -60,7 +60,7 @@ def lim(func, x0, acc=0.01, method='both'):
         raise Exception("Parameter 'method' must be one of 'both', 'right', '+', 'left', '-'.")
 
 
-def dif(f, dim=0, acc=0.05):
+def dif(f, dim=0, acc=0.1):
     '''
     对多元函数的求导算子，对矢量函数则相当于对每个分量函数都进行了相同的求导
     多元矢量函数可以分解为多个标量函数
@@ -70,7 +70,7 @@ def dif(f, dim=0, acc=0.05):
     ----
     f:函数类型, 函数的自变量x是列表
     dim：整型，可选，对第dim个自变量求导，默认为0
-    acc：浮点数类型，可选，求导的精度，默认为0.05
+    acc：浮点数类型，可选，求导的精度，默认为0.1
     
     返回
     ----
@@ -85,7 +85,7 @@ def dif(f, dim=0, acc=0.05):
     ----------
     f: function, argument x of function should be a list
     dim: int, callable, derivation of the dim independent variable, default=0
-    acc: float, callable, accuracy of derivation, default=0.05
+    acc: float, callable, accuracy of derivation, default=0.1
     
     Return
     ------
@@ -93,20 +93,20 @@ def dif(f, dim=0, acc=0.05):
     '''
     def obj(x):
         x = np.array(x, dtype=float)
-        x[dim] += acc
+        x[dim] += acc * 0.5
         func1 = f(x)
         if type(func1).__name__ == 'tuple' or 'list':
             func1 = np.array(func1)
-        x[dim] -= 2 * acc
+        x[dim] -= acc
         func2 = f(x)
         if type(func2).__name__ == 'tuple' or 'list':
             func2 = np.array(func2)
-        de = (func1 - func2) / (acc + acc)
+        de = (func1 - func2) / acc
         return de
     return obj
 
 
-def ha(f, m, U, acc=0.05):
+def ha(f, m, U, acc=0.1):
     '''
     哈密顿算符：ha = - hr**2 / 2m * ▽**2 + U
     
@@ -115,7 +115,7 @@ def ha(f, m, U, acc=0.05):
     f：函数
     m：数，例子质量
     U：数或函数，势能
-    acc：浮点数类型，可选，求导的精度，默认为0.05
+    acc：浮点数类型，可选，求导的精度，默认为0.1
     
     返回
     ----
@@ -128,7 +128,7 @@ def ha(f, m, U, acc=0.05):
     ----------
     m: number, the mass of the particle
     U: number or function, potential energy
-    acc: float, callable, accuracy of derivation, default=0.05
+    acc: float, callable, accuracy of derivation, default=0.1
     f: function
     
     Return
@@ -140,12 +140,12 @@ def ha(f, m, U, acc=0.05):
         result = 0
         for i in range(len(x)):
             func1 = 2 * f(x)
-            x[i] += 2 * acc
+            x[i] += acc
             func2 = f(x)
-            x[i] -= 4 * acc
+            x[i] -= 2 * acc
             func3 = f(x)
-            x[i] += 2 * acc
-            de = (func2 + func3 - 2 * func1) / 4 / acc**2
+            x[i] += acc
+            de = (func2 + func3 - 2 * func1) / acc**2
             result += de
         result *= (C.h / (2 * np.pi))**2 / (2 * m)
         
@@ -164,7 +164,7 @@ class Del():
     
     参数
     ----
-    acc：浮点数类型，可选，求导的精度，默认为0.05
+    acc：浮点数类型，可选，求导的精度，默认为0.1
     
     
     nabla operator ▽
@@ -172,20 +172,19 @@ class Del():
     
     Parameters
     ----------
-    acc: float, callable, accuracy of derivation, default=0.05
+    acc: float, callable, accuracy of derivation, default=0.1
     '''
-    def __init__(self, acc=0.05):
+    def __init__(self, acc=0.1):
         self.acc = acc
     
 
-    def grad(self, f, dim=None):
+    def grad(self, f):
         '''
         求标量函数梯度：▽f(r)
         
         参数
         ----
         f：函数，要求函数f返回一个数值
-        dim：整型，求导的维度，默认全部求导
         
         返回
         ----
@@ -197,7 +196,6 @@ class Del():
         Parameters
         ----------
         f: function, the function should return a number
-        dim: int, dimensions for derivation, default: all
         
         Return
         ------
@@ -205,19 +203,9 @@ class Del():
         '''
         def obj(x):
             x = np.array(x, dtype=float)
-            if not dim:
-                dim = len(x)
-            result = []
-            for i in range(dim):
-                x[i] += self.acc
-                func1 = f(x)
-                x[i] -= 2 * self.acc
-                func2 = f(x)
-                x[i] += self.acc
-                de = (func1 - func2) / (self.acc + self.acc)
-                result.append(de)
-            result = np.array(result)
-            return result
+            dx = np.ones_like(x) * self.acc
+            result = f(x + self.acc * 0.5) - f(x - self.acc * 0.5)
+            return result / dx
         return obj
     
 
@@ -248,12 +236,12 @@ class Del():
             x = np.array(x, dtype=float)
             result = []
             for i in range(len(x)):
-                x[i] += self.acc
+                x[i] += self.acc * 0.5
                 func1 = f(x)[i]
-                x[i] -= 2*self.acc
+                x[i] -= self.acc
                 func2 = f(x)[i]
-                x[i] += self.acc
-                de = (func1 - func2) / (self.acc + self.acc)
+                x[i] += self.acc * 0.5
+                de = (func1 - func2) / self.acc
                 result.append(de)
             result = np.array(result)
             return result
@@ -264,12 +252,12 @@ class Del():
         '''
         一个中介函数，方便后文程序使用
         '''
-        x[b] += self.acc
+        x[b] += self.acc * 0.5
         func1 = f(x)[a]
-        x[b] -= 2*self.acc
+        x[b] -= self.acc
         func2 = f(x)[a]
-        x[b] += self.acc
-        de = (func1 - func2) / (self.acc + self.acc)
+        x[b] += self.acc * 0.5
+        de = (func1 - func2) / self.acc
         return de
     
     
@@ -339,12 +327,12 @@ class Del():
             result = 0
             for i in range(len(x)):
                 func1 = 2 * f(x)
-                x[i] += 2 * self.acc
+                x[i] += self.acc
                 func2 = f(x)
-                x[i] -= 4 * self.acc
+                x[i] -= 2 * self.acc
                 func3 = f(x)
-                x[i] += 2 * self.acc
-                de = (func2 + func3 - 2 * func1) / 4 / self.acc**2
+                x[i] += self.acc
+                de = (func2 + func3 - 2 * func1) / self.acc**2
                 result += de
             return result
         return obj
@@ -367,7 +355,7 @@ class Inte():
         参数
         ----
         method：字符串类型，可选'rect'、'mc'，默认为'rect'
-        dim：整型，1表示被积函数的输入为1维数组，适用于普通自定义函数，2表示被积函数的输入为2维数组，适用于机器学习模型，默认为1
+        dim：整型，1表示被积函数的输入为1维数组，适用于普通输入函数，2表示被积函数的输入为2维数组，适用于小批量输入函数，默认为1
         
         属性
         ----
@@ -388,7 +376,7 @@ class Inte():
         Parameters
         ----------
         method: str, callable, 'rect' and 'mc' are optional, default='rect'
-        dim: int, 1 means the input of integrand is 1-D list, like normal functions, 2 means the input of integrand is 2-D list, like machine learning models, default=1
+        dim: int, 1 means the input of integrand is 1-D list, like normal functions, 2 means the input of integrand is 2-D list, like functions need mini-batch input, default=1
         
         Attribute
         ---------
