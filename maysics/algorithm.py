@@ -5,6 +5,7 @@ This module stores Monte Carlo, Genetic Algorithm and Simulated Annealing Algori
 '''
 import random
 import numpy as np
+from multiprocessing import Pool, cpu_count
 
 
 class MC():
@@ -18,6 +19,7 @@ class MC():
     random_state：整型，可选，随机种子
     begin：整型，可选，表示整数随机序列的开始数字，仅当random_type='randint'时起作用
     end：整型，可选，表示整数随机序列的结束数字，仅当random_type='randint'时起作用
+    n_jobs：整型，可选，调用的cpu数，-1表示全部调用，默认为1
     
     属性
     ----
@@ -37,7 +39,8 @@ class MC():
     random_state: int, callable, random seed
     begin: int, callable, beginning number of the random sequence, it's used only when random_type='randint'
     end: int, callable, end number of the random sequence, it's used only when random_type='randint'
-    
+    n_jobs: int, callable, the number of cpus called, -1 means to call all cpus
+
     Atrributes
     ----------
     loop: int, loop count
@@ -46,12 +49,14 @@ class MC():
     DX: num, variance of return value of select function
     history: dict, historical EX and DX
     '''
-    def __init__(self, loop=1000, random_type='random', random_state=None, begin=None, end=None):
+    def __init__(self, loop=1000, random_type='random', random_state=None,
+                 begin=None, end=None, n_jobs=1):
         self.loop = loop
         self.random_type = random_type
         self.history = {'EX':[], 'DX':[]}
         self.__begin = begin
         self.__end = end
+        self.n_jobs = n_jobs
         np.random.seed(random_state)
     
 
@@ -230,10 +235,26 @@ class MC():
             if select is a list, every function in the list can only output 1 or 0
         '''
         final_propability_ = []
-        for i in range(self.loop):
-            freq_ = MC.__one_experiment(self, length=length,\
-                dim=dim, select=select)
-            final_propability_.append(freq_)
+        if self.n_jobs == 1:
+            for i in range(self.loop):
+                freq_ = MC.__one_experiment(self, length, dim, select)
+                final_propability_.append(freq_)
+        
+        else:
+            try:
+                if self.n_jobs == -1:
+                    pool = Pool(processes=cpu_count())
+                else:
+                    pool = Pool(processes=self.n_jobs)
+                for i in range(self.loop):
+                    freq_ = pool.apply(MC.__one_experiment,
+                                     (self, length,dim, select))
+                    final_propability_.append(freq_)
+            
+            except:
+                for i in range(self.loop):
+                    freq_ = MC.__one_experiment(self, length, dim, select)
+                    final_propability_.append(freq_)
         
         self.EX = np.mean(final_propability_)
         self.DX = np.var(final_propability_)
@@ -296,7 +317,7 @@ class GA():
     mutate_rate: float, callable, variation rate, default=0.05
     crossover_rate: float, callable, gene crossover probability, default=0.5
     repeat: bool, callable, whether sequence elements are allowed to repeat, default=True, only works when random_type='randint'
-    
+
     Atrributes
     ----------
     population: int, the population size
@@ -307,8 +328,10 @@ class GA():
     dom: 2-D ndarray, the dominance
     dom_fitness: 1-D ndarray, the fitness of the dominance
     '''
-    def __init__(self, population=1000, iteration=100, random_type='random', select='rw', crossover='uniform', begin=None,
-                 end=None, random_state=None, select_rate=0.3, mutate_rate=0.05, crossover_rate=0.5, repeat=True):
+    def __init__(self, population=1000, iteration=100, random_type='random',
+                 select='rw', crossover='uniform', begin=None, end=None,
+                 random_state=None, select_rate=0.3, mutate_rate=0.05,
+                 crossover_rate=0.5, repeat=True):
         self.population = population
         self.iteration = iteration
         self.random_type = random_type
@@ -539,25 +562,25 @@ class GA():
         
         for i in range(self.iteration - 1):
             if self.select == 'rw':
-                parent_matrix = GA.__rw(self, parent_matrix=parent_matrix, fitness=fitness, num_alive=num_alive)
+                parent_matrix = GA.__rw(self, parent_matrix, fitness, num_alive)
             elif self.select == 'st':
-                parent_matrix = GA.__st(self, parent_matrix=parent_matrix, fitness=fitness, num_dead=num_dead)
+                parent_matrix = GA.__st(self, parent_matrix, fitness, num_dead)
             elif type(self.select).__name__ == 'function':
                 parent_matrix == self.select(parent_matrix, fitness)
             
             if self.crossover == 'uniform':
-                parent_matrix = GA.__crossover(self, num_point=None, length=length,
-                                               parent_matrix=parent_matrix, func_type=GA.__uniform_crossover)
+                parent_matrix = GA.__crossover(self, None, length,
+                                               parent_matrix, GA.__uniform_crossover)
             elif self.crossover == 'point':
-                parent_matrix = GA.__crossover(self, num_point=num_point, length=length,
-                                               parent_matrix=parent_matrix, func_type=GA.__point_crossover)
+                parent_matrix = GA.__crossover(self, num_point, length,
+                                               parent_matrix, GA.__point_crossover)
             
             parent_matrix = GA.__mutate_func(self, length, parent_matrix)
         
         if self.select == 'rw':
-            parent_matrix = GA.__rw(self, parent_matrix=parent_matrix, fitness=fitness, num_alive=num_alive)
+            parent_matrix = GA.__rw(self, parent_matrix, fitness, num_alive)
         elif self.select == 'st':
-            parent_matrix = GA.__st(self, parent_matrix=parent_matrix, fitness=fitness, num_dead=num_dead)
+            parent_matrix = GA.__st(self, parent_matrix, fitness, num_dead)
         elif type(self.select).__name__ == 'function':
             parent_matrix == self.select(parent_matrix, fitness)
         
@@ -707,7 +730,7 @@ class GD():
             # 计算函数值变化量
             f_change = select(initial)
             initial = initial - dy_dx * self.step
-            f_change = select(initial) - f_change
+            f_change = abs(select(initial) - f_change)
         
         self.solution = initial
         self.value = select(initial)
