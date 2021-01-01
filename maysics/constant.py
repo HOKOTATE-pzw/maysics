@@ -15,6 +15,8 @@ K0: 辛钦常数 / Khintchine constant
 pi: 圆周率 / Ratio of circumference to diameter
 lp(): 勒让德多项式 / Legendre Polynomials
 lpN()：勒让德多项式的模 / Module of Legendre Polynomials
+alp()：连带勒让德多项式 / Associated Legendre Polynomials
+alpN()：连带勒让德多项式的模 / Module of Associated Legendre Polynomials
 
 
 物理 / physics
@@ -122,6 +124,66 @@ def lp(x, l):
         / 2**l / factorial(k) / factorial(l - k) / factorial(l - 2 * k)\
         * x**(l - 2 * k)
     return result
+
+
+def alpN(l, m):
+    '''
+    m阶l次连带勒让德多项式的模
+    
+    参数
+    ----
+    l：整型，次数
+    m：整型，阶数
+    
+    Value of Associated Legendre Polynomials of order m and degree l
+    
+    Parameters
+    ----------
+    l: int, degree
+    m: int, order
+    '''
+    up_part = 2 * factorial(l + m)
+    down_part = (2 * l + 1) * factorial(l - m)
+    return (up_part / down_part)**0.5
+
+
+def _dm_lp(x, l, m, acc):
+    '''
+    勒让德多项式的m阶导数
+    '''
+    if m == 0:
+        x = lp(x, l)
+    elif m == 1:
+        x = (lp(x + acc * 0.5, l) - lp(x - acc * 0.5, l)) / acc
+    else:
+        x = (_dm_lp(x + acc * 0.5, l, m-1, acc) - _dm_lp(x - acc * 0.5, l, m-1, acc)) / acc
+    return x
+
+
+def alp(x, l, m, acc=0.1):
+    '''
+    m阶l次连带勒让德多项式的值
+    Plm(x) = (1-x^2)^(m/2) * d^m/dx^m * Pl(x)
+    
+    参数
+    ----
+    x：数，输入值
+    l：整型，次数
+    m：整型，阶数
+    acc：浮点数类型，求导精度
+    
+    
+    Value of Associated Legendre Polynomials of order m and degree l
+    Plm(x) = (1-x^2)^(m/2) * d^m/dx^m * Pl(x)
+    
+    Parameters
+    ----------
+    x: num, input value
+    l: int, degree
+    m: int, order
+    acc: float, callable, accuracy of derivation, default=0.1
+    '''
+    return (1 - x**2)**(m / 2) * _dm_lp(x, l, m, acc)
 
 
 # physics

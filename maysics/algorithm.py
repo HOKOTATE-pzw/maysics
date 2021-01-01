@@ -1,11 +1,12 @@
 '''
-本模块储存了蒙特卡洛模拟、遗传算法和模拟退火算法，用于简易模拟
+本模块储存了蒙特卡洛模拟、遗传算法、模拟退火算法和梯度下降算法，用于简易模拟
 
-This module stores Monte Carlo, Genetic Algorithm and Simulated Annealing Algorithm for simple simulation
+This module stores Monte Carlo, Genetic Algorithm, Simulated Annealing Algorithm and Gradient Descent Algorithm for simple simulation
 '''
 import random
 import numpy as np
 from multiprocessing import Pool, cpu_count
+from maysics.calculus import grad
 
 
 class MC():
@@ -260,6 +261,16 @@ class MC():
         self.DX = np.var(final_propability_)
         self.history['EX'].append(self.EX)
         self.history['DX'].append(self.DX)
+    
+    
+    def clr(self):
+        '''
+        清空历史数据
+        
+        
+        clear the historical data
+        '''
+        self.history = {'EX':[], 'DX':[]}
 
 
 class GA():
@@ -271,19 +282,21 @@ class GA():
     population：整型，种群数
     iteration: 整型，迭代次数（自然选择次数）
     random_type：字符串类型，可选，可以取'random'和'randint'，默认'random'
-    select：字符串类型或函数类型，可选，选择个体的方法，可以取'rw'、'st'或者自定义函数，默认'rw'
+    select：字符串类型或函数类型，可选，选择个体的方法，可选'rw'、'st'或者自定义函数，默认'rw'
         'rw'：基于随机接受的轮盘赌选择
         'st'：随机竞争选择
-    crossover：字符串类型或函数类型，可选，交叉互换的方法，可以取'uniform'、'point'或者自定义函数，默认'uniform'
+        自定义函数：函数需要有两个参数，第一个参数是一个二维ndarray，第二个参数是适应度函数
+    crossover：字符串类型或函数类型，可选，交叉互换的方法，可选'uniform'、'point'或自定义函数，默认'uniform'
         'uniform'：均匀交叉
         'point'：单点及多点交叉
+        自定义函数：函数只能设置一个参数，以种群（二维ndarray）作为输入
     begin：整型，可选，表示整数随机序列的开始数字，仅当random_type='randint'时起作用
     end：整型，可选，表示整数随机序列的结束数字，仅当random_type='randint'时起作用
     random_state：整型，可选，随机种子
     select_rate：浮点数类型，可选，选择率（存活率），默认0.3
     mutate_rate：浮点数类型，可选，变异率，默认0.05
     crossover_rate：浮点数类型，可选，基因交叉概率，默认0.5
-    repeat：布尔类型，可选，是否允许序列元素重复，默认为True，仅在random_type='randint'时起作用
+    repeat：布尔类型，可选，是否允许序列元素重复，默认为True，仅在random_type='randint'且crossover不是自定义函数时起作用
     
     属性
     ----
@@ -295,7 +308,6 @@ class GA():
     dom：二维ndarray，优势种群
     dom_fitness：一维ndarray，优势种群的适应度
     
-
     
     Genetic Algorithm
     
@@ -307,16 +319,18 @@ class GA():
     select: string or function, callable, the method of selecting individuals, 'rw', 'st' or custom function, default = 'rw'
         'rw': Roulette Wheel Selection
         'st': Stochastic Tournament Selection
+        custom function: the function needs two parameters, the first is a two-dimensional darray, and the second is the fitness function
     crossover: string or function, callable, the method of crossing over, 'uniform', 'point' or custom function, default = 'uniform'
         'uniform': Uniform Crossover
         'point': Multi-point Crossover
+        custom function: the function can only set one parameter with population (2-D ndarray) as input
     begin: int, callable, beginning number of the random sequence, it's used only when random_type='randint'
     end: int, callable, end number of the random sequence, it's used only when random_type='randint'
     random_state: int, callable, random seed
     select_rate: float, callable, selection rate( survival rate), default=0.3
     mutate_rate: float, callable, variation rate, default=0.05
     crossover_rate: float, callable, gene crossover probability, default=0.5
-    repeat: bool, callable, whether sequence elements are allowed to repeat, default=True, only works when random_type='randint'
+    repeat: bool, callable, whether sequence elements are allowed to repeat, default=True, only works when random_type='randint' and crossover is not a custom function
 
     Atrributes
     ----------
@@ -377,7 +391,7 @@ class GA():
     
     def __repeat_adjust(self, child_individual_1, child_individual_2, random_loc_list):
         '''
-        调整序列使得序列不存在重复元素
+        调整序列使得序列不存在重复元素，仅在crossover不是自定义函数时有效果
         '''
         mask = np.ones(child_individual_1.shape[0], bool)
         mask[random_loc_list] = False
@@ -406,11 +420,9 @@ class GA():
         '''
         交叉
         '''
-        #begin
         if num_point:
             if num_point > length:
                 raise Exception("'num_point' should be less than 'length'.")
-        #end
         
         num_of_parents = len(parent_matrix)
         child_matrix = []
@@ -424,11 +436,11 @@ class GA():
                     break
             child_individual_1 = parent_matrix[random_num_1]
             child_individual_2 = parent_matrix[random_num_2]
-            #begin
+            
             child_individual_1, child_individual_2, random_loc_list = func_type(self, num_point, length, child_individual_1, child_individual_2)
             if not self.__repeat:
                 child_individual_1, child_individual_2 = GA.__repeat_adjust(self, child_individual_1, child_individual_2, random_loc_list)
-            #end
+            
             child_matrix.append(child_individual_1)
             child_matrix.append(child_individual_2)
         child_matrix = np.array(child_matrix)
@@ -561,6 +573,7 @@ class GA():
         num_point = int(length * self.__crossover_rate)
         
         for i in range(self.iteration - 1):
+            # 选择
             if self.select == 'rw':
                 parent_matrix = GA.__rw(self, parent_matrix, fitness, num_alive)
             elif self.select == 'st':
@@ -568,6 +581,7 @@ class GA():
             elif type(self.select).__name__ == 'function':
                 parent_matrix == self.select(parent_matrix, fitness)
             
+            # 交叉互换
             if self.crossover == 'uniform':
                 parent_matrix = GA.__crossover(self, None, length,
                                                parent_matrix, GA.__uniform_crossover)
@@ -575,6 +589,10 @@ class GA():
                 parent_matrix = GA.__crossover(self, num_point, length,
                                                parent_matrix, GA.__point_crossover)
             
+            elif type(self.crossover).__name__ == 'function':
+                parent_matrix = self.crossover(parent_matrix)
+            
+            # 变异
             parent_matrix = GA.__mutate_func(self, length, parent_matrix)
         
         if self.select == 'rw':
@@ -606,10 +624,8 @@ class SA():
     
     属性
     ----
-    anneal：浮点数类型或函数类型，退火方法
-    step：浮点数类型，步长倍率
-    n：整型，等温时迭代次数
-    solution：浮点数类型，最优解
+    solution：ndarray，最优解
+    trace：ndarray，迭代过程中的自变量点
     value：浮点数类型，最优解的函数值
     
     
@@ -625,57 +641,59 @@ class SA():
     
     Attributes
     ----------
-    anneal: float or function, annealing method
-    step: float, step
-    n: int, isothermal iterations
-    solution: float, optimal solution
+    solution: ndarray, optimal solution
+    trace: ndarray, independent variable points in the iterative process
     value: float, function value of optimal solution
     '''
-    def __init__(self, anneal=0.9, step=0.1, n=10, random_state=None):
-        self.anneal = anneal
-        self.step = step
-        self.n = n
+    def __init__(self, anneal=0.9, step=1, n=10, random_state=None):
+        self.__anneal = anneal
+        self.__step = step
+        self.__n = n
         np.random.seed(random_state)
     
     
-    def fit(self, initial, T, T0, select):
+    def fit(self, select, T, T0, initial):
         '''
         参数
         ----
-        initial：列表，初始解，select函数的输入值
+        select：函数，评估函数
         T：浮点数类型，初始温度
         T0：浮点数类型，退火温度
-        select：函数，评估函数
+        initial：数或数组，初始解，select函数的输入值
         
         
         Parameters
         ----------
-        initial: list, initial solution, the input value of select function
+        select: function, evaluation function
         T: float, initial temperature
         T0: float, annealing temperature
-        select: function, evaluation function
+        initial: num or array, initial solution, the input value of select function
         '''
         initial = np.array(initial, dtype=np.float)
+        self.trace = [initial]
         while T > T0:
-            for i in range(self.n):
-                random_x = 2 * self.step * (np.random.rand(*initial.shape) - 0.5)
+            for i in range(self.__n):
+                random_x = 2 * self.__step * (np.random.rand(*initial.shape) - 0.5)
                 initial_copy = initial.copy()
                 initial_copy += random_x
                 if select(initial_copy) < select(initial):
                     initial = initial_copy
+                    self.trace.append(initial)
                 else:
                     pro = random.random()
                     if pro < np.e**(-(select(initial_copy) - select(initial)) / T):
                         initial = initial_copy
+                        self.trace.append(initial)
             
-            if type(self.anneal).__name__ == 'float':
-                T *= self.anneal
-            elif type(self.anneal).__name__ == 'function':
-                T = self.anneal(T)
+            if type(self.__anneal).__name__ == 'float':
+                T *= self.__anneal
+            elif type(self.__anneal).__name__ == 'function':
+                T = self.__anneal(T)
             else:
                 raise Exception("Type of 'anneal' must be one of 'float' and 'function'.")
         
         self.solution = initial
+        self.trace = np.array(self.trace)
         self.value = select(initial)
 
 
@@ -693,6 +711,7 @@ class GD():
     属性
     ----
     solution：浮点数类型，最优解
+    trace：ndarray，迭代过程中的自变量点
     value：浮点数类型，最优解的函数值
     
     
@@ -709,6 +728,7 @@ class GD():
     Attributes
     ----------
     solution: float, optimal solution
+    trace: ndarray, independent variable points in the iterative process
     value: float, function value of optimal solution
     '''
     def __init__(self, ytol=0.1, step=0.1, acc=0.1):
@@ -717,20 +737,31 @@ class GD():
         self.acc = acc
     
     
-    def fit(self, initial, select):
+    def fit(self, select, initial):
+        '''
+        参数
+        ----
+        select：函数，评估函数
+        initial：数或数组，初始解，select函数的输入值
+        
+        Parameters
+        ----------
+        select: function, evaluation function
+        initial: num or array, initial solution, the input value of select function
+        '''
         initial = np.array(initial, dtype=np.float)
+        self.trace = [initial]
         f_change = float('inf')
+        acc2 = 0.5 * self.acc
         
         while f_change > self.ytol:
-            # 计算偏导矩阵
-            dy = select(initial + self.acc / 2) - select(initial - self.acc / 2)
-            dx = np.ones_like(initial) * self.acc
-            dy_dx = dy / dx
-            
+            d_list = grad(initial)
             # 计算函数值变化量
             f_change = select(initial)
-            initial = initial - dy_dx * self.step
+            initial = initial - d_list * self.step
             f_change = abs(select(initial) - f_change)
+            self.trace.append(initial)
         
         self.solution = initial
+        self.trace = np.array(self.trace)
         self.value = select(initial)

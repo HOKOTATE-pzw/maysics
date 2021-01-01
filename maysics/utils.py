@@ -386,8 +386,7 @@ def e_distances(data, des='o'):
     else:
         des = np.array(des)
     
-    data -= des
-    data = data**2
+    data = (data - des)**2
     result = data.sum(axis=len(data.shape)-1)
     result = result**0.5
     

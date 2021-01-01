@@ -23,7 +23,7 @@ def lim(func, x0, acc=0.01, method='both'):
     求极限
     lim x→x0+ f(x) ≈ f(x+dx)
     lim x→x0- f(x) ≈ f(x-dx)
-    lim x→x0 ≈ (f(x+dx) + f(x-dx)) / 2
+    lim x→x0 f(x) ≈ (f(x+dx) + f(x-dx)) / 2
     
     参数
     ----
@@ -36,7 +36,7 @@ def lim(func, x0, acc=0.01, method='both'):
     Calculate the limit values
     lim x→x0+ f(x) ≈ f(x+dx)
     lim x→x0- f(x) ≈ f(x-dx)
-    lim x→x0 ≈ (f(x+dx) + f(x-dx)) / 2
+    lim x→x0 f(x) ≈ (f(x+dx) + f(x-dx)) / 2
     
     Parameters
     ----------
@@ -60,52 +60,6 @@ def lim(func, x0, acc=0.01, method='both'):
         raise Exception("Parameter 'method' must be one of 'both', 'right', '+', 'left', '-'.")
 
 
-def dif(f, dim=0, acc=0.1):
-    '''
-    对多元函数的求导算子，对矢量函数则相当于对每个分量函数都进行了相同的求导
-    多元矢量函数可以分解为多个标量函数
-    无法将二维列表识别成一行作为一个自变量，需要循环
-    
-    参数
-    ----
-    f:函数类型, 函数的自变量x是列表
-    dim：整型，可选，对第dim个自变量求导，默认为0
-    acc：浮点数类型，可选，求导的精度，默认为0.1
-    
-    返回
-    ----
-    导函数
-    
-    
-    derivative operator for multivariate function( same derivation to each component)
-    Multivariate vector functions can be decomposed into several scalar functions
-    Unable to recognize the two-dimensional list as an independent variable, loop is required
-    
-    Parameters
-    ----------
-    f: function, argument x of function should be a list
-    dim: int, callable, derivation of the dim independent variable, default=0
-    acc: float, callable, accuracy of derivation, default=0.1
-    
-    Return
-    ------
-    derivative function
-    '''
-    def obj(x):
-        x = np.array(x, dtype=float)
-        x[dim] += acc * 0.5
-        func1 = f(x)
-        if type(func1).__name__ == 'tuple' or 'list':
-            func1 = np.array(func1)
-        x[dim] -= acc
-        func2 = f(x)
-        if type(func2).__name__ == 'tuple' or 'list':
-            func2 = np.array(func2)
-        de = (func1 - func2) / acc
-        return de
-    return obj
-
-
 def ha(f, m, U, acc=0.1):
     '''
     哈密顿算符：ha = - hr**2 / 2m * ▽**2 + U
@@ -126,10 +80,10 @@ def ha(f, m, U, acc=0.1):
     
     Parameters
     ----------
-    m: number, the mass of the particle
-    U: number or function, potential energy
-    acc: float, callable, accuracy of derivation, default=0.1
     f: function
+    m: num, the mass of the particle
+    U: num or function, potential energy
+    acc: float, callable, accuracy of derivation, default=0.1
     
     Return
     ------
@@ -157,185 +111,236 @@ def ha(f, m, U, acc=0.1):
     return obj
 
 
-class Del():
+def grad(f, x, acc=0.1):
     '''
-    ▽算子
+    求标量函数梯度：▽f(x)
+    
+    参数
+    ----
+    f：函数，要求函数f返回一个数值
+    x：数或数组，函数的输入值，不支持批量输入
+    acc：浮点数类型，可选，求导的精度，默认为0.1
+    
+    返回
+    ----
+    梯度函数值 ▽f(x)
+    
+    
+    gradient of scalar function: ▽f(x)
+    
+    Parameters
+    ----------
+    f: function, the function should return a number
+    x: num or array, the input of the function, batch input is not supported
+    acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    value of gradient function ▽f(x)
+    '''
+    x = np.array(x, dtype=float)
+    d_list = []
+    acc2 = 0.5 * acc
+    if len(initial.shape) == 0:
+        initial += acc2
+        func1 = select(initial)
+        initial -= acc
+        func2 = select(initial)
+        initial += acc2
+        d_list = (func1 - func2) / (acc)
+    
+    elif len(initial.shape) == 1:
+        for i in range(initial.shape[0]):
+            initial[i] += acc2
+            func1 = select(initial)
+            initial[i] -= acc
+            func2 = select(initial)
+            de = (func1 - func2) / (acc)
+            initial[i] += acc2
+            d_list.append(de)
+            d_list = np.array(d_list)
+    
+    elif len(initial.shape) == 2:
+        for i in range(initial.shape[1]):
+            initial[0][i] += acc2
+            func1 = select(initial)
+            initial[0][i] -= acc
+            func2 = select(initial)
+            de = (np.array([func1]).T - np.array([func2]).T) / (acc)
+            initial[0][i] += acc2
+            d_list.append(de)
+        d_list = [d_list]
+        d_list = np.array(d_list)
+    
+    return d_list
+
+
+def nebla_dot(f, x, acc=0.1):
+    '''
+    ▽点乘矢量函数：▽·f(x)
+    
+    参数
+    ----
+    f：函数，要求函数f返回一个列表
+    x：数或数组，函数的输入值，不支持批量输入
+    acc：浮点数类型，可选，求导的精度，默认为0.1
+    
+    返回
+    ----
+    函数值 ▽·f(x)
+    
+    
+    dot product between ▽ and vector function: ▽·f(x)
+    
+    Parameter
+    ---------
+    f: function, the function should return a list
+    x: num or array, the input of the function, batch input is not supported
+    acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    value of function ▽·f(x)
+    '''
+    x = np.array(x, dtype=float)
+    result = []
+    if len(x.shape) == 1:
+        for i in range(x.shape[0]):
+            x[i] += acc * 0.5
+            func1 = f(x)[i]
+            x[i] -= acc
+            func2 = f(x)[i]
+            x[i] += acc * 0.5
+            de = (func1 - func2) / acc
+            result.append(de)
+    else:
+        for i in range(x.shape[1]):
+            x[0][i] += acc * 0.5
+            func1 = f(x)[0][i]
+            x[0][i] -= acc
+            func2 = f(x)[0][i]
+            x[0][i] += acc * 0.5
+            de = (func1 - func2) / acc
+            result.append(de)
+        result = [result]
+    result = np.array(result)
+    return result
+    
+
+def _diff2forc(a, b, f, x, acc):
+    '''
+    一个中介函数，方便后文程序使用
+    '''
+    if len(x.shape) == 1:
+        x[b] += acc * 0.5
+        func1 = f(x)[a]
+        x[b] -= acc
+        func2 = f(x)[a]
+        x[b] += acc * 0.5
+        de = (func1 - func2) / acc
+    else:
+        x[0][b] += acc * 0.5
+        func1 = f(x)[0][a]
+        x[0][b] -= acc
+        func2 = f(x)[0][a]
+        x[0][b] += acc * 0.5
+        de = (func1 - func2) / acc
+    return de
+    
+    
+def nebla_cross(f, x, acc=0.1):
+    '''
+    ▽叉乘矢量函数：▽×f(x)
+    
+    参数
+    ----
+    f：函数，要求函数是三维矢量函数
+    x：数或数组，函数的输入值，不支持批量输入
+    acc：浮点数类型，可选，求导的精度，默认为0.1
+    
+    返回
+    ----
+    函数值 ▽×f(x)
+    
+    
+    ▽ cross vector function: ▽×f(x)
+    
+    Parameter
+    ---------
+    f: function, the function should be a three-dimension vector function
+    x: num or array, the input of the function, batch input is not supported
+    acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    value of function ▽×f(x)
+    '''
+    x = np.array(x, dtype=float)
+    result = np.array([
+        _diff2forc(2, 1, f, x, acc) -\
+        _diff2forc(1, 2, f, x, acc),
+        _diff2forc(0, 2, f, x, acc) -\
+        _diff2forc(2, 0, f, x, acc),
+        _diff2forc(1, 0, f, x, acc) -\
+        _diff2forc(0, 1, f, x, acc)])
+    return result
+
+
+def laplace(f, x, acc=0.1):
+    '''
+    △算子 = ▽**2
     被作用函数的自变量x是列表
     
     参数
     ----
+    f：函数
+    x：数或数组，函数的输入值，不支持批量输入
     acc：浮点数类型，可选，求导的精度，默认为0.1
     
+    返回
+    ----
+    函数值△f(x)
     
-    nabla operator ▽
+    
+    Laplace operator: △ = ▽**2
     the argument x of the affected function should be a list
     
-    Parameters
-    ----------
+    Parameter
+    ---------
+    f: function
+    x: num or array, the input of the function, batch input is not supported
     acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    value of function △f(x)
     '''
-    def __init__(self, acc=0.1):
-        self.acc = acc
+    x = np.array(x, dtype=float)
+    result = 0
+    if len(x.shape) == 1:
+        for i in range(x.shape[0]):
+            func1 = 2 * f(x)
+            x[i] += acc
+            func2 = f(x)
+            x[i] -= 2 * acc
+            func3 = f(x)
+            x[i] += acc
+            de = (func2 + func3 - 2 * func1) / acc**2
+            result += de
+    else:
+        for i in range(x.shape[1]):
+            func1 = 2 * f(x)[0]
+            x[0][i] += acc
+            func2 = f(x)[0]
+            x[0][i] -= 2 * acc
+            func3 = f(x)[0]
+            x[0][i] += acc
+            de = (func2 + func3 - 2 * func1) / acc**2
+            result += de
+        result=[result]
     
-
-    def grad(self, f):
-        '''
-        求标量函数梯度：▽f(r)
-        
-        参数
-        ----
-        f：函数，要求函数f返回一个数值
-        
-        返回
-        ----
-        梯度函数▽f
-        
-        
-        gradient of scalar function: ▽f(r)
-        
-        Parameters
-        ----------
-        f: function, the function should return a number
-        
-        Return
-        ------
-        gradient function ▽f
-        '''
-        def obj(x):
-            x = np.array(x, dtype=float)
-            dx = np.ones_like(x) * self.acc
-            result = f(x + self.acc * 0.5) - f(x - self.acc * 0.5)
-            return result / dx
-        return obj
-    
-
-    def dot(self, f):
-        '''
-        ▽点乘矢量函数：▽·f(r)
-        
-        参数
-        ----
-        f：函数，要求函数f返回一个列表
-
-        返回
-        ----
-        函数▽·f
-        
-        
-        dot product between ▽ and vector function: ▽·f(r)
-        
-        Parameter
-        ---------
-        f: function, the function should return a list
-        
-        Return
-        ------
-        function ▽·f
-        '''
-        def obj(x):
-            x = np.array(x, dtype=float)
-            result = []
-            for i in range(len(x)):
-                x[i] += self.acc * 0.5
-                func1 = f(x)[i]
-                x[i] -= self.acc
-                func2 = f(x)[i]
-                x[i] += self.acc * 0.5
-                de = (func1 - func2) / self.acc
-                result.append(de)
-            result = np.array(result)
-            return result
-        return obj
-    
-
-    def __diff2forc(self, a, b, f, x):
-        '''
-        一个中介函数，方便后文程序使用
-        '''
-        x[b] += self.acc * 0.5
-        func1 = f(x)[a]
-        x[b] -= self.acc
-        func2 = f(x)[a]
-        x[b] += self.acc * 0.5
-        de = (func1 - func2) / self.acc
-        return de
-    
-    
-    def cross(self, f):
-        '''
-        ▽叉乘矢量函数：▽×f(r)
-        
-        参数
-        ----
-        f：函数，要求函数是三维矢量函数
-
-        返回
-        ----
-        函数 ▽×f
-        
-        
-        ▽ cross vector function: ▽×f(r)
-        
-        Parameter
-        ---------
-        f: function, the function should be a three-dimension vector function
-        
-        Return
-        ------
-        function ▽×f
-        '''
-        def obj(x):
-            x = np.array(x, dtype=float)
-            result = np.array([
-                Del.__diff2forc(self, 2, 1, f, x) -\
-                Del.__diff2forc(self, 1, 2, f, x),
-                Del.__diff2forc(self, 0, 2, f, x) -\
-                Del.__diff2forc(self, 2, 0, f, x),
-                Del.__diff2forc(self, 1, 0, f, x) -\
-                Del.__diff2forc(self, 0, 1, f, x)])
-            return result
-        return obj
-
-
-    def laplace(self, f):
-        '''
-        △算子 = ▽**2
-        被作用函数的自变量x是列表
-        
-        参数
-        ----
-        f：函数
-        
-        返回
-        ----
-        函数△f
-        
-        
-        Laplace operator: △ = ▽**2
-        the argument x of the affected function should be a list
-        
-        Parameter
-        ---------
-        f: function
-        
-        Return
-        ------
-        function △f
-        '''
-        def obj(x):
-            x = np.array(x, dtype=float)
-            result = 0
-            for i in range(len(x)):
-                func1 = 2 * f(x)
-                x[i] += self.acc
-                func2 = f(x)
-                x[i] -= 2 * self.acc
-                func3 = f(x)
-                x[i] += self.acc
-                de = (func2 + func3 - 2 * func1) / self.acc**2
-                result += de
-            return result
-        return obj
+    result = np.array(result)
+    return result
 
 
 class Inte():
