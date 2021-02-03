@@ -11,6 +11,7 @@ plt.rcParams['axes.unicode_minus'] = False
 from io import BytesIO
 from lxml import etree
 import base64
+import math
 
 
 def _rc(*arg):
@@ -125,7 +126,7 @@ def _preview_process(data, value_round):
 
 def preview_file(filename, data, value_round=3):
     '''
-    生成数据预览报告文件
+    生成数据预览报告的html文件
     
     参数
     ----
@@ -134,7 +135,7 @@ def preview_file(filename, data, value_round=3):
     value_round：整型，数字特征保留的小数点后的位数
     
     
-    Generate preview report file
+    Generate preview report with html file
     
     Parameters
     ----------
@@ -150,7 +151,7 @@ def preview_file(filename, data, value_round=3):
 
 def preview(data, value_round=3):
     '''
-    显示数据预览报告
+    在jupyter中显示数据预览报告
     
     参数
     ----
@@ -158,7 +159,7 @@ def preview(data, value_round=3):
     value_round：整型，数字特征保留的小数点后的位数
     
     
-    Display preview report
+    Display preview report in jupyter
     
     Parameters
     ----------
@@ -382,6 +383,53 @@ def data_split(data, targets, train_size=None, test_size=None, shuffle=True, ran
     validation_target = targets[int(num_of_data * train_size):]
     
     return train_data, train_target, validation_data, validation_target
+
+
+def dataloader(data, targets, choose_rate=0.3, is_shuffle=True, random_state=None):
+    '''
+    数据随机生成器
+    
+    参数
+    ----
+    data：数据
+    targets：指标
+    choose_rate：浮点数类型，可选，生成率，范围为[0, 1]，默认为0.3
+    is_shuffle：布尔类型，可选，True表示打乱数据，False表示不打乱数据，默认为True
+    random_state：整型，可选，随机种子
+    
+    返回
+    ----
+    生成器
+    
+    
+    Data Random Generator
+    
+    Parameters
+    ----------
+    data: data
+    targets: targets
+    choose_rate: float, callable, generation rate whose range is [0, 1], default=0.3
+    is_shuffle: bool, callable, 'True' will shuffle the data, 'False' will not, default = True
+    random_state: int, callable, random seed
+    
+    Return
+    ------
+    generator
+    '''
+    data = np.array(data)
+    targets = np.array(targets)
+    
+    if is_shuffle:
+        np.random.seed(random_state)
+        data, targets = shuffle(data, targets)
+    num = len(data)
+    choose_rate = int(num * choose_rate)
+    times = int(math.ceil(num / choose_rate))
+    
+    for i in range(times):
+        loc_1 = i * choose_rate
+        loc_2 = (i + 1) * choose_rate
+        yield data[loc_1: loc_2], targets[loc_1: loc_2]
 
 
 def kfold(data, targets, n, k=5):

@@ -1,42 +1,46 @@
 '''
 本库用于科学计算和快速建模
 
-maysics主要包括十一个模块：
+maysics主要包括十二个模块：
 
 1、algorithm 封装了几种模拟方法，用于简易模拟；
 2、calculus 封装了部分常见的算符算子和积分方法，辅助数学运算；
 3、constant 储存了部分常数；
 4、equation 封装了部分方程求解运算；
-5、graph 用于图论分析；
-6、model_selection 用于评估和选择模型；
+5、explainer 用于评估和解释模型；
+6、graph 用于图论分析；
 7、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
 8、preprocess 用于数据预处理；
 9、stats 用于统计分析；
-10、transformation 储存了常用的坐标转换及其他数学变换；
-11、utils 是额外工具箱。
+10、time_process 用于处理时间数据；
+11、transformation 储存了常用的坐标转换及其他数学变换；
+12、utils 是额外工具箱。
 
 
 This package is used for scientific calculating and fast modeling.
 
-maysics includes eleven modules:
+maysics includes twelve modules:
 
 1. "algorithm" packages several simulation methods for simple simulation;
 2. "calculus" packages some common operators and integration method to assist in mathematical operations;
 3. "constant" contents some usual constants;
 4. "equation" packages some equation solving operation;
-5. "graph" used for graph theory analysis;
-6. "model_selection" used for estimating and selecting model;
+5. "explainer" used for estimating and explaining models;
+6. "graph" used for graph theory analysis;
 7. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
 8. "preprocess" is used for data preproccessing;
 9. "stats" is uesd for statistical analysis;
-10. "transformation" stores common coordinate transformations and other mathematical transformations;
-11. "utils" is extra Utils.
+10. "time_process" is used for processing time data;
+11. "transformation" stores common coordinate transformations and other mathematical transformations;
+12. "utils" is extra Utils.
 '''
 import numpy as np
 import pickle, csv
 from PIL import Image
-from maysics import algorithm, calculus, constant, equation, graph, model_selection, models, preprocess, stats, transformation, utils
+from maysics import algorithm, calculus, constant, equation, explainer, graph,\
+    models, preprocess, stats, time_process, transformation, utils
 from maysics.preprocess import preview, preview_file
+from maysics.models import linear_r
 
 
 def arr(f):
@@ -386,7 +390,7 @@ def load(filename, header=True):
             reader = list(csv.reader(f))
             if header:
                 reader = reader[1:]
-            return np.array(reader, dtype=np.float)
+            return np.array(reader)
     
     else:
         raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
@@ -441,3 +445,41 @@ def data_pic(data, filename):
     data = np.array(data, dtype=np.uint8)
     image = Image.fromarray(data)
     image.save(filename)
+
+
+def all_same(x):
+    '''
+    判断数组元素是否全相同
+    
+    参数
+    ----
+    x：数组
+    
+    返回
+    ----
+    布尔类型，True或者False
+    
+    
+    Determine whether the array elements are all the same
+    
+    Parameter
+    ---------
+    x: array
+    
+    Return
+    ------
+    bool, True or False
+    '''
+    x = np.array(x)
+    if len(x.shape) == 1:
+        x = len(set(x))
+        if x == 1:
+            return True
+        else:
+            return False
+    
+    else:
+        for i in x:
+            if i.all() != x[0].all():
+                return False
+        return True

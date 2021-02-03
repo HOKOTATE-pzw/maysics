@@ -163,7 +163,7 @@ class Scatter():
         plt.savefig(filename)
 
 
-def linear(A, b):
+def linear_e(A, b):
     '''
     求解线性方程组Ax = b
     

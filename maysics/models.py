@@ -93,6 +93,44 @@ def logistic(t, N0, r, K):
     return Nt
 
 
+def linear_r(x, y):
+    '''
+    线性回归模型
+    
+    参数
+    ----
+    x：一维或二维ndarray，自变量
+    y：一维或二维ndarray，因变量
+    
+    返回
+    ----
+    一维ndarray：系数行矩阵
+    损失函数：平均平方误差mse
+    
+    
+    Linear Regression Model
+    
+    Parameters
+    ----------
+    x: 1-D or 2-D ndarray, independent variable
+    y: 1-D or 2-D ndarray, dependent variable
+    
+    Return
+    ------
+    1-D ndarray: coefficient row matrix
+    loss: mean squared error: mse
+    '''
+    x = np.array(x)
+    if len(x.shape) == 1:
+        x = np.array([x]).T
+    y = np.array(y)
+    x = np.hstack((x, np.ones((x.shape[0], 1))))
+    coef = np.linalg.lstsq(x, y, rcond=None)[0].reshape(-1)
+    y_pre = np.dot(x, np.array([coef]).T).reshape(y.shape)
+    mse = ((y_pre - y)**2).mean()
+    return coef, mse
+
+
 class MVD_law():
     '''
     麦克斯韦速率分布律

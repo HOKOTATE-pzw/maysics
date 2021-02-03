@@ -141,33 +141,33 @@ def grad(f, x, acc=0.1):
     x = np.array(x, dtype=float)
     d_list = []
     acc2 = 0.5 * acc
-    if len(initial.shape) == 0:
-        initial += acc2
-        func1 = select(initial)
-        initial -= acc
-        func2 = select(initial)
-        initial += acc2
+    if len(x.shape) == 0:
+        x += acc2
+        func1 = f(x)
+        x -= acc
+        func2 = f(x)
+        x += acc2
         d_list = (func1 - func2) / (acc)
     
-    elif len(initial.shape) == 1:
-        for i in range(initial.shape[0]):
-            initial[i] += acc2
-            func1 = select(initial)
-            initial[i] -= acc
-            func2 = select(initial)
+    elif len(x.shape) == 1:
+        for i in range(x.shape[0]):
+            x[i] += acc2
+            func1 = f(x)
+            x[i] -= acc
+            func2 = f(x)
             de = (func1 - func2) / (acc)
-            initial[i] += acc2
+            x[i] += acc2
             d_list.append(de)
-            d_list = np.array(d_list)
+        d_list = np.array(d_list)
     
-    elif len(initial.shape) == 2:
-        for i in range(initial.shape[1]):
-            initial[0][i] += acc2
-            func1 = select(initial)
-            initial[0][i] -= acc
-            func2 = select(initial)
+    elif len(x.shape) == 2:
+        for i in range(x.shape[1]):
+            x[0][i] += acc2
+            func1 = f(x)
+            x[0][i] -= acc
+            func2 = f(x)
             de = (np.array([func1]).T - np.array([func2]).T) / (acc)
-            initial[0][i] += acc2
+            x[0][i] += acc2
             d_list.append(de)
         d_list = [d_list]
         d_list = np.array(d_list)
