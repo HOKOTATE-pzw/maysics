@@ -483,7 +483,7 @@ class Inte():
         return func_points.sum()
     
     
-    def fit(self, func, area, condition=None, param={}, acc=0.1, loop=10000, height=1, dim=1, random_state=None):
+    def fit(self, func, area, condition=None, param={}, acc=0.1, loop=10000, height=1, random_state=None):
         '''
         积分
         

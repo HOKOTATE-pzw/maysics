@@ -25,7 +25,7 @@ maysics includes twelve modules:
 2. "calculus" packages some common operators and integration method to assist in mathematical operations;
 3. "constant" contents some usual constants;
 4. "equation" packages some equation solving operation;
-5. "explainer" used for estimating and explaining models;
+5. "explainer" used for estimating and explaining model;
 6. "graph" used for graph theory analysis;
 7. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
 8. "preprocess" is used for data preproccessing;
