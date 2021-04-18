@@ -124,18 +124,30 @@ def polar(x):
                 theta = 0
         else:
             theta = np.arctan(x[1] / x[0])
+            if x[0] < 0 and x[1] > 0:
+                theta += np.pi
+            elif x[0] < 0 and x[1] < 0:
+                theta -= np.pi
         x[0], x[1] = r, theta
     
     else:
         r = (x[:, 0]**2 + x[:, 1]**2)**0.5
         index1 = np.where(x[:, 0] != 0)[0]
         index2 = np.where(x[:, 0] == 0)[0]
+        index3 = np.all([x[:, 0] < 0, x[:, 1] > 0], axis=0)
+        index3 = np.where(index3 == True)[0]
+        index4 = np.all([x[:, 0] < 0, x[:, 1] < 0], axis=0)
+        index4 = np.where(index4 == True)[0]
         
         x[index1, 1] = np.arctan(x[index1, 1] / x[index1, 0])
+        x[index3, 1] += np.pi
+        x[index4, 1] -= np.pi
+        
         x_new = x[index2, 1]
         x_new[np.where(x_new > 0)[0]] = np.pi/2
         x_new[np.where(x_new < 0)[0]] = -np.pi/2
         x[index2, 1] = x_new
+        x[:, 0] = r
     
     return x
 

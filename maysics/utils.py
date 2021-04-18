@@ -8,6 +8,7 @@ from urllib import request
 from lxml import etree
 from urllib import parse
 import string
+from matplotlib import pyplot as plt
 
 
 def grid_net(*args):
@@ -197,6 +198,65 @@ def m_distances(data, des='o'):
     return np.diag((data - des) * SI *(dataT - des.T))**0.5
 
 
+def discrete(x, y, color=None, label=None):
+    '''
+    绘制离散函数图像
+    
+    参数
+    ----
+    x：一维数组类型，自变量
+    y：一维数组类型，因变量
+    color：字符串类型，可选，颜色
+    label：字符串类型，可选，标签
+    
+    
+    Draw the graph of discrete function
+    
+    Parameters
+    ----------
+    x: 1-D array, independent variable
+    y: 1-D array, dependent variable
+    color: str, callable, color
+    label: str, callable, label
+    '''
+    plt.scatter(x, y, color=color, label=label)
+    zeros = np.zeros_like(y)
+    if not color:
+        plt.vlines(x, zeros, y)
+    else:
+        plt.vlines(x, zeros, y, color=color)
+
+
+def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=None):
+    '''
+    绘制一个圆
+    
+    参数
+    ----
+    center：元组类型，可选，圆心坐标，默认为(0, 0)
+    radius：数类型，可选，半径，默认为1
+    angle_range：元组类型，可选，绘制的角度范围，默认为(0, 2π)
+    acc：浮点数类型，可选，绘制的精度，默认为0.01
+    label：字符串类型，可选，标签，默认为None
+    
+    
+    Draw a circle
+    
+    Parameters
+    ----------
+    center: tuple, callable, center coordinate, default=(0, 0)
+    radius: num, callable, radius, default=1
+    angle_range: tuple, callable, the range of angle to draw, default=(0, 2π)
+    acc: float, callable, the accuracy of drawing, default=0.01
+    label: str, callable, label, default=None
+    '''
+    theta = np.arange(*angle_range, acc)
+    radius = radius * np.ones_like(theta)
+    x = np.vstack((radius, theta)).T
+    x = tf.ipolar(x)
+    plt.plot(x[:, 0] + center[0], x[:, 1] + center[1])
+
+
 class Crawler():
     '''
     用于简单的爬虫
@@ -349,3 +409,123 @@ class Crawler():
         
         html = etree.HTML(self.html)
         return html.xpath(nod_list)
+
+
+class A_P():
+    '''
+    将信号的频域表示分解为“幅度-频率”和“相位-频率”
+
+    参数
+    ----
+    X：函数或一维数组形式，信号的频域表示
+
+
+    Decompose frequency domain representation of signal into "amplitude-frequency" and "phase-frequency"
+
+    Parameter
+    ---------
+    X: function or 1-D array, frequency domain representation of signal
+    '''
+    def __init__(self, X):
+        self.X = X
+    
+
+    def fit(self, f):
+        '''
+        计算频率为f时的幅度和相位
+
+        参数
+        ----
+        f：数或一维数组形式，频率
+
+        返回
+        ----
+        元组形式，(幅度, 相位)
+
+
+        Calculate the amplitude and phase at frequency f
+
+        Parameter
+        ---------
+        f: num or 1-D array, frequency
+
+        Return
+        ------
+        tuple, (amplitude, phase)
+        '''
+        f = np.array(f)
+        if type(self.X).__name__ == 'function':
+            result = self.X(f)
+        else:
+            X = np.array(self.X)
+            result = self.X[f]
+        result = np.array(result)
+        return abs(result), np.arctan(result.imag / result.real)
+    
+
+    def __image_process(self, f, image_type):
+        f = np.array(f)
+        amplitude, phase = self.fit(f)
+        fig = plt.figure()
+        if image_type == 'C' or image_type == 'c':
+            ax = fig.add_subplot(2, 1, 1)
+            ax.plot(f, amplitude)
+            ax.set_title('amplitude')
+            ax = fig.add_subplot(2, 1, 2)
+            ax.plot(f, phase)
+            ax.set_title('phase')
+        elif image_type == 'D' or image_type == 'd':
+            zeros_list = np.zeros(f.shape)
+            ax = fig.add_subplot(2, 1, 1)
+            ax.scatter(f, amplitude, marker='o', s=30, zorder=3)
+            ax.vlines(f, zeros_list, amplitude)
+            ax.set_title('amplitude')
+            ax = fig.add_subplot(2, 1, 2)
+            ax.scatter(f, phase, marker='o', s=30, zorder=3)
+            ax.vlines(f, zeros_list, phase)
+            ax.set_title('phase')
+        plt.tight_layout()
+    
+
+    def show(self, f, image_type='c'):
+        '''
+        显示“幅度-频率”图和“相位-频率”图
+
+        参数
+        ----
+        f：数或一维数组形式，频率
+        image_type：字符串形式，可选'c'和'd'，'c'表示绘制连续图像，'d'表示绘制离散图像，默认为'd'
+
+
+        Display "amplitude-frequency" and "phase-frequency" graphs
+
+        Parameters
+        ----------
+        f: num or 1-D array, frequency
+        image_type: str, 'c' and 'd' are callable, 'c' means drawing continuous image and 'd'means drawing discrete image, default='c'
+        '''
+        self.__image_process(f, image_type)
+        plt.show()
+    
+
+    def savefig(self, filename, f, image_type='c'):
+        '''
+        储存“幅度-频率”图和“相位-频率”图
+
+        参数
+        ----
+        filename：字符串形式，文件名
+        f：数或一维数组形式，频率
+        image_type：字符串形式，可选'C'和'D'，'C'表示绘制连续图像，'D'表示绘制离散图像，默认为'C'
+
+
+        Save "amplitude-frequency" and "phase-frequency" graphs
+
+        Parameters
+        ----------
+        filename: str, file name
+        f: num or 1-D array, frequency
+        image_type: str, 'c' and 'd' are callable, 'c' means drawing continuous image and 'd'means drawing discrete image, default='c'
+        '''
+        self.__image_process(f, image_type)
+        plt.savefig(filename)
