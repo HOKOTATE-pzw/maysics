@@ -15,12 +15,12 @@ class Scatter():
     
     参数
     ----
-    x：一维或二维列表，仅支持以数作为自变量，不支持以列表作为自变量
-    y：一维或二维列表
+    x：一维或二维列表，二维列表表示多组散点
+    y：一维或二维列表，二维列表表示多组散点
     acc：浮点数类型，可选，插值精度，默认0.1
     kind：浮点数类型或整型，可选，将插值类型指定为字符串('linear'、'nearest'、'zero'、'slinear'、'squardic'、'previous'、'next'，其中'zero'、'slinear'、'squared'和'cubic'表示零阶、一阶、二阶或三阶样条曲线插值；'previous'和'next'只返回点的上一个或下一个值)或作为一个整数指定要使用的样条曲线插值器的顺序。默认为'linear'
     xtol：浮点数类型，可选，横坐标误差，默认0.1
-    ytol：浮点数类型，可选，纵坐标误差，默认0.01
+    ytol：浮点数类型，可选，纵坐标误差，默认0.1
     
     属性
     ----
@@ -33,25 +33,26 @@ class Scatter():
     
     Parameters
     ----------
-    x: 1-D or 2-D list, only numbers are supported as arguments, lists are not
-    y: 1-D or 2-D list
+    x: 1-D or 2-D list, 2-D list represent multiple groups of scattered points
+    y: 1-D or 2-D list, 2-D list represent multiple groups of scattered points
     acc: float, callable, interpolation accuracy, default=0.1
     kind: float or int, callable, specifies the kind of interpolation as a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'previous', 'next', where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first, second or third order; 'previous' and 'next' simply return the previous or next value of the point) or as an integer specifying the order of the spline interpolator to use. default='linear'
     xtol: float, callable, abscissa error, default=0.1
-    ytol: float, callable, ordinate error, default=0.01
+    ytol: float, callable, ordinate error, default=0.1
     
     Attributes
     ----------
     root: list, solution
     value: list, the function values of the solutions
     '''
-    def __init__(self, x, y, acc=0.1, kind='linear',xtol=0.1, ytol=0.01):
+    def __init__(self, x, y, acc=0.1, kind='linear',xtol=0.1, ytol=0.1):
         self.x = x
         self.y = y
         
         #判断输入列表维度
         try:
             x[0][0]
+            zero = False
         except (TypeError, IndexError):
             self.x = [x]
             self.y = [y]
@@ -138,7 +139,7 @@ class Scatter():
         ---------
         scatter: bool, True means display the origin scatter, False means not
         '''
-        Scatter.__image_process(self, scatter=scatter)
+        self.__image_process(scatter=scatter)
         plt.show()
     
     
@@ -159,7 +160,7 @@ class Scatter():
         filename: str, file name
         scatter: bool, True means display the origin scatter, False means not
         '''
-        Scatter.__image_process(self, scatter=scatter)
+        self.__image_process(scatter=scatter)
         plt.savefig(filename)
 
 

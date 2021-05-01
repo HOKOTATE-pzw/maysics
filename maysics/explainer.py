@@ -9,6 +9,77 @@ from scipy.special import comb
 plt.rcParams['axes.unicode_minus'] =False
 
 
+def sense(func, x0, acc=0.1):
+    '''
+    灵敏度分析
+    r = (x0, x1, x2, ..., xn)
+    y = f(r)
+    第i个特征在r=r0时的灵敏度：
+    s(xi, r0)= (dy/dxi) * (xi/y)   (r=r0)
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
+    x0：数，1-D或2-D ndarray，与func的输入格式相同，特征的初始值
+    acc：浮点数类型，可选，求导的精度，默认为0.1
+    
+    返回
+    ----
+    各个维度的灵敏度，格式与func的输出格式相同
+    
+    
+    Sensitivity Analysis
+    r = (x0, x1, x2, ..., xn)
+    y = f(r)
+    the sensitivity of the ith feature at r=r0:
+    s(xi, r0)= (dy/dxi) * (xi/y)   (r=r0)
+    
+    Parameters
+    ----------
+    func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
+    x0: num, 1-D or 2-D ndarray, the format is the same as the input of func, initial values of features
+    acc: float, callable, accuracy of derivation, default=0.1
+    
+    Return
+    ------
+    sensitivity of each dimension, whose format is the same as the output of func
+    '''
+    x0 = np.array(x0, dtype=float)
+    acc2 = 0.5 * acc
+    func0 = func(x0)
+    s_list = []
+    
+    if len(x0.shape) == 0:
+        x0 += acc2
+        func1 = func(x0)
+        x0 -= acc
+        func2 = func(x0)
+        return (func1 - func2) / (acc * func0) * x0
+    
+    elif len(x0.shape) == 1:
+        for i in range(x0.shape[0]):
+            x0[i] += acc2
+            func1 = func(x0)
+            x0[i] -= acc
+            func2 = func(x0)
+            de = (func1 - func2) / (acc * func0) * x0[i]
+            x0[i] += acc2
+            s_list.append(de)
+        s_list = np.array(s_list)
+    
+    elif len(x0.shape) == 2:
+        for i in range(x0.shape[1]):
+            x0[:, i] += acc2
+            func1 = func(x0)
+            x0[:, i] -= acc
+            func2 = func(x0)
+            de = (func1 - func2) / (acc * func0) * x0[:, i]
+            x0[:, i] += acc2
+            s_list.append(de)
+        s_list = np.array(s_list).T
+    return s_list
+
+
 class Error():
     '''
     误差分析
@@ -98,106 +169,6 @@ class Error():
         return sum(self.rel_error) / self.__num_data
 
 
-class Sense():
-    '''
-    灵敏度分析
-    r = (x0, x1, x2, ..., xn)
-    y = f(r)
-    第i个特征在r=r0时的灵敏度：
-    s(xi, r0)= (dy/dxi) * (xi/y)   (r=r0)
-    
-    参数
-    ----
-    func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
-    acc：浮点数类型，可选，求导的精度，默认为0.1
-    
-    属性
-    ----
-    s_mat：由特征的灵敏度值组成的矩阵
-    prediction：预测值列表
-    
-    
-    Sensitivity Analysis
-    r = (x0, x1, x2, ..., xn)
-    y = f(r)
-    the sensitivity of the ith feature at r=r0:
-    s(xi, r0)= (dy/dxi) * (xi/y)   (r=r0)
-    
-    Parameters
-    ----------
-    func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
-    acc: float, callable, accuracy of derivation, default=0.1
-    
-    Attributes
-    ----------
-    s_mat: matrix combined of sensitivities of features
-    prediction: list of predicted values
-    '''
-    def __init__(self, func, acc=0.1):
-        self.__func = func
-        self.acc = acc
-        self.s_mat = []
-        self.prediction = []
-    
-    
-    def fit(self, x0):
-        '''
-        参数
-        ----
-        x0：数，1-D或2-D ndarray，特征的初始值，不支持批量输入
-        
-        
-        Parameter
-        ---------
-        x0: num, 1-D or 2-D ndarray, initial values of features, batch input is not supported
-        '''
-        x0 = np.array(x0, dtype=np.float)
-        acc2 = 0.5 * self.acc
-        func0 = self.__func(x0)
-        self.prediction.append(func0)
-        s_list = []
-        
-        if len(x0.shape) == 0:
-            x0 += acc2
-            func1 = self.__func(x0)
-            x0 -= self.acc
-            func2 = self.__func(x0)
-            s_list = (func1 - func2) / (self.acc * func0) * x0
-        
-        elif len(x0.shape) == 1:
-            for i in range(x0.shape[0]):
-                x0[i] += acc2
-                func1 = self.__func(x0)
-                x0[i] -= self.acc
-                func2 = self.__func(x0)
-                de = (func1 - func2) / (self.acc * func0) * x0[i]
-                x0[i] += acc2
-                s_list.append(de)
-        
-        elif len(x0.shape) == 2:
-            for i in range(x0.shape[1]):
-                x0[0][i] += acc2
-                func1 = self.__func(x0)
-                x0[0][i] -= self.acc
-                func2 = self.__func(x0)
-                de = (np.array([func1]).T - np.array([func2]).T) / (self.acc * np.array(func0).T) * x0[0][i]
-                x0[0][i] += acc2
-                s_list.append(de)
-            
-        self.s_mat.append(s_list)
-    
-    
-    def clr(self):
-        '''
-        清空s_mat和prediction
-        
-        
-        Clear the s_mat and the prediction
-        '''
-        self.s_mat = []
-        self.prediction = []
-
-
 class SHAP_and_Shapley():
     def __transform(self, b_list):
         # 二进制列表转十进制数
@@ -233,7 +204,7 @@ class SHAP_and_Shapley():
             for j in range(2**(dim-1)):
                 b_list = [j >>d & 1 for d in range(dim)][::1]
                 b_list.insert(loc, 0)
-                b_value = SHAP_and_Shapley.__transform(self, b_list)
+                b_value = self.__transform(b_list)
                 # 1 / ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))是权重
                 shap_value += (prediction[b_value + 2**i] - prediction[b_value]) / \
                               ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))
@@ -304,7 +275,7 @@ class SHAP_and_Shapley():
         index: 1-D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         '''
-        SHAP_and_Shapley.__image_process(self, labels, index, top)
+        self.__image_process(labels, index, top)
         plt.show()
     
     
@@ -329,7 +300,7 @@ class SHAP_and_Shapley():
         index: 1-D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         '''
-        SHAP_and_Shapley.__image_process(self, labels, index, top)
+        self.__image_process(labels, index, top)
         plt.savefig(filename)
 
 

@@ -515,9 +515,9 @@ class DFT():
         num_data = len(data)
         
         if self.__func_type != 'dis':
-            data_list, pro_list = DFT.__con_fit(self, data, func, num_data)
+            data_list, pro_list = self.__con_fit(data, func, num_data)
         else:
-            data_list, pro_list = DFT.__dis_fit(self, data, func, num_data)
+            data_list, pro_list = self.__dis_fit(data, func, num_data)
         
         self.degree = len(pro_list) - 1
         self.chi2_value = sum(data_list / pro_list) - num_data
@@ -567,7 +567,7 @@ class DFT():
         ---------
         acc: float, callable, the accuracy of drawing, default=0.01
         '''
-        DFT.__image_process(self, acc)
+        self.__image_process(acc)
         plt.show()
     
     def savefig(self,filename, acc=0.01):
@@ -587,5 +587,5 @@ class DFT():
         filename: str, file name
         acc: float, callable, the accuracy of drawing, default=0.01
         '''
-        DFT.__image_process(self, acc)
+        self.__image_process(acc)
         plt.savefig(filename)

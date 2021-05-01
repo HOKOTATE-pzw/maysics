@@ -41,6 +41,7 @@ from maysics import algorithm, calculus, constant, equation, explainer, graph,\
     models, preprocess, stats, time_process, transformation, utils
 from maysics.preprocess import preview, preview_file
 from maysics.models import linear_r
+from maysics.utils import circle, discrete, grid_net
 
 
 def arr(f):

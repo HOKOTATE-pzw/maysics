@@ -14,9 +14,9 @@ K: 兰道-拉马努金常数 / Landau–Ramanujan constant
 K0: 辛钦常数 / Khintchine constant
 pi: 圆周率 / Ratio of circumference to diameter
 lp(): 勒让德多项式 / Legendre Polynomials
-lpN()：勒让德多项式的模 / Module of Legendre Polynomials
+lpn()：勒让德多项式的模 / Module of Legendre Polynomials
 alp()：连带勒让德多项式 / Associated Legendre Polynomials
-alpN()：连带勒让德多项式的模 / Module of Associated Legendre Polynomials
+alpn()：连带勒让德多项式的模 / Module of Associated Legendre Polynomials
 
 
 物理 / physics
@@ -67,7 +67,7 @@ chaos_2 = 2.502907875095892
 K0 = 2.6854520010
 
 
-def lpN(l):
+def lpn(l):
     '''
     l阶勒让德多项式的模
     
@@ -126,7 +126,7 @@ def lp(x, l):
     return result
 
 
-def alpN(l, m):
+def alpn(l, m):
     '''
     m阶l次连带勒让德多项式的模
     

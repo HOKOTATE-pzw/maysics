@@ -9,6 +9,7 @@ from lxml import etree
 from urllib import parse
 import string
 from matplotlib import pyplot as plt
+from maysics import transformation
 
 
 def grid_net(*args):
@@ -253,7 +254,7 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=No
     theta = np.arange(*angle_range, acc)
     radius = radius * np.ones_like(theta)
     x = np.vstack((radius, theta)).T
-    x = tf.ipolar(x)
+    x = transformation.ipolar(x)
     plt.plot(x[:, 0] + center[0], x[:, 1] + center[1])
 
 
@@ -321,7 +322,7 @@ class Crawler():
             return 'local'
     
     
-    def xpath_find(self, nod):
+    def find(self, nod):
         '''
         以XPath的方式查找节点
         
@@ -405,7 +406,7 @@ class Crawler():
             nod_list += '//text()'
         
         else:
-            nod_list = nod_list + '@' + search
+            nod_list = nod_list + '//@' + search
         
         html = etree.HTML(self.html)
         return html.xpath(nod_list)
@@ -453,69 +454,76 @@ class A_P():
         ------
         tuple, (amplitude, phase)
         '''
-        f = np.array(f)
+        self.f = np.array(f, np.float)
+        f = self.f.astype(complex)
         if type(self.X).__name__ == 'function':
             result = self.X(f)
         else:
             X = np.array(self.X)
             result = self.X[f]
         result = np.array(result)
-        return abs(result), np.arctan(result.imag / result.real)
+        self.amplitude = abs(result)
+        
+        index1 = np.where(result.imag == 0)[0]
+        index2 = np.where(result.imag != 0)[0]
+        result_new = result[index1]
+        result_new[result_new.real == 0] = 0
+        result_new[result_new.real > 0] = np.pi / 2
+        result_new[result_new.real < 0] = -np.pi / 2
+        result[index1] = result_new
+        result_new = result[index2]
+        result[index2] = np.arctan(result_new.imag / result_new.real)
+        self.phase = result.real
     
 
-    def __image_process(self, f, image_type):
-        f = np.array(f)
-        amplitude, phase = self.fit(f)
+    def __image_process(self, image_type):
         fig = plt.figure()
         if image_type == 'C' or image_type == 'c':
             ax = fig.add_subplot(2, 1, 1)
-            ax.plot(f, amplitude)
+            ax.plot(self.f, self.amplitude)
             ax.set_title('amplitude')
             ax = fig.add_subplot(2, 1, 2)
-            ax.plot(f, phase)
+            ax.plot(self.f, self.phase)
             ax.set_title('phase')
         elif image_type == 'D' or image_type == 'd':
-            zeros_list = np.zeros(f.shape)
+            zeros_list = np.zeros(self.f.shape)
             ax = fig.add_subplot(2, 1, 1)
-            ax.scatter(f, amplitude, marker='o', s=30, zorder=3)
-            ax.vlines(f, zeros_list, amplitude)
+            ax.scatter(self.f, self.amplitude, marker='o', s=30, zorder=3)
+            ax.vlines(self.f, zeros_list, self.amplitude)
             ax.set_title('amplitude')
             ax = fig.add_subplot(2, 1, 2)
-            ax.scatter(f, phase, marker='o', s=30, zorder=3)
-            ax.vlines(f, zeros_list, phase)
+            ax.scatter(self.f, self.phase, marker='o', s=30, zorder=3)
+            ax.vlines(self.f, zeros_list, self.phase)
             ax.set_title('phase')
         plt.tight_layout()
-    
 
-    def show(self, f, image_type='c'):
+
+    def show(self, image_type='c'):
         '''
         显示“幅度-频率”图和“相位-频率”图
 
         参数
         ----
-        f：数或一维数组形式，频率
         image_type：字符串形式，可选'c'和'd'，'c'表示绘制连续图像，'d'表示绘制离散图像，默认为'd'
 
 
         Display "amplitude-frequency" and "phase-frequency" graphs
 
-        Parameters
-        ----------
-        f: num or 1-D array, frequency
+        Parameter
+        ---------
         image_type: str, 'c' and 'd' are callable, 'c' means drawing continuous image and 'd'means drawing discrete image, default='c'
         '''
-        self.__image_process(f, image_type)
+        self.__image_process(image_type)
         plt.show()
     
 
-    def savefig(self, filename, f, image_type='c'):
+    def savefig(self, filename, image_type='c'):
         '''
         储存“幅度-频率”图和“相位-频率”图
 
         参数
         ----
         filename：字符串形式，文件名
-        f：数或一维数组形式，频率
         image_type：字符串形式，可选'C'和'D'，'C'表示绘制连续图像，'D'表示绘制离散图像，默认为'C'
 
 
@@ -524,8 +532,7 @@ class A_P():
         Parameters
         ----------
         filename: str, file name
-        f: num or 1-D array, frequency
         image_type: str, 'c' and 'd' are callable, 'c' means drawing continuous image and 'd'means drawing discrete image, default='c'
         '''
-        self.__image_process(f, image_type)
+        self.__image_process(image_type)
         plt.savefig(filename)

@@ -238,7 +238,7 @@ class MC():
         final_propability_ = []
         if self.n_jobs == 1:
             for i in range(self.loop):
-                freq_ = MC.__one_experiment(self, length, dim, select)
+                freq_ = self.__one_experiment(length, dim, select)
                 final_propability_.append(freq_)
         
         else:
@@ -248,13 +248,13 @@ class MC():
                 else:
                     pool = Pool(processes=self.n_jobs)
                 for i in range(self.loop):
-                    freq_ = pool.apply(MC.__one_experiment,
-                                     (self, length,dim, select))
+                    freq_ = pool.apply(self.__one_experiment,
+                                     (length,dim, select))
                     final_propability_.append(freq_)
             
             except:
                 for i in range(self.loop):
-                    freq_ = MC.__one_experiment(self, length, dim, select)
+                    freq_ = self.__one_experiment(length, dim, select)
                     final_propability_.append(freq_)
         
         self.EX = np.mean(final_propability_)
@@ -437,9 +437,9 @@ class GA():
             child_individual_1 = parent_matrix[random_num_1]
             child_individual_2 = parent_matrix[random_num_2]
             
-            child_individual_1, child_individual_2, random_loc_list = func_type(self, num_point, length, child_individual_1, child_individual_2)
+            child_individual_1, child_individual_2, random_loc_list = func_type(num_point, length, child_individual_1, child_individual_2)
             if not self.__repeat:
-                child_individual_1, child_individual_2 = GA.__repeat_adjust(self, child_individual_1, child_individual_2, random_loc_list)
+                child_individual_1, child_individual_2 = self.__repeat_adjust(child_individual_1, child_individual_2, random_loc_list)
             
             child_matrix.append(child_individual_1)
             child_matrix.append(child_individual_2)
@@ -575,30 +575,30 @@ class GA():
         for i in range(self.iteration - 1):
             # 选择
             if self.select == 'rw':
-                parent_matrix = GA.__rw(self, parent_matrix, fitness, num_alive)
+                parent_matrix = self.__rw(parent_matrix, fitness, num_alive)
             elif self.select == 'st':
-                parent_matrix = GA.__st(self, parent_matrix, fitness, num_dead)
+                parent_matrix = self.__st(parent_matrix, fitness, num_dead)
             elif type(self.select).__name__ == 'function':
                 parent_matrix == self.select(parent_matrix, fitness)
             
             # 交叉互换
             if self.crossover == 'uniform':
-                parent_matrix = GA.__crossover(self, None, length,
-                                               parent_matrix, GA.__uniform_crossover)
+                parent_matrix = self.__crossover(None, length,
+                                                 parent_matrix, self.__uniform_crossover)
             elif self.crossover == 'point':
-                parent_matrix = GA.__crossover(self, num_point, length,
-                                               parent_matrix, GA.__point_crossover)
+                parent_matrix = self.__crossover(num_point, length,
+                                                 parent_matrix, self.__point_crossover)
             
             elif type(self.crossover).__name__ == 'function':
                 parent_matrix = self.crossover(parent_matrix)
             
             # 变异
-            parent_matrix = GA.__mutate_func(self, length, parent_matrix)
+            parent_matrix = self.__mutate_func(length, parent_matrix)
         
         if self.select == 'rw':
-            parent_matrix = GA.__rw(self, parent_matrix, fitness, num_alive)
+            parent_matrix = self.__rw(parent_matrix, fitness, num_alive)
         elif self.select == 'st':
-            parent_matrix = GA.__st(self, parent_matrix, fitness, num_dead)
+            parent_matrix = self.__st(parent_matrix, fitness, num_dead)
         elif type(self.select).__name__ == 'function':
             parent_matrix == self.select(parent_matrix, fitness)
         
@@ -869,9 +869,9 @@ class GM():
         ---------
         y: 1-D array
         '''
-        y = GM.__transform(self, y)
-        z1 = GM.__generate_z1(self, y)
-        self.u = GM.__generate_u(self, z1, y[1:]).T[0]
+        y = self.__transform(y)
+        z1 = self.__generate_z1(y)
+        self.u = self.__generate_u(z1, y[1:]).T[0]
         
         def predict(t):
             t = int(t)

@@ -860,7 +860,7 @@ class RC():
         index: list, callable, names of each array
         cmap: str, callable, color board, default='Blues'
         '''
-        RC.__img_process(self, index=index, cmap=cmap)
+        self.__img_process(index=index, cmap=cmap)
         plt.show()
     
     
@@ -883,5 +883,5 @@ class RC():
         index: list, callable, names of each array
         cmap: str, callable, color board, default='Blues'
         '''
-        RC.__img_process(self, index=index, cmap=cmap)
+        self.__img_process(index=index, cmap=cmap)
         plt.savefig(filename)
