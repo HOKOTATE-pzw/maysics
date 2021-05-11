@@ -19,7 +19,7 @@ URL = 'https://github.com/HOKOTATE-pzw/maysics.git'
 EMAIL = 'pangzewei2010@foxmail.com'
 AUTHOR = 'HOKOTATE'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.2.3'
+VERSION = '0.2.4'
 
 # What packages are required for this module to be executed?
 REQUIRED = [

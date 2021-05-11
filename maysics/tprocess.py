@@ -6,7 +6,7 @@ This module is used for processing time data
 import numpy as np
 
 
-def time_before(time_list, time, itself=False, sep=True):
+def tbefore(time_list, time, itself=False, sep=True):
     '''
     寻找特定时间
     在时间列表中寻找某个时间点之前的时间
@@ -64,7 +64,7 @@ def time_before(time_list, time, itself=False, sep=True):
     return select_time, select_index
 
 
-def time_after(time_list, time, itself=False, sep=True):
+def tafter(time_list, time, itself=False, sep=True):
     '''
     寻找特定时间
     在时间列表中寻找某个时间点之后的时间
@@ -122,7 +122,7 @@ def time_after(time_list, time, itself=False, sep=True):
     return select_time, select_index
 
 
-def time_equal(time_list, time, sep=True, equal=True):
+def tequal(time_list, time, sep=True, equal=True):
     '''
     寻找特定时间的索引
     在时间列表中寻找某个时间点
@@ -186,10 +186,10 @@ def time_equal(time_list, time, sep=True, equal=True):
                 select_index.append(i)
                 select_time.append(judge_time)
         
-        return select_time, select_index
+    return select_time, select_index
 
 
-def time_between(time_list, begin, end, begin_itself=False, end_itself=False, sep=True):
+def tbetween(time_list, begin, end, begin_itself=False, end_itself=False, sep=True):
     '''
     寻找特定时间
     在时间列表中寻找某个时间点之后的时间
@@ -310,11 +310,11 @@ def _time_adjust(time):
     return time
 
 
-def time_add(*time):
+def tadd(*time):
     '''
     时间相加
     例：
-        time_add(time_1, time_2, ..., time_n)
+        tadd(time_1, time_2, ..., time_n)
         得到Σ time_i
     
     参数
@@ -328,7 +328,7 @@ def time_add(*time):
     
     Time Addition
     e.g.
-        time_add([1, 23, 45], [5, 43, 21])
+        tadd([1, 23, 45], [5, 43, 21])
         return array([7, 7, 6])
     
     Parameter
@@ -344,11 +344,11 @@ def time_add(*time):
     return _time_adjust(time)
 
 
-def time_sub(time_1, time_2):
+def tsub(time_1, time_2):
     '''
     时间相减
     例：
-        time_sub(time_1, time_2)
+        tsub(time_1, time_2)
         得time_1 - time_2
     
     参数
@@ -362,7 +362,7 @@ def time_sub(time_1, time_2):
     
     Time Subtraction
     e.g.
-        time_sub(time_1, time_2)
+        tsub(time_1, time_2)
         return time_1 - time_2
     
     Parameters
@@ -375,14 +375,14 @@ def time_sub(time_1, time_2):
     '''
     time_1 = np.array(time_1)
     time_2 = -np.array(time_2)
-    return time_add(time_1, time_2)
+    return tadd(time_1, time_2)
 
 
-def time_mul(time, num):
+def tmul(time, num):
     '''
     时间与数相乘
     例：
-        time_sub(time, num)
+        tmul(time, num)
         得time * num
     
     参数
@@ -397,7 +397,7 @@ def time_mul(time, num):
     
     Time Multiplication
     e.g.
-        time_sub(time, num)
+        tmul(time, num)
         return time * num
     
     Parameters
@@ -413,7 +413,7 @@ def time_mul(time, num):
     return _time_adjust(time)
 
 
-def time_div(time, divisor, time_mode=False):
+def tdiv(time, divisor, time_mode=False):
     '''
     时间相除
     时间除以数或时间除以时间

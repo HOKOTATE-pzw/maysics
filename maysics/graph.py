@@ -115,7 +115,7 @@ def kruskal(G):
     G[G < 0] = float('inf')
     E = []
     
-    # 将边信息(边长，起点，终点)存入self.E并按从小到大排序
+    # 将边信息(边长，起点，终点)存入E并按从小到大排序
     for i in range(n):
         for j in range(i):
             if G[i, j] != 0 and G[i, j] != float('inf'):
@@ -360,7 +360,7 @@ class Dijkstra():
             raise Exception('Unable to reach the destination from the origin.')
         
         elif self.__ori == des:
-            raise Exception('The origin and the destination should be different.' )
+            return 0, [des]
         
         else:
             distance = self.dis[des]
@@ -380,14 +380,14 @@ class Markov():
     
     参数
     ----
-    P：2-D ndarray，转移矩阵
+    P：二维数组，转移矩阵
     
     
     Markov Chain
     
     Parameter
     ---------
-    P: 2-D ndarray, transition matrix
+    P: 2-D array, transition matrix
     '''
     def __init__(self, P):
         self.P = np.array(P)
@@ -401,7 +401,7 @@ class Markov():
         
         返回
         ----
-        2-D ndarray，k步转移矩阵
+        二维ndarray，k步转移矩阵
         
         
         Parameter
@@ -425,7 +425,7 @@ class Markov():
         
         返回
         ----
-        1-D ndarray，稳态分布
+        一维ndarray，稳态分布
         
         
         Steady State Distribution

@@ -633,99 +633,6 @@ def normalizer(data, index=None):
     return data
 
 
-class Standard():
-    '''
-    标准化数据
-    以一组数据为标准，将其他数据按照该组数据的方差和均值进行标准化
-    z = (x - u) / s
-    z：新数据；  x：原数据；  u：均值；  s：方差
-    如果某一列数据完全相同（即方差s=0），则该列数据全部归零
-    
-    参数
-    ----
-    data：2-D的ndarray数据
-    mean：布尔类型，可选，是否将均值调整为0
-    var：布尔类型，可选，是否将方差调整为1
-    
-    属性
-    ----
-    mean：1-D的ndarray，数据的均值
-    var：1-D的ndarray，数据的方差
-    
-    
-    Standardize data
-    Take a group of data as the standard, other data will be standardized according to the variance and mean value of this group of data
-    z = (x - u) / s
-    z: new data;  x: origin data;  u: mean value;  s: variance
-    if data in one column are the same(s=0), data in this column will be turned to 0
-    
-    Parameters
-    ----------
-    data: 2-D ndarray
-    mean: bool, callable, if adjust the mean value to 0
-    var: bool, callable, if adjust the variance to 0
-    
-    Attributes
-    ----------
-    mean: 1-D ndarray, mean values of the data
-    var: 1-D ndarray, variances of the data
-    '''
-    def __init__(self, data, mean=True, var=True):
-        data=np.array(data, dtype=np.float)
-        
-        if mean:
-            self.mean = data.mean(axis=0)
-        else:
-            self.mean = False
-        
-        if var:
-            self.var = data.var(axis=0)
-            std_zero_indices = np.nonzero(self.var == 0)
-            self.var[self.var==0] = 1.0
-            self.__std_zero_indices = std_zero_indices[0]
-        else:
-            self.var = False
-    
-    
-    def transform(self, data, index=None):
-        '''
-        参数
-        ----
-        data：2-D的ndarray数据
-        index：列表形式，可选，需要进行标准化的列的索引，默认为全部
-        
-        返回
-        ----
-        2-D ndarray
-        
-        
-        Parameters
-        ----------
-        data: 2-D ndarray
-        index: list, callable, index of columns need to be standardized, defalut to all
-        
-        Return
-        ------
-        2-D ndarray
-        '''
-        data=np.array(data, dtype=np.float)
-        if index:
-            if type(self.mean).__name__ == 'ndarray':
-                data[:, index] -= self.mean[index]
-            
-            if type(self.var).__name__ == 'ndarray':
-                data[:, index] /= self.var[index]
-        
-        else:
-            if type(self.mean).__name__ == 'ndarray':
-                data -= self.mean
-            
-            if type(self.var).__name__ == 'ndarray':
-                data /= self.var
-        
-        return data
-
-
 class Minmax():
     '''
     归一化数据
@@ -885,3 +792,96 @@ class RC():
         '''
         self.__img_process(index=index, cmap=cmap)
         plt.savefig(filename)
+
+
+class Standard():
+    '''
+    标准化数据
+    以一组数据为标准，将其他数据按照该组数据的方差和均值进行标准化
+    z = (x - u) / s
+    z：新数据；  x：原数据；  u：均值；  s：方差
+    如果某一列数据完全相同（即方差s=0），则该列数据全部归零
+    
+    参数
+    ----
+    data：2-D的ndarray数据
+    mean：布尔类型，可选，是否将均值调整为0
+    var：布尔类型，可选，是否将方差调整为1
+    
+    属性
+    ----
+    mean：1-D的ndarray，数据的均值
+    var：1-D的ndarray，数据的方差
+    
+    
+    Standardize data
+    Take a group of data as the standard, other data will be standardized according to the variance and mean value of this group of data
+    z = (x - u) / s
+    z: new data;  x: origin data;  u: mean value;  s: variance
+    if data in one column are the same(s=0), data in this column will be turned to 0
+    
+    Parameters
+    ----------
+    data: 2-D ndarray
+    mean: bool, callable, if adjust the mean value to 0
+    var: bool, callable, if adjust the variance to 0
+    
+    Attributes
+    ----------
+    mean: 1-D ndarray, mean values of the data
+    var: 1-D ndarray, variances of the data
+    '''
+    def __init__(self, data, mean=True, var=True):
+        data=np.array(data, dtype=np.float)
+        
+        if mean:
+            self.mean = data.mean(axis=0)
+        else:
+            self.mean = False
+        
+        if var:
+            self.var = data.var(axis=0)
+            std_zero_indices = np.nonzero(self.var == 0)
+            self.var[self.var==0] = 1.0
+            self.__std_zero_indices = std_zero_indices[0]
+        else:
+            self.var = False
+    
+    
+    def transform(self, data, index=None):
+        '''
+        参数
+        ----
+        data：2-D的ndarray数据
+        index：列表形式，可选，需要进行标准化的列的索引，默认为全部
+        
+        返回
+        ----
+        2-D ndarray
+        
+        
+        Parameters
+        ----------
+        data: 2-D ndarray
+        index: list, callable, index of columns need to be standardized, defalut to all
+        
+        Return
+        ------
+        2-D ndarray
+        '''
+        data=np.array(data, dtype=np.float)
+        if index:
+            if type(self.mean).__name__ == 'ndarray':
+                data[:, index] -= self.mean[index]
+            
+            if type(self.var).__name__ == 'ndarray':
+                data[:, index] /= self.var[index]
+        
+        else:
+            if type(self.mean).__name__ == 'ndarray':
+                data -= self.mean
+            
+            if type(self.var).__name__ == 'ndarray':
+                data /= self.var
+        
+        return data

@@ -17,7 +17,7 @@ def fouriers_law(T0, T, k, acc=0.1):
     参数
     ----
     T0：一维列表，某一位置的温度
-    T：函数类型，温度分布函数
+    T：函数类型，温度分布函数，不支持批量输入函数
     k：浮点数类型，热导率
     acc：浮点数类型，可选，求导精度，默认为0.1
     
@@ -31,7 +31,7 @@ def fouriers_law(T0, T, k, acc=0.1):
     Parameter
     ---------
     T0: 1-D list, the temperature of one point
-    T: function, temperature distribution function
+    T: function, temperature distribution function, batch input function is not supported
     k: float, coefficient of thermal conductivity
     acc: float, callable, accuracy of derivation, default=0.1
     
@@ -52,45 +52,6 @@ def fouriers_law(T0, T, k, acc=0.1):
         result.append(de)
     result = np.array(result)
     return -k * result
-
-
-def logistic(t, N0, r, K):
-    '''
-    Logistic人口增长模型
-    该模型可得到解析解
-    解的形式为：Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
-    其中，Nt是t时刻的人口数
-    
-    参数
-    ----
-    t：时间
-    N0：数，现有人口数
-    r：数，人口自然增长率
-    K：数，环境资源允许的稳定人口数
-    
-    返回
-    ----
-    数，Nt
-    
-    
-    Logisyic population growth models
-    solution: Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
-    Nt is the population at time 't'
-    
-    Parameters
-    ----------
-    t: time
-    N0: number or list, initial population
-    r: number, natural population growth rate
-    K: number, stable population allowed by environmental resources
-    
-    Return
-    ------
-    num, Nt
-    '''
-    Nt_pre_down_ = N0 + (K - N0) * np.e**(-r * t)
-    Nt = K * N0 / Nt_pre_down_
-    return Nt
 
 
 def linear_r(x, y):
@@ -131,91 +92,43 @@ def linear_r(x, y):
     return coef, mse
 
 
-class MVD_law():
+def logistic(t, N0, r, K):
     '''
-    麦克斯韦速率分布律
+    Logistic人口增长模型
+    该模型可得到解析解
+    解的形式为：Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
+    其中，Nt是t时刻的人口数
+    
     参数
     ----
-    m：气体分子质量, 单位：kg
-    T：气体温度, 单位：K
+    t：时间
+    N0：数，现有人口数
+    r：数，人口自然增长率
+    K：数，环境资源允许的稳定人口数
     
-    属性
+    返回
     ----
-    fv：速率分布函数
-    v_mean：平均速率
-    v_p：最概然速率
-    v_rms：均方根速率
+    数，Nt
     
     
-    Maxwell's Velocity Distribution Law
+    Logisyic population growth models
+    solution: Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
+    Nt is the population at time 't'
     
     Parameters
     ----------
-    m: mass of gas molecule, unit: kg
-    T: temperature of gas, unit: K
+    t: time
+    N0: number or list, initial population
+    r: number, natural population growth rate
+    K: number, stable population allowed by environmental resources
     
-    Attributes
-    ----------
-    fv: velocity distribution function
-    v_mean: average velocity
-    v_p: most probable velocity
-    v_rms: root-mean-square velocity
+    Return
+    ------
+    num, Nt
     '''
-    def __init__(self, m, T):
-        def func_of_v(v):
-            f_v_1 = 4 * np.pi * v**2
-            f_v_2 = m / (2 * np.pi * constant.k * T)**1.5
-            f_v_3 = np.e**(-m * v**2 / (2 * constant.k * T))
-            return f_v_1 * f_v_2 * f_v_3
-        
-        self.fv = func_of_v
-        v_part = (constant.k * T / (np.pi * m))**0.5
-        self.v_mean = 8**0.5 * v_part
-        self.v_p = 2**0.5 * v_part
-        self.v_rms = 3**0.5 * v_part
-
-
-class Plancks_law():
-    '''
-    普朗克黑体辐射定律
-    
-    参数
-    ----
-    T：黑体温度，单位：K
-    
-    属性
-    ----
-    Mf：频率形式的普朗克公式，频率单位：10^10 kHz
-    Ml：波长形式的普朗克公式，波长单位：100nm
-    
-    
-    Planck's Blackbody Radiation Law
-    
-    Parameter
-    ---------
-    T: temperature of blackbody, unit: K
-    
-    Attributes
-    ----------
-    Mf: Planck's formula in the form of frequency, unit of frequency: 10^10 kHz
-    Ml: Planck's formula in the form of wave length, unit of wave length: 100 nm
-    '''
-    def __init__(self, T):
-        h_k = constant.h / constant.k
-        def Mf(f):
-            f = f * 1e13
-            f_1 = 2 * np.pi * constant.h * f**3 / constant.c**2
-            f_2 = 1 / (np.e**(h_k * f / T) - 1)
-            return f_1 * f_2
-        
-        def Ml(l):
-            l = l * 1e-7
-            l_1 = 2 * np.pi * constant.h * constant.c**2 / l**5
-            l_2 = 1 / (np.e**(h_k * constant.c / (l * T)) - 1)
-            return l_1 * l_2
-        
-        self.Mf = Mf
-        self.Ml = Ml
+    Nt_pre_down_ = N0 + (K - N0) * np.e**(-r * t)
+    Nt = K * N0 / Nt_pre_down_
+    return Nt
 
 
 class ED():
@@ -480,3 +393,90 @@ class Leslie():
         dense_Leslie_matrix = self.Leslie_matrix.todense()
         Nt = dense_Leslie_matrix**t_times * self.N0
         return Nt
+
+
+class MVD_law():
+    '''
+    麦克斯韦速率分布律
+    参数
+    ----
+    m：气体分子质量, 单位：kg
+    T：气体温度, 单位：K
+    
+    属性
+    ----
+    fv：速率分布函数
+    v_mean：平均速率
+    v_p：最概然速率
+    v_rms：均方根速率
+    
+    
+    Maxwell's Velocity Distribution Law
+    
+    Parameters
+    ----------
+    m: mass of gas molecule, unit: kg
+    T: temperature of gas, unit: K
+    
+    Attributes
+    ----------
+    fv: velocity distribution function
+    v_mean: average velocity
+    v_p: most probable velocity
+    v_rms: root-mean-square velocity
+    '''
+    def __init__(self, m, T):
+        def func_of_v(v):
+            f_v_1 = 4 * np.pi * v**2
+            f_v_2 = m / (2 * np.pi * constant.k * T)**1.5
+            f_v_3 = np.e**(-m * v**2 / (2 * constant.k * T))
+            return f_v_1 * f_v_2 * f_v_3
+        
+        self.fv = func_of_v
+        v_part = (constant.k * T / (np.pi * m))**0.5
+        self.v_mean = 8**0.5 * v_part
+        self.v_p = 2**0.5 * v_part
+        self.v_rms = 3**0.5 * v_part
+
+
+class Plancks_law():
+    '''
+    普朗克黑体辐射定律
+    
+    参数
+    ----
+    T：黑体温度，单位：K
+    
+    属性
+    ----
+    Mf：频率形式的普朗克公式，频率单位：10^10 kHz
+    Ml：波长形式的普朗克公式，波长单位：100nm
+    
+    
+    Planck's Blackbody Radiation Law
+    
+    Parameter
+    ---------
+    T: temperature of blackbody, unit: K
+    
+    Attributes
+    ----------
+    Mf: Planck's formula in the form of frequency, unit of frequency: 10^10 kHz
+    Ml: Planck's formula in the form of wave length, unit of wave length: 100 nm
+    '''
+    def __init__(self, T):
+        h_k = constant.h / constant.k
+        def Mf(f):
+            f = f * 1e13
+            f_1 = 2 * np.pi * constant.h * f**3 / constant.c**2
+            f_2 = 1 / (np.e**(h_k * f / T) - 1)
+            return f_1 * f_2
+        
+        def Ml(l):
+            l = l * 1e-7
+            l_1 = 2 * np.pi * constant.h * constant.c**2 / l**5
+            l_2 = 1 / (np.e**(h_k * constant.c / (l * T)) - 1)
+            return l_1 * l_2
+        
+        self.Mf = Mf
+        self.Ml = Ml

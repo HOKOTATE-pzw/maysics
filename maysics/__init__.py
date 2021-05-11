@@ -12,7 +12,7 @@ maysics主要包括十二个模块：
 7、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
 8、preprocess 用于数据预处理；
 9、stats 用于统计分析；
-10、time_process 用于处理时间数据；
+10、tprocess 用于处理时间数据；
 11、transformation 储存了常用的坐标转换及其他数学变换；
 12、utils 是额外工具箱。
 
@@ -30,7 +30,7 @@ maysics includes twelve modules:
 7. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
 8. "preprocess" is used for data preproccessing;
 9. "stats" is uesd for statistical analysis;
-10. "time_process" is used for processing time data;
+10. "tprocess" is used for processing time data;
 11. "transformation" stores common coordinate transformations and other mathematical transformations;
 12. "utils" is extra Utils.
 '''
@@ -38,174 +38,10 @@ import numpy as np
 import pickle, csv
 from PIL import Image
 from maysics import algorithm, calculus, constant, equation, explainer, graph,\
-    models, preprocess, stats, time_process, transformation, utils
-from maysics.preprocess import preview, preview_file
+    models, preprocess, stats, tprocess, transformation, utils
 from maysics.models import linear_r
+from maysics.preprocess import preview, preview_file, shuffle
 from maysics.utils import circle, discrete, grid_net
-
-
-def arr(f):
-    '''
-    将矢量函数的输出形式统一为ndarray
-    
-    参数
-    ----
-    f：函数类型
-    
-    返回
-    ----
-    更改输出格式后的函数
-    
-    
-    transform the output of vector function as ndarray
-    
-    Parameter
-    ---------
-    f: function
-    
-    Return
-    ------
-    function after changing the output format
-    '''
-    def obj(x):
-        func = f(x)
-        try:
-            return np.array(func)
-        except:
-            return func
-    return obj
-
-
-def add(*arg):
-    '''
-    实现函数与同型函数、函数与数之间的加法
-    要求作用函数若输出列表，必须是ndarray格式
-    
-    返回
-    ----
-    相加后的新函数
-    
-    
-    addition between function and function or function and number
-    if output of the function is list, it requires ndarray
-    
-    Return
-    ------
-    new function after addition
-    '''
-    def obj(x):
-        list = []
-        for i in range(len(arg)):
-            if type(arg[i]).__name__ == 'function':
-                list.append(arg[i](x))
-            else:
-                list.append(arg[i])
-        return sum(list)
-    return obj
-
-
-def mul(*arg):
-    '''
-    实现函数与同型函数、函数与数之间的乘法
-    要求作用函数若输出列表，必须是ndarray格式
-    
-    返回
-    ----
-    相乘后的新函数
-    
-    
-    multiplication between function and function or function and number
-    if output of the function is list, it requires ndarray
-    
-    Return
-    ------
-    new function after multiplication
-    '''
-    def obj(x):
-        result = 1
-        for i in range(len(arg)):
-            if type(arg[i]).__name__ == 'function':
-                result *= arg[i](x)
-            else:
-                result *= arg[i]
-        return result
-    return obj
-
-
-def sub(minuend, subtrahend):
-    '''
-    实现函数与同型函数、函数与数之间的减法
-    要求作用函数若输出列表，必须是ndarray格式
-    minuend：被减数
-    subtrahend：减数
-    
-    返回
-    ----
-    相乘后的新函数
-    
-    
-    subtraction between function and function or function and number
-    if output of the function is list, it requires ndarray
-    minuend: minuend
-    subtrahend: subtrahend
-    
-    Return
-    ------
-    new function after subtraction
-    '''
-    def obj(x):
-        if type(minuend).__name__ == 'function':
-            result_of_minuend = minuend(x)
-        else:
-            result_of_minuend = minuend
-        if type(subtrahend).__name__ == 'function':
-            result_of_subtrahend = subtrahend(x)
-        else:
-            result_of_subtrahend = subtrahend
-        
-        result = result_of_minuend - result_of_subtrahend
-        return result
-    return obj
-
-
-def div(dividend, divisor):
-    '''
-    实现函数与同型函数、函数与数之间的除法
-    要求作用函数若输出列表，必须是ndarray格式
-    
-    参数
-    ----
-    dividend：被除数
-    divisor：除数
-    
-    返回
-    ----
-    相乘后的新函数
-    
-    
-    Parameters
-    ----------
-    division between function and function or function and number
-    if output of the function is list, it requires ndarray
-    dividend: dividend
-    divisor: divisor
-    
-    Return
-    ------
-    new function after division
-    '''
-    def obj(x):
-        if type(dividend).__name__ == 'function':
-            result_of_dividend = dividend(x)
-        else:
-            result_of_dividend = dividend
-        if type(divisor).__name__ == 'function':
-            result_of_divisor = divisor(x)
-        else:
-            result_of_divisor = divisor
-        result = result_of_dividend - result_of_divisor
-        return result
-    return obj
 
 
 def covs1d(a, b, n):
@@ -214,8 +50,8 @@ def covs1d(a, b, n):
     
     参数
     ----
-    a：一维列表
-    b：一维列表
+    a：一维数组
+    b：一维数组
     n：整型，平移步数
     
     返回
@@ -226,8 +62,8 @@ def covs1d(a, b, n):
     
     Parameters
     ----------
-    a: 1-D list
-    b: 1-D list
+    a: 1-D array
+    b: 1-D array
     n: int, translation steps
     
     Return
@@ -259,8 +95,8 @@ def covs2d(a, b, n, m):
     
     参数
     ----
-    a：二维列表
-    b：二维列表
+    a：二维数组
+    b：二维数组
     n：整型，沿axis=0方向的平移步数
     m：整型，沿axis=1方向的平移步数
     
@@ -272,8 +108,8 @@ def covs2d(a, b, n, m):
     
     Parameters
     ----------
-    a: 2-D list
-    b: 2-D list
+    a: 2-D array
+    b: 2-D array
     n: int, translation steps along axis=0
     m: int, translation steps along axis=1
     
