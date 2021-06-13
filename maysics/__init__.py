@@ -9,7 +9,7 @@ maysics主要包括十二个模块：
 4、equation 封装了部分方程求解运算；
 5、explainer 用于评估和解释模型；
 6、graph 用于图论分析；
-7、models 封装了几种常用的数学物理定律、方程、模型以便快速构建数理模型；
+7、models 封装了几种常用的模型以便快速构建数理模型；
 8、preprocess 用于数据预处理；
 9、stats 用于统计分析；
 10、tprocess 用于处理时间数据；
@@ -27,7 +27,7 @@ maysics includes twelve modules:
 4. "equation" packages some equation solving operation;
 5. "explainer" used for estimating and explaining model;
 6. "graph" used for graph theory analysis;
-7. "models" packages several commonly used laws, equations and models of mathematical physics for fast modeling;
+7. "models" packages several commonly used models for fast modeling;
 8. "preprocess" is used for data preproccessing;
 9. "stats" is uesd for statistical analysis;
 10. "tprocess" is used for processing time data;

@@ -19,7 +19,7 @@ def _image_detail(data, labels, index, top, estimate, n1, n2):
     new_data = np.sort(new_data)
     
     if not labels:
-        labels = sort_list
+        labels = sort_list.astype(str)
     else:
         labels = np.array(labels, dtype=str)
         labels = labels[sort_list]
@@ -32,6 +32,7 @@ def _image_detail(data, labels, index, top, estimate, n1, n2):
     width = new_data.shape[0] * 0.5 * n1
     fig = plt.figure(figsize=(8, width))
     ax = fig.add_subplot(n1, 1, n2)
+    
     color = []
     for i in range(new_data.shape[0]):
         if new_data[i] >= 0:

@@ -51,6 +51,9 @@ v1: 第一宇宙速度 / first cosmic velocity
 v2: 第二宇宙速度 / second cosmic velocity
 v3: 第三宇宙速度 / third cosmic velocity
 hp()：厄米多项式 / Hermite Polynomials
+v_mean()：麦克斯韦速率分布律下的平均速率
+v_p()：麦克斯韦速率分布律下的最概然速率
+v_rms()：麦克斯韦速率分布律下的均方根速率
 '''
 import numpy as np
 from scipy.special import factorial
@@ -270,3 +273,87 @@ def hp(x, n, li=False):
             else:
                 hp_list.append(2 * x * hp_list[i-1] - 2 * (i-1) * hp_list[i-2])
         return np.array(hp_list)
+
+
+def v_mean(m, T):
+    '''
+    麦克斯韦速率分布律下的平均速率
+    
+    参数
+    ----
+    m：气体分子质量, 单位：kg
+    T：气体温度, 单位：K
+    
+    返回
+    ----
+    数或数组类型，速率，单位：m/s
+    
+    
+    Average Velocity in Maxwell's Velocity Distribution Law
+    
+    Parameters
+    ----------
+    m: mass of gas molecule, unit: kg
+    T: temperature of gas, unit: K
+    
+    Return
+    ------
+    num or array, velocity, unit: m/s
+    '''
+    return 8**0.5 * (k * T / (np.pi * m))**0.5
+
+
+def v_p(m, T):
+    '''
+    麦克斯韦速率分布律下的最概然速率
+    
+    参数
+    ----
+    m：气体分子质量, 单位：kg
+    T：气体温度, 单位：K
+    
+    返回
+    ----
+    数或数组类型，速率，单位：m/s
+    
+    
+    Most Probable Velocity in Maxwell's Velocity Distribution Law
+    
+    Parameters
+    ----------
+    m: mass of gas molecule, unit: kg
+    T: temperature of gas, unit: K
+    
+    Return
+    ------
+    num or array, velocity, unit: m/s
+    '''
+    return 2**0.5 * (k * T / (np.pi * m))**0.5
+
+
+def v_rms(m, T):
+    '''
+    麦克斯韦速率分布律下的均方根速率
+    
+    参数
+    ----
+    m：气体分子质量, 单位：kg
+    T：气体温度, 单位：K
+    
+    返回
+    ----
+    数或数组类型，速率，单位：m/s
+    
+    
+    Root-Mean-Square Velocity Maxwell's Velocity Distribution Law
+    
+    Parameters
+    ----------
+    m: mass of gas molecule, unit: kg
+    T: temperature of gas, unit: K
+    
+    Return
+    ------
+    num or array, velocity, unit: m/s
+    '''
+    return 3**0.5 * (k * T / (np.pi * m))**0.5

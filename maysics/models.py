@@ -1,57 +1,12 @@
 '''
-本模块储存着部分常用的数理物理方程、定律、数学模型等
+本模块储存着部分常用的模型
 
-This module stores some commonly used mathematical physical equations, laws, mathematical models, etc
+This module stores some commonly used models
 '''
 import numpy as np
 from maysics import constant
 from scipy.integrate import solve_ivp
 from scipy.sparse import csr_matrix
-
-
-def fouriers_law(T0, T, k, acc=0.1):
-    '''
-    傅里叶定律/热传导定律
-    热流量：J=-k▽T
-    
-    参数
-    ----
-    T0：一维列表，某一位置的温度
-    T：函数类型，温度分布函数，不支持批量输入函数
-    k：浮点数类型，热导率
-    acc：浮点数类型，可选，求导精度，默认为0.1
-    
-    返回
-    ----
-    数，热流量
-    
-    
-    Fourier's Law: J=-k▽T
-    
-    Parameter
-    ---------
-    T0: 1-D list, the temperature of one point
-    T: function, temperature distribution function, batch input function is not supported
-    k: float, coefficient of thermal conductivity
-    acc: float, callable, accuracy of derivation, default=0.1
-    
-    Return
-    ------
-    num, heat flow
-    '''
-    T0 = np.array(T0, dtype=float)
-    dim = len(T0)
-    result = []
-    for i in range(dim):
-        T0[i] += acc * 0.5
-        func1 = T(T0)
-        T0[i] -= acc
-        func2 = T(T0)
-        T0[i] += acc * 0.5
-        de = (func1 - func2) / acc
-        result.append(de)
-    result = np.array(result)
-    return -k * result
 
 
 def linear_r(x, y):
@@ -96,15 +51,15 @@ def logistic(t, N0, r, K):
     '''
     Logistic人口增长模型
     该模型可得到解析解
-    解的形式为：Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
-    其中，Nt是t时刻的人口数
+    解的形式为：Nt = K * N0 / (N0 + (K - N0) * e**(-r * t))
+    其中，Nt为t时刻的人口数
     
     参数
     ----
     t：时间
-    N0：数，现有人口数
-    r：数，人口自然增长率
-    K：数，环境资源允许的稳定人口数
+    N0：数或数组，现有人口数
+    r：数类型，人口自然增长率
+    K：数类型，环境资源允许的稳定人口数
     
     返回
     ----
@@ -112,15 +67,15 @@ def logistic(t, N0, r, K):
     
     
     Logisyic population growth models
-    solution: Nt = K*N0/(N0+(K-N0)*np.e**(-r*t))
+    solution: Nt = K * N0 / (N0 + (K - N0) * e**(-r * t))
     Nt is the population at time 't'
     
     Parameters
     ----------
     t: time
-    N0: number or list, initial population
-    r: number, natural population growth rate
-    K: number, stable population allowed by environmental resources
+    N0: num or array, initial population
+    r: num, natural population growth rate
+    K: num, stable population allowed by environmental resources
     
     Return
     ------
@@ -142,9 +97,11 @@ class ED():
     
     参数
     ----
-    I0：初始感染者
-    K：样本总数
-    beta：感染率
+    I0：数类型，初始感染者
+    K：数类型，样本总数
+    beta：数类型，感染率
+    R：数类型，可选，初始康复者(带有免疫力)或死者，默认为0
+    E：数类型，可选，暴露者，默认为0
     
     
     mathematical models of epidemic diseases
@@ -159,6 +116,8 @@ class ED():
     I0: initial infected people
     K: sample size
     beta: infection rate
+    R: num, callable, recovered people with immunity or dead people, default=0
+    E: num, callable, exposed people, default=0
     '''
     def __init__(self, I0, K, beta, R=0, E=0):
         self.I0 = I0
@@ -169,82 +128,88 @@ class ED():
         self.S = K - I0 - R - E
     
     
-    def SI(self):
+    def SI(self, t):
         '''
         SI模型：
         该模型不需要再额外输入参数，且可得到解析解
-        解的形式为：I = K*(1-(K-I0)/(K+I0+I0*np.e**(beta*K*t)))
+        解的形式为：I = K*(1-(K-I0)/(K+I0+I0*e**(beta*K*t)))
+        
+        参数
+        ----
+        t：数或一维数组，需要预测的时间
 
         返回
         ----
-        函数形式，函数的返回值为(I(t), S(t))
+        元组，(S(t), I(t))
         
         
         SI:
         no more parameters
         solution: I = K*(1-(K-I0)/(K+I0+I0*np.e**(beta*K*t)))
         
+        Parameter
+        ---------
+        t: num or 1-D array, time for prediction
+        
         Return
         ------
-        function, the value returned by the function is (I(t), S(t))
+        tuple, (S(t), I(t))
         '''
-        def obj(t):
-            I_pre_down_ = self.K + self.I0 * (np.e**(self.beta * self.K * t) - 1)
-            I_pre_up_ = self.K - self.I0
-            I_func_ = self.K * (1 - I_pre_up_ / I_pre_down_)
-            S_func_ = self.K - I_func_
-            return I_func_, S_func_
-        return obj
+        I_pre_down_ = self.K + self.I0 * (np.e**(self.beta * self.K * t) - 1)
+        I_pre_up_ = self.K - self.I0
+        I_func_ = self.K * (1 - I_pre_up_ / I_pre_down_)
+        S_func_ = self.K - I_func_
+        return S_func_, I_func_
     
     
-    def SIR(self, gamma, t_span, method='RK45' ,t_eval=None):
+    def SIR(self, gamma, t_span, method='RK45', t_eval=None):
         '''
         SIR模型：
         该模型不能得到解析解，给出的是基于solve_ivp得到的数值解数组
         
         参数
         ----
-        gamma：康复率
+        gamma：数类型，康复率
         t_span：元组形式，求解的上下限
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
         t_eval：数组形式，可选，每当t等于该数组中的值时，会生成一个数值解
 
         返回
         ----
-        solve_ivp数值解，顺序是I, S, R
+        solve_ivp数值解，顺序是S, I, R
         
         
         SIR:
         
         Parameters
         ----------
-        gamma: recovery rate
+        gamma: num, recovery rate
         t_span: tuple, limits of solution
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
         t_eval: list, callable, when 't' equals the value in the list, it will generate a numerical solution
         
         Return
         ------
-        numerical solution of solve_ivp, the order is I, S, R
+        numerical solution of solve_ivp, the order is S, I, R
         '''
-        y0 = [self.I0, self.S, self.R]
+        y0 = [self.S, self.I0, self.R]
         def epis_equas(t, x):
-            y1 = self.beta * x[0] * x[1] - gamma * x[0]
-            y2 = -self.beta * x[0] * x[1]
-            y3 = gamma * x[0]
+            y1 = -self.beta * x[1] * x[0]
+            y2 = self.beta * x[1] * x[0] - gamma * x[1]
+            y3 = gamma * x[1]
             return y1, y2, y3
         result = solve_ivp(epis_equas, t_span=t_span, y0=y0, method=method, t_eval=t_eval)
-        return result
+        return result.y
     
     
-    def SIRS(self, gamma, alpha, t_span, method='RK45' ,t_eval=None):
+    def SIRS(self, gamma, alpha, t_span, method='RK45', t_eval=None):
         '''
         SIRS模型：
         该模型不能得到解析解，给出的是基于solve_ivp得到的数值解数组
         
         参数
         ----
-        gamma：康复率
+        gamma：数类型，康复率
         alpha：衡量康复者获得免疫的时间
         t_span：元组形式，求解的上下限
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
@@ -252,14 +217,14 @@ class ED():
 
         返回
         ----
-        solve_ivp数值解，顺序是I, S, R
+        solve_ivp数值解，顺序是S, I, R
         
         
         SIRS:
         
         Parameters
         ----------
-        gamma: recovery rate
+        gamma: num, recovery rate
         alpha: measuring the time that the recovered people with immunity
         t_span: tuple, limits of solution
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
@@ -267,61 +232,61 @@ class ED():
         
         Return
         ------
-        numerical solution of solve_ivp, the order is I, S, R
+        numerical solution of solve_ivp, the order is S, I, R
         '''
-        y0= [self.I0, self.S, self.R]
+        y0= [self.S, self.I0, self.R]
         def epis_equas(t, x):
-            y1 = self.beta * x[0] * x[1] - gamma * x[0]
-            y2 = -self.beta * x[0] * x[1] + alpha * x[2]
-            y3 = gamma * x[0] - alpha * x[2]
+            y1 = -self.beta * x[1] * x[0] + alpha * x[2]
+            y2 = self.beta * x[1] * x[0] - gamma * x[1]
+            y3 = gamma * x[1] - alpha * x[2]
             return y1, y2, y3
         result = solve_ivp(epis_equas, t_span=t_span, y0=y0, method=method, t_eval=t_eval)
-        return result
+        return result.y
     
     
-    def SEIR(self, gamma1, gamma2, alpha, t_span, method='RK45' ,t_eval=None):
+    def SEIR(self, gamma1, gamma2, alpha, t_span, method='RK45', t_eval=None):
         '''
         SEIR模型：
         该模型不能得到解析解，给出的是基于solve_ivp得到的数值解数组
         
         参数
         ----
-        gamma1：潜伏期康复率
-        gamma2：患者康复率
-        alpha：衡量康复者获得免疫的时间
+        gamma1：数类型，潜伏期康复率
+        gamma2：数类型，患者康复率
+        alpha：数类型，衡量康复者获得免疫的时间
         t_span：元组形式，求解的上下限
         method：字符串形式，可选，求解方法，可选择'RK45'、'RK23'、'DOP835'、'Radau'、'BDF'、'LSODA'
         t_eval：数组形式，可选，每当t等于该数组中的值时，会生成一个数值解
 
         返回
         ----
-        solve_ivp数值解，顺序是I, S, R, E
+        solve_ivp数值解，顺序是S, E, I, R
         
         
         SEIR:
         
         Parameters
         ----------
-        gamma1: recovery rate of incubation
-        gamma2: recovery rate of patients
-        alpha: measuring the time that the recovered people with immunity
+        gamma1: num, recovery rate of incubation
+        gamma2: num, recovery rate of patients
+        alpha: num, measuring the time that the recovered people with immunity
         t_span: tuple, limits of solution
         method: str, callable, solving method, 'RK45', 'RK23', 'DOP835', 'Radau', 'BDF', 'LSODA' are optional
         t_eval: list, callable, when 't' equals the value in the list, it will generate a numerical solution
         
         Return
         ------
-        numerical solution of solve_ivp, the order is I, S, R, E
+        numerical solution of solve_ivp, the order is S, E, I, R
         '''
-        y0 = [self.I0, self.S, self.R, self.E]
+        y0 = [self.S, self.E, self.I0, self.R]
         def epis_equas(t, x):
-            y1 = alpha * x[3] - gamma2 * x[0]
-            y2 = -self.beta * x[0] *x[1]
-            y3 = gamma1 * x[3] + gamma2 * x[0]
-            y4 = self.beta * x[0] * x[1] - (alpha + gamma1) * x[3]
+            y1 = -self.beta * x[2] * x[0]
+            y2 = self.beta * x[2] * x[0] - (alpha + gamma1) * x[1]
+            y3 = alpha * x[1] - gamma2 * x[2]
+            y4 = gamma1 * x[1] + gamma2 * x[2]
             return y1, y2, y3, y4
         result = solve_ivp(epis_equas, t_span=t_span, y0=y0, method=method, t_eval=t_eval)
-        return result
+        return result.y
 
 
 class Leslie():
@@ -332,9 +297,9 @@ class Leslie():
     
     参数
     ----
-    N0：列表，各年龄层初始个体数目
-    r：数，各年龄层的生殖率
-    s：数，各年龄层到下一个年龄层的存活率
+    N0：一维数组，各年龄层初始个体数目
+    r：一维数组，各年龄层的生殖率
+    s：一维数组，各年龄层到下一个年龄层的存活率
     age_range：整型，年龄段的跨度，默认为1
     
     属性
@@ -348,9 +313,9 @@ class Leslie():
     
     Parameters
     ----------
-    N0: list, initial number of individuals in each age group
-    r: number, reproductive rate of each age group
-    s: number, survival rate to next age group of each group
+    N0: 1-D array, initial number of individuals in each age group
+    r: 1-D array, reproductive rate of each age group
+    s: 1-D array, survival rate to next age group of each group
     age_range: int, the span of age groups, default=1
     
     Attribute
@@ -358,7 +323,7 @@ class Leslie():
     Leslie_matrix: Leslie matrix 
     '''
     def __init__(self, N0, r, s, age_range=1):
-        self.N0 = np.mat(N0).T
+        self.N0 = np.array(N0)
         self.r = np.array(r)
         self.s = np.array(s)
         self.age_range = age_range
@@ -374,7 +339,7 @@ class Leslie():
         '''
         参数
         ----
-        t：时间
+        t：数或一维数组，时间
         
         返回
         ----
@@ -383,7 +348,7 @@ class Leslie():
         
         Parameter
         ---------
-        t: time
+        t: num or 1-D array, time
         
         Return
         ------
@@ -391,92 +356,5 @@ class Leslie():
         '''
         t_times = t // self.age_range
         dense_Leslie_matrix = self.Leslie_matrix.todense()
-        Nt = dense_Leslie_matrix**t_times * self.N0
-        return Nt
-
-
-class MVD_law():
-    '''
-    麦克斯韦速率分布律
-    参数
-    ----
-    m：气体分子质量, 单位：kg
-    T：气体温度, 单位：K
-    
-    属性
-    ----
-    fv：速率分布函数
-    v_mean：平均速率
-    v_p：最概然速率
-    v_rms：均方根速率
-    
-    
-    Maxwell's Velocity Distribution Law
-    
-    Parameters
-    ----------
-    m: mass of gas molecule, unit: kg
-    T: temperature of gas, unit: K
-    
-    Attributes
-    ----------
-    fv: velocity distribution function
-    v_mean: average velocity
-    v_p: most probable velocity
-    v_rms: root-mean-square velocity
-    '''
-    def __init__(self, m, T):
-        def func_of_v(v):
-            f_v_1 = 4 * np.pi * v**2
-            f_v_2 = m / (2 * np.pi * constant.k * T)**1.5
-            f_v_3 = np.e**(-m * v**2 / (2 * constant.k * T))
-            return f_v_1 * f_v_2 * f_v_3
-        
-        self.fv = func_of_v
-        v_part = (constant.k * T / (np.pi * m))**0.5
-        self.v_mean = 8**0.5 * v_part
-        self.v_p = 2**0.5 * v_part
-        self.v_rms = 3**0.5 * v_part
-
-
-class Plancks_law():
-    '''
-    普朗克黑体辐射定律
-    
-    参数
-    ----
-    T：黑体温度，单位：K
-    
-    属性
-    ----
-    Mf：频率形式的普朗克公式，频率单位：10^10 kHz
-    Ml：波长形式的普朗克公式，波长单位：100nm
-    
-    
-    Planck's Blackbody Radiation Law
-    
-    Parameter
-    ---------
-    T: temperature of blackbody, unit: K
-    
-    Attributes
-    ----------
-    Mf: Planck's formula in the form of frequency, unit of frequency: 10^10 kHz
-    Ml: Planck's formula in the form of wave length, unit of wave length: 100 nm
-    '''
-    def __init__(self, T):
-        h_k = constant.h / constant.k
-        def Mf(f):
-            f = f * 1e13
-            f_1 = 2 * np.pi * constant.h * f**3 / constant.c**2
-            f_2 = 1 / (np.e**(h_k * f / T) - 1)
-            return f_1 * f_2
-        
-        def Ml(l):
-            l = l * 1e-7
-            l_1 = 2 * np.pi * constant.h * constant.c**2 / l**5
-            l_2 = 1 / (np.e**(h_k * constant.c / (l * T)) - 1)
-            return l_1 * l_2
-        
-        self.Mf = Mf
-        self.Ml = Ml
+        Nt = self.N0 * dense_Leslie_matrix**t_times
+        return np.array(Nt)[0]

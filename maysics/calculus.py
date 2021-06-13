@@ -225,12 +225,9 @@ def nebla_dot(f, x, acc=0.1):
         result = [result]
     result = np.array(result)
     return result
-    
 
-def _diff2forc(a, b, f, x, acc):
-    '''
-    一个中介函数，方便后文程序使用
-    '''
+
+def _diff2forc(f, x, a, b, acc):
     if len(x.shape) == 1:
         x[b] += acc * 0.5
         func1 = f(x)[a]
@@ -277,12 +274,12 @@ def nebla_cross(f, x, acc=0.1):
     '''
     x = np.array(x, dtype=float)
     result = np.array([
-        _diff2forc(2, 1, f, x, acc) -\
-        _diff2forc(1, 2, f, x, acc),
-        _diff2forc(0, 2, f, x, acc) -\
-        _diff2forc(2, 0, f, x, acc),
-        _diff2forc(1, 0, f, x, acc) -\
-        _diff2forc(0, 1, f, x, acc)])
+        _diff2forc(f, x, 2, 1, acc) -\
+        _diff2forc(f, x, 1, 2, acc),
+        _diff2forc(f, x, 0, 2, acc) -\
+        _diff2forc(f, x, 2, 0, acc),
+        _diff2forc(f, x, 1, 0, acc) -\
+        _diff2forc(f, x, 0, 1, acc)])
     return result
 
 
@@ -341,7 +338,7 @@ def laplace(f, x, acc=0.1):
     return result
 
 
-def _mc_fit(func, area, dim, args, condition, param, loop, height, random_state):
+def _mc_fit(func, condition, random_state, area, dim, args, param, loop, height):
     '''
     蒙特卡洛法积分
     
@@ -389,14 +386,13 @@ def _mc_fit(func, area, dim, args, condition, param, loop, height, random_state)
     return V * effect_points_rate
 
 
-def _rect_fit(func, area, dim, args, condition, param, acc):
+def _rect_fit(func, condition, area, dim, args, param, acc):
     '''
     矩形法积分
     
     
     Rectangle method
     '''
-    acc = np.array(acc)
     dv = acc.prod()
     
     points_net = []
@@ -489,13 +485,16 @@ def inte(func, area, method='rect', dim=1, args={}, condition=None, param={}, ac
     height: float, callable, height, it's effective only when method='mc', default=1
     random_state: int, random seed, it's effective only when method='mc'
     '''
+    area = np.array(area, dtype=float)
     if method == 'rect':
         if type(acc).__name__ == 'float' or type(acc).__name__ == 'int':
             acc = np.ones(len(area)) * acc
-        return _rect_fit(func, area, dim, args, condition, param, acc)
+        else:
+            acc = np.array(acc)
+        return _rect_fit(func, condition, area, dim, args, param, acc)
     
     elif method == 'mc':
-        return _mc_fit(func, area, dim, args, condition, param, loop, height, random_state)
+        return _mc_fit(func, condition, random_state, area, dim, args, param, loop, height)
     
     else:
         raise Exception("Parameter 'method' must be one of 'rect' and 'mc'.")

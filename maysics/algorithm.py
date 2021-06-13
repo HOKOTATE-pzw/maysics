@@ -704,7 +704,7 @@ class GD():
     
     参数
     ----
-    ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.1
+    ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.01
     step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，默认为0.1
     acc：浮点数类型，可选，求导精度，默认为0.1
     
@@ -721,7 +721,7 @@ class GD():
     
     Parameters
     ----------
-    ytol: float, callable, when △f of two successive iterations is less than ytol, the iteration will stop, default=0.1
+    ytol: float, callable, when △f of two successive iterations is less than ytol, the iteration will stop, default=0.01
     step: float, callable, step, each generated step length = - step * gradient, default=1
     acc: float, callable, accuracy of derivation, default=0.1
     
@@ -731,7 +731,7 @@ class GD():
     trace: ndarray, independent variable points in the iterative process
     value: float, function value of optimal solution
     '''
-    def __init__(self, ytol=0.1, step=0.1, acc=0.1):
+    def __init__(self, ytol=0.01, step=0.1, acc=0.1):
         self.ytol = ytol
         self.step = step
         self.acc = acc
@@ -752,10 +752,9 @@ class GD():
         initial = np.array(initial, dtype=np.float)
         self.trace = [initial]
         f_change = float('inf')
-        acc2 = 0.5 * self.acc
         
         while f_change > self.ytol:
-            d_list = grad(select, initial)
+            d_list = grad(select, initial, self.acc)
             # 计算函数值变化量
             f_change = select(initial)
             initial = initial - d_list * self.step
