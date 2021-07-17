@@ -618,7 +618,10 @@ class SA():
     参数
     ----
     anneal：浮点数类型或函数类型，可选，退火方法，若为浮点数，则按T = anneal * T退火，默认为0.9
-    step：浮点数类型，可选，步长倍率，每次生成的步长为step乘一个属于(-1, 1)的随机数，默认为1
+    step：浮点数类型或函数类型，可选
+        当为浮点数类型时，是步长倍率，每次生成的步长为step乘一个属于(-1, 1)的随机数，默认为1
+        当为函数类型时，是自变量点的更新方法
+    param：字典类型，可选，当step为函数类型时且有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     n：整型，可选，等温时迭代次数，默认为10
     random_state：整型，可选，随机种子
     
@@ -635,7 +638,10 @@ class SA():
     Parameters
     ----------
     anneal: float or function, callable, annealing method, if type is float, it will be annealed with T = anneal * T, default=0.9
-    step: float, callable, step, each generated step length = step * a random number belonging to (-1, 1), default=1
+    step: float or function, callable
+        when its type is float, it means step, each generated step length = step * a random number belonging to (-1, 1), default=1
+        when its type is function, it menas update method of independent variable points
+    param: dict, callable, When step is function and has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     n: int, callable, isothermal iterations, default=10
     random_state: int, callable, random seed
     
@@ -645,14 +651,15 @@ class SA():
     trace: ndarray, independent variable points in the iterative process
     value: float, function value of optimal solution
     '''
-    def __init__(self, anneal=0.9, step=1, n=10, random_state=None):
+    def __init__(self, anneal=0.9, step=1, param={}, n=10, random_state=None):
         self.__anneal = anneal
         self.__step = step
+        self.__param = param
         self.__n = n
         np.random.seed(random_state)
     
     
-    def fit(self, select, T, T0, initial):
+    def fit(self, select, T, T0, initial, args={}, loop=1):
         '''
         参数
         ----
@@ -660,6 +667,8 @@ class SA():
         T：浮点数类型，初始温度
         T0：浮点数类型，退火温度
         initial：数或数组，初始解，select函数的输入值
+        args：字典类型，可选，当select有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+        loop：整型，可选，当需要循环n次模拟退火时，loop=n，默认loop=1
         
         
         Parameters
@@ -668,33 +677,50 @@ class SA():
         T: float, initial temperature
         T0: float, annealing temperature
         initial: num or array, initial solution, the input value of select function
+        args: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
+        loop: int, callable, when n cycles of simulated annealing are needed, loo=n, default=1
         '''
-        initial = np.array(initial, dtype=np.float)
-        self.trace = [initial]
-        while T > T0:
-            for i in range(self.__n):
-                random_x = 2 * self.__step * (np.random.rand(*initial.shape) - 0.5)
-                initial_copy = initial.copy()
-                initial_copy += random_x
-                if select(initial_copy) < select(initial):
-                    initial = initial_copy
-                    self.trace.append(initial)
-                else:
-                    pro = random.random()
-                    if pro < np.e**(-(select(initial_copy) - select(initial)) / T):
-                        initial = initial_copy
-                        self.trace.append(initial)
-            
-            if type(self.__anneal).__name__ == 'float':
-                T *= self.__anneal
-            elif type(self.__anneal).__name__ == 'function':
-                T = self.__anneal(T)
-            else:
-                raise Exception("Type of 'anneal' must be one of 'float' and 'function'.")
+        initial = np.array(initial, dtype=float)
         
-        self.solution = initial
-        self.trace = np.array(self.trace)
-        self.value = select(initial)
+        for n in range(loop):
+            T_copy = T
+            trace = [initial]
+            while T_copy > T0:
+                for i in range(self.__n):
+                    if type(self.__step).__name__ != 'function':
+                        random_x = 2 * self.__step * (np.random.rand(*initial.shape) - 0.5)
+                        initial_copy = initial.copy()
+                        initial_copy += random_x
+                    else:
+                        initial_copy = self.__step(initial, **self.__param)
+                    
+                    if select(initial_copy) < select(initial, **args):
+                        initial = initial_copy
+                        trace.append(initial)
+                    else:
+                        pro = random.random()
+                        if pro < np.e**(-(select(initial_copy, **args) - select(initial, **args)) / T_copy):
+                            initial = initial_copy
+                            trace.append(initial)
+                
+                if type(self.__anneal).__name__ == 'float':
+                    T_copy *= self.__anneal
+                elif type(self.__anneal).__name__ == 'function':
+                    T_copy = self.__anneal(T_copy)
+                else:
+                    raise Exception("Type of 'anneal' must be one of 'float' and 'function'.")
+            
+            if n == 0:
+                self.solution = initial
+                self.trace = np.array(trace)
+                self.value = select(initial, **args)
+            
+            else:
+                value = select(initial, **args)
+                if value < self.value:
+                    self.solution = initial
+                    self.trace = np.array(trace)
+                    self.value = value
 
 
 class GD():
@@ -737,17 +763,19 @@ class GD():
         self.acc = acc
     
     
-    def fit(self, select, initial):
+    def fit(self, select, initial, args={}):
         '''
         参数
         ----
         select：函数，评估函数
         initial：数或数组，初始解，select函数的输入值
+        args：字典类型，可选，当select有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         
         Parameters
         ----------
         select: function, evaluation function
         initial: num or array, initial solution, the input value of select function
+        args: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         '''
         initial = np.array(initial, dtype=np.float)
         self.trace = [initial]
@@ -756,14 +784,14 @@ class GD():
         while f_change > self.ytol:
             d_list = grad(select, initial, self.acc)
             # 计算函数值变化量
-            f_change = select(initial)
+            f_change = select(initial, **args)
             initial = initial - d_list * self.step
-            f_change = abs(select(initial) - f_change)
+            f_change = abs(select(initial, **args) - f_change)
             self.trace.append(initial)
         
         self.solution = initial
         self.trace = np.array(self.trace)
-        self.value = select(initial)
+        self.value = select(initial, **args)
 
 
 class GM():

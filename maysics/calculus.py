@@ -477,9 +477,9 @@ def inte(func, area, method='rect', dim=1, args={}, condition=None, param={}, ac
              when the 2-D integral region is x1∈[a1, b1] and x2∈[a2, b2], area=[[a1, b1], [a2, b2]]
     method: str, callable, 'rect' and 'mc' are optional, default='rect'
     dim: int, 1 and 2 are optional, 1 means the input of integrand is 1-D list, like normal functions, 2 means the input of integrand is 2-D list, like functions need mini-batch input, default=1
-    args: dict, callable, when integrand function has other non-default parameters, 'args' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
+    args: dict, callable, when integrand function has other non-default parameters, "args" needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
     condition: function, callable, condition function with the input of the first parameter as 1-D list, if input if qualified, ouput True, otherwise output False
-    param: dict, callable, when condtition function has other non-default parameters, 'param' needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
+    param: dict, callable, when condtition function has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     acc: float or list, callable, integration accuracy, it's effective only when method='rect', default=0.1
     loop: int, callable, the number of generated random numbers, it's effective only when method='mc', default=10000
     height: float, callable, height, it's effective only when method='mc', default=1

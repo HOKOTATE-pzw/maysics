@@ -516,7 +516,7 @@ def standard(data, mean=True, var=True, index=None):
     ------
     2-D ndarray
     '''
-    data=np.array(data, dtype=np.float)
+    data=np.array(data, dtype=float)
     
     if index:
         if mean is True:
@@ -600,7 +600,7 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     ------
     tuple, (Normalized data, (miniment, maximent))
     '''
-    data=np.array(data, dtype=np.float)
+    data=np.array(data, dtype=float)
     
     if index:
         if not min_max:
