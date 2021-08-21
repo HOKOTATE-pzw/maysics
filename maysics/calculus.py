@@ -18,7 +18,7 @@ from maysics.utils import grid_net
 from matplotlib import pyplot as plt
 
 
-def lim(func, x0, acc=0.01, method='both'):
+def lim(f, x0, acc=0.01, method='both'):
     '''
     求极限
     lim x→x0+ f(x) ≈ f(x+dx)
@@ -27,7 +27,7 @@ def lim(func, x0, acc=0.01, method='both'):
     
     参数
     ----
-    func：函数类型
+    f：函数类型
     x0：取极限的点
     acc：浮点数类型，可选，极限精度，即dx，默认为0.01
     method：字符串类型，求极限方法，可选'both'、'rigth'或'+'(右极限)、'left'或'-'(左极限)
@@ -40,21 +40,21 @@ def lim(func, x0, acc=0.01, method='both'):
     
     Parameters
     ----------
-    func: function
+    f: function
     x0: point of limit
     acc: float, callable, the accuracy of calculation, equals to dx, default=0.01
     method: str, the method of calculation, 'both', 'right' or '+'(right limit), 'left' or '-'(left limit) are optional
     '''
     if method == 'both':
-        func1 = func(x0 + acc)
-        func2 = func(x0 - acc)
+        func1 = f(x0 + acc)
+        func2 = f(x0 - acc)
         return 0.5 * (func1 + func2)
     
     elif method == '+' or method == 'right':
-        return func(x0 + acc)
+        return f(x0 + acc)
     
     elif method == '-' or method == 'left':
-        return func(x0 - acc)
+        return f(x0 - acc)
     
     else:
         raise Exception("Parameter 'method' must be one of 'both', 'right', '+', 'left', '-'.")

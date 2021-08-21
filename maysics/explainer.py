@@ -339,29 +339,29 @@ class SHAP_and_Shapley():
 
 
 class SHAP(SHAP_and_Shapley):
+    '''
+    计算局部点在模型中的SHAP值
+    
+    参数
+    ----
+    predict：函数类型，模型的预测函数
+    
+    属性
+    ----
+    values：一维ndarray，每个特征的SHAP值
+    
+    
+    Calculate the SHAP of local points in the model
+    
+    Parameter
+    ---------
+    predict: function, the predict function of the model
+    
+    Attribute
+    ---------
+    values: 1-D ndarray, SHAP of each feature
+    '''
     def __init__(self, predict):
-        '''
-        计算局部点在模型中的SHAP值
-        
-        参数
-        ----
-        predict：函数类型，模型的预测函数
-        
-        属性
-        ----
-        values：一维ndarray，每个特征的SHAP值
-        
-        
-        Calculate the SHAP of local points in the model
-        
-        Parameter
-        ---------
-        predict: function, the predict function of the model
-        
-        Attribute
-        ---------
-        values: 1-D ndarray, SHAP of each feature
-        '''
         self.predict = predict
     
     
@@ -392,29 +392,29 @@ class SHAP(SHAP_and_Shapley):
 
 
 class Shapley(SHAP_and_Shapley):
+    '''
+    计算样本集在模型中的Shapley值
+    
+    参数
+    ----
+    predict：函数类型，模型的预测函数
+    
+    属性
+    ----
+    values：一维ndarray，每个特征的Shapley值
+    
+    
+    Calculate the Shapley values of data set in the model
+    
+    Parameter
+    ---------
+    predict: function, the predict function of the model
+    
+    Attribute
+    ---------
+    values: 1-D ndarray, Shapley value of each feature
+    '''
     def __init__(self, predict):
-        '''
-        计算样本集在模型中的Shapley值
-        
-        参数
-        ----
-        predict：函数类型，模型的预测函数
-        
-        属性
-        ----
-        values：一维ndarray，每个特征的Shapley值
-        
-        
-        Calculate the Shapley values of data set in the model
-        
-        Parameter
-        ---------
-        predict: function, the predict function of the model
-        
-        Attribute
-        ---------
-        values: 1-D ndarray, Shapley value of each feature
-        '''
         self.predict = predict
     
     
@@ -515,11 +515,7 @@ class Lime():
         A = np.linalg.lstsq(X_set, y_set, rcond=None)[0]
         
         self.intercept = A[-1]
-        A = A[:-1].T
-        if len(A.shape) == 1:
-            self.coef = A
-        else:
-            self.coef = A.reshape(A.shape[0], *shape[1:])
+        self.coef = A[:-1].T
         self.weight = self.coef * data
     
     

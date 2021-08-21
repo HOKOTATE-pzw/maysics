@@ -1,7 +1,7 @@
 '''
 本库用于科学计算和快速建模
 
-maysics主要包括十二个模块：
+maysics主要包括十三个模块：
 
 1、algorithm 封装了几种模拟方法，用于简易模拟；
 2、calculus 封装了部分常见的算符算子和积分方法，辅助数学运算；
@@ -9,30 +9,32 @@ maysics主要包括十二个模块：
 4、equation 封装了部分方程求解运算；
 5、explainer 用于评估和解释模型；
 6、graph 用于图论分析；
-7、models 封装了几种常用的模型以便快速构建数理模型；
-8、preprocess 用于数据预处理；
-9、stats 用于统计分析；
-10、tprocess 用于处理时间数据；
-11、transformation 储存了常用的坐标转换及其他数学变换；
-12、utils 是额外工具箱。
+7、imageprocess 用于数字图像处理;
+8、models 封装了几种常用的模型以便快速构建数理模型；
+9、preprocess 用于数据预处理；
+10、stats 用于统计分析；
+11、tprocess 用于处理时间数据；
+12、transformation 储存了常用的坐标转换及其他数学变换；
+13、utils 是额外工具箱。
 
 
 This package is used for scientific calculating and fast modeling.
 
-maysics includes twelve modules:
+maysics includes thirteen modules:
 
 1. "algorithm" packages several simulation methods for simple simulation;
 2. "calculus" packages some common operators and integration method to assist in mathematical operations;
 3. "constant" contents some usual constants;
 4. "equation" packages some equation solving operation;
-5. "explainer" used for estimating and explaining model;
-6. "graph" used for graph theory analysis;
-7. "models" packages several commonly used models for fast modeling;
-8. "preprocess" is used for data preproccessing;
-9. "stats" is uesd for statistical analysis;
-10. "tprocess" is used for processing time data;
-11. "transformation" stores common coordinate transformations and other mathematical transformations;
-12. "utils" is extra Utils.
+5. "explainer" is used for estimating and explaining model;
+6. "graph" is used for graph theory analysis;
+7. "imageprocess" is used for digital image process;
+8. "models" packages several commonly used models for fast modeling;
+9. "preprocess" is used for data preproccessing;
+10. "stats" is uesd for statistical analysis;
+11. "tprocess" is used for processing time data;
+12. "transformation" stores common coordinate transformations and other mathematical transformations;
+13. "utils" is extra Utils.
 '''
 import numpy as np
 import pickle, csv
@@ -231,57 +233,6 @@ def load(filename, header=True):
     
     else:
         raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
-
-
-def pic_data(filename, dtype=np.uint8):
-    '''
-    将图片转换为张量数据
-    
-    参数
-    ----
-    filename：字符串类型，文件名
-    dtype：可选，返回的元素类型，默认为np.uint8
-    
-    返回
-    ----
-    ndarray，图片的张量数据
-    
-    
-    Transform the picture into tensor
-    
-    Parameters
-    ----------
-    filename: str, file name
-    dtype: callable, the type of elements, default=np.uint8
-    
-    Return
-    ------
-    ndarray, the tensor of the picture
-    '''
-    x = Image.open(filename)
-    return np.array(x, dtype=dtype)
-
-
-def data_pic(data, filename):
-    '''
-    将张量数据转换为图片并保存
-    
-    参数
-    ----
-    data：列表类型，张量数据，列表的元素要求是整型
-    filename：字符串类型，文件名
-    
-    
-    Transform the tensor to the picture and save the picture
-    
-    Parameters
-    ----------
-    data: list, tensor, the elements of the data are required to be int
-    filename: str, file name
-    '''
-    data = np.array(data, dtype=np.uint8)
-    image = Image.fromarray(data)
-    image.save(filename)
 
 
 def all_same(x):

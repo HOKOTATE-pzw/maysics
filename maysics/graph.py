@@ -13,7 +13,7 @@ def ek(G, ori, des):
     
     参数
     ----
-    G：邻接矩阵(非邻接点间的边权重(即流量)为inf或负数或0)
+    G：二维数组，图的邻接矩阵(非邻接点间的边权重(即流量)为inf或负数或0)
     ori：整型，起点
     des：整型，终点
     
@@ -27,7 +27,7 @@ def ek(G, ori, des):
     
     Parameters
     ----------
-    G: adjacency matrix(the weight(flow) of the edge between non-adjacent nodes is inf, negative or 0)
+    G: 2-D array, adjacency matrix(the weight(flow) of the edge between non-adjacent nodes is inf, negative or 0)
     ori: int, origin
     des: int, destination
     
@@ -92,7 +92,7 @@ def kruskal(G):
     
     参数
     ----
-    G：图的邻接矩阵(非邻接点间的边权重为inf或负数)
+    G：二维数组，图的邻接矩阵(非邻接点间的边权重为inf或负数)
     
     返回
     ----
@@ -104,7 +104,7 @@ def kruskal(G):
     
     Parameter
     ---------
-    G: adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     
     Return
     ------
@@ -146,7 +146,7 @@ class Floyd():
     
     参数
     ----
-    G：图的邻接矩阵(非邻接点间的边权重为inf或负数)
+    G：二维数组，图的邻接矩阵(非邻接点间的边权重为inf或负数)
     
     属性
     ----
@@ -157,7 +157,7 @@ class Floyd():
     
     Parameter
     ---------
-    G: adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     
     Attribute
     ---------
@@ -286,7 +286,7 @@ class Dijkstra():
     
     参数
     ----
-    G：图的邻接矩阵(非邻接点间的边权重为inf或负数)
+    G：二维数组，图的邻接矩阵(非邻接点间的边权重为inf或负数)
     ori：整型，起点
     
     属性
@@ -298,7 +298,7 @@ class Dijkstra():
     
     Parameters
     ----------
-    G: adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     ori: int, origin
     
     Attribute

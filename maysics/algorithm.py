@@ -795,45 +795,45 @@ class GD():
 
 
 class GM():
+    '''
+    灰色系统模型，GM(1, 1)模型
+    fit函数输入一维数组y：[y1, y2, ..., yn]
+    对应的时间数组t为：[1, 2, ..., n]
+    预测式：
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    参数
+    ----
+    acc：数，可选，调整级比的精度，默认为1
+    
+    属性
+    ----
+    C：数，调整级比范围时y数组的平移量（y + C）
+    u：二维ndarray，列矩阵[a b].T
+    predict：函数，预测函数，仅支持输入数
+    
+    
+    Grey Model, GM(1, 1)
+    The fit function inputs 1-D array y: [y1, y2, ..., yn]
+    The corresponding time array t: [1, 2, ..., n]
+    Prediction function:
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    Parameter
+    ---------
+    acc: num, callable, accuracy of adjusting stage ratio, default=1
+    
+    Attributes
+    ----------
+    C: num, the translation of Y array when adjusting the range of stage ratio(y + C)
+    u: 2-D ndarray, column matrix [a b].T
+    predict: function, prediction function, only number is supported
+    '''
     def __init__(self, acc=1):
-        '''
-        灰色系统模型，GM(1, 1)模型
-        fit函数输入一维数组y：[y1, y2, ..., yn]
-        对应的时间数组t为：[1, 2, ..., n]
-        预测式：
-            x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
-            t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
-            t == 1时：x(0)(t) = x(1)(t)
-        
-        参数
-        ----
-        acc：数，可选，调整级比的精度，默认为1
-        
-        属性
-        ----
-        C：数，调整级比范围时y数组的平移量（y + C）
-        u：二维ndarray，列矩阵[a b].T
-        predict：函数，预测函数，仅支持输入数
-        
-        
-        Grey Model, GM(1, 1)
-        The fit function inputs 1-D array y: [y1, y2, ..., yn]
-        The corresponding time array t: [1, 2, ..., n]
-        Prediction function:
-            x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
-            t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
-            t == 1时：x(0)(t) = x(1)(t)
-        
-        Parameter
-        ---------
-        acc: num, callable, accuracy of adjusting stage ratio, default=1
-        
-        Attributes
-        ----------
-        C: num, the translation of Y array when adjusting the range of stage ratio(y + C)
-        u: 2-D ndarray, column matrix [a b].T
-        predict: function, prediction function, only number is supported
-        '''
         self.acc=acc
     
     
