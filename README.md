@@ -2,7 +2,7 @@
 本库用于科学计算和快速建模
 
 maysics主要包括十三个模块：<br/>
-1、algorithm 封装了几种算法，用于简易模拟；<br/>
+1、algorithm 封装了几种算法，用于简易分析；<br/>
 2、calculus 封装了常见的算符算子，辅助数学运算；<br/>
 3、constant 储存了部分常数；<br/>
 4、equation 封装了部分方程求解方法；<br/>
@@ -20,7 +20,7 @@ maysics主要包括十三个模块：<br/>
 This package is used for scientific calculating and fast modeling
 
 maysics includes thirteen modules:<br/>
-1. "algorithm" packages several algorithms for simple simulation;<br/>
+1. "algorithm" packages several algorithms for simple analysis;<br/>
 2. "calculus" packaes common operatoes;<br/>
 3. "constant" stores common constants;<br/>
 4. "equation" packages some equation solving operation;<br/>

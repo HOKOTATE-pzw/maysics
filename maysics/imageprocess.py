@@ -56,7 +56,7 @@ def load(filename, dtype='uint8'):
     ndarray, the tensor of the picture
     '''
     x = Image.open(filename)
-    return np.array(x, dtype=dtype)
+    return np.asarray(x, dtype=dtype)
 
 
 def l_convert(data, dtype=float):

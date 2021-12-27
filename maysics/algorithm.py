@@ -9,6 +9,61 @@ from multiprocessing import Pool, cpu_count
 from maysics.calculus import grad
 
 
+def pagerank(data, loop=5, pr=None, d=0.85, l=False):
+    '''
+    网页排序算法
+    
+    参数
+    ----
+    data：列表形式，每个连接所指向的链接或L矩阵，L矩阵即L(i, j)表示：如果j链接指向i链接，则L(i, j)为j链接指向的所有链接数；否则为0
+    loop：整型，迭代次数，默认为5
+    pr：一维数组形式，初始的pagerank值，默认pagerank值全部相等
+    d：数类型，系数，默认为0.85
+    l：布尔类型，True表示data是L矩阵，默认为False
+    
+    返回
+    ----
+    一维ndarray，pagerank值，归一化为1
+    
+    
+    Page Rank
+    
+    Parameters
+    ----------
+    data: list, the link to which each connection points or, matrix L, whose L(i, j)means: if j link points to i link, L(i, j) is the sum of all links pointed to by j link; otherwise, 0
+    loop: int, the number of iteration, default = 5
+    pr: 1-D array, the original pagerank value, by default, all the values are equal
+    d: num, coeficient, default = 0.85
+    l: bool, True means data is matrix L, default = False
+    
+    Return
+    ------
+    1-D ndarray, pagerank values, normalized to 1
+    '''
+    n_page = len(data)
+    if pr is None:
+        pr_list = np.zeros((n_page))
+    else:
+        pr_list = np.array(pr).copy()
+    
+    if l is False:
+        L = np.zeros((n_page, n_page))
+        for i in range(n_page):
+            for j in range(n_page):
+                if i in data[j]:
+                    L[i, j] = len(data[j])
+        L[L!=0] = 1 / L[L!=0]
+    else:
+        L = np.array(data)
+    
+    for i in range(loop):
+        pr_list = np.dot(pr_list, L.T)
+        if pr_list.sum() != 0:
+            pr_list /= pr_list.sum()
+        pr_list = pr_list * d + (1 - d) / n_page
+    return pr_list
+
+
 class MC():
     '''
     蒙特卡洛模拟

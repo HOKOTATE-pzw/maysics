@@ -294,6 +294,43 @@ def mle(func, data, p_range, acc=0.1):
     return p_range_net[x]
 
 
+def inde_test(data):
+    '''
+    独立性检验
+    
+    参数
+    ----
+    data：二维数组
+    
+    返回
+    ----
+    接受假设的错误概率，即认为两变量没有关系的错误概率
+    
+    
+    Independence Test
+    
+    Parameter
+    ---------
+    data: 2-D array
+    
+    Return
+    ------
+    the error probability of accepting the hypothesis (the error probability that the two variables are not related)
+    '''
+    data = np.array(data, dtype=float)
+    data_shape = data.shape
+    sum_1 = np.array([data.sum(axis=1)]).T
+    sum_2 = data.sum(axis=0)
+    p1 = data / sum_1
+    p2 = data / sum_2
+    sum_3 = data.sum()
+    p_data = p1 * p2 * sum_3
+    data = (data - p_data)**2 / p_data
+    data = data.sum()
+    
+    return chi2.cdf(data, (data_shape[0] - 1) * (data_shape[1] - 1))
+
+
 class DF1d():
     '''
     一维分布拟合

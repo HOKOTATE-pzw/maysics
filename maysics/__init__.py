@@ -225,7 +225,7 @@ def load(filename, header=True):
         return np.load(filename, allow_pickle=True)
     
     elif filename[-4:] == '.csv':
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             reader = list(csv.reader(f))
             if header:
                 reader = reader[1:]
