@@ -16,10 +16,10 @@ def pagerank(data, loop=5, pr=None, d=0.85, l=False):
     参数
     ----
     data：列表形式，每个连接所指向的链接或L矩阵，L矩阵即L(i, j)表示：如果j链接指向i链接，则L(i, j)为j链接指向的所有链接数；否则为0
-    loop：整型，迭代次数，默认为5
-    pr：一维数组形式，初始的pagerank值，默认pagerank值全部相等
-    d：数类型，系数，默认为0.85
-    l：布尔类型，True表示data是L矩阵，默认为False
+    loop：整型，可选，迭代次数，默认为5
+    pr：一维数组形式，可选，初始的pagerank值，默认pagerank值全部相等
+    d：数类型，可选，系数，默认为0.85
+    l：布尔类型，可选，True表示data是L矩阵，默认为False
     
     返回
     ----
@@ -31,10 +31,10 @@ def pagerank(data, loop=5, pr=None, d=0.85, l=False):
     Parameters
     ----------
     data: list, the link to which each connection points or, matrix L, whose L(i, j)means: if j link points to i link, L(i, j) is the sum of all links pointed to by j link; otherwise, 0
-    loop: int, the number of iteration, default = 5
-    pr: 1-D array, the original pagerank value, by default, all the values are equal
-    d: num, coeficient, default = 0.85
-    l: bool, True means data is matrix L, default = False
+    loop: int, callable, the number of iteration, default = 5
+    pr: 1-D array, callable, the original pagerank value, by default, all the values are equal
+    d: num, callable, coeficient, default = 0.85
+    l: bool, callable, True means data is matrix L, default = False
     
     Return
     ------
@@ -62,6 +62,96 @@ def pagerank(data, loop=5, pr=None, d=0.85, l=False):
             pr_list /= pr_list.sum()
         pr_list = pr_list * d + (1 - d) / n_page
     return pr_list
+
+
+def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None, random_state=None, batch=True):
+    '''
+    粒子群优化算法
+    
+    参数
+    ----
+    select：函数，粒子的评估函数，需返回每个粒子的评估值，默认函数最小值为最优
+    initial：1维或2维数组，初始粒子位置 
+    num：整型，可选，模拟粒子个数，默认为10
+    loop：整型，可选，迭代次数，默认为10
+    omega：数或函数，可选，惯性权重因子，若为函数，其输入须为迭代次数，默认为1
+    phi_1：数，可选，第一个加速度常数，默认为2
+    phi_2：数，可选，第二个加速度常数，默认为2
+    v_max：数，可选，粒子最大速度
+    random_state：整型，可选，随机种子
+    batch：布尔类型，True表示评估函数为批量输入函数，False表示评估函数为非批量输入函数，默认为True
+    
+    返回
+    ----
+    一维ndarray，最优粒子位置
+    
+    
+    Particle Swarm Optimization
+    
+    Parameters
+    ----------
+    select: function, estimation function
+    initial: 1-D or 2-D array, the initial location of particles
+    num: int, callable, the number of particles, default=10
+    loop: int, callable, the number of iteration, default=10
+    omega: num or function, callable, inertia weight factor, if it is function, it should take the number of iteration as input, default=1
+    phi_1: num, callable, the first acceleration constant, default=2
+    phi_2: num, callable, the second acceleration constant, default=2
+    v_max: num, callable, the maximal velocity of particles
+    random_state: int, callable, random seed
+    batch: bool, callable, True means estimation function is batch-input, False means not
+    
+    Return
+    ------
+    1-D ndarray, location of the optimized particle
+    '''
+    np.random.seed(random_state)
+    initial = np.array(initial, dtype=float)
+    initial = np.tile(initial, (num, 1))
+    v = np.ones_like(initial)
+    p = initial.copy()
+    p_g = p[0].copy()
+    
+    if batch is True:
+        values = list(select(initial))
+    
+    else:
+        values = []
+        for i in initial:
+            values.append(select(i))
+    
+    for i in range(loop):
+        initial_shape = initial.shape
+        if not type(omega).__name__ == 'function':
+            v = omega * v + phi_1 * np.random.rand(*initial_shape) * (p - initial)\
+                          + phi_2 * np.random.rand(*initial_shape) * (p_g - initial)
+        else:
+            v = omega(i) * v + phi_1 * np.random.rand(*initial_shape) * (p - initial)\
+                             + phi_2 * np.random.rand(*initial_shape) * (p_g - initial)
+        
+        if not v_max is None:
+            v[v > v_max] = v_max
+            v[v < -v_max] = -v_max
+        initial += v
+        
+        if batch is True:
+            values_new = select(initial)
+            loc = np.where(np.array(values_new) < np.array(values))[0]
+            p[loc] = initial[loc]
+        
+        else:
+            values_new = []
+            for i in range(initial_shape[0]):
+                value_new = select(initial[i])
+                values_new.append(value_new)
+                if value_new < values[i]:
+                    p[i] = initial[i]
+        
+        values = values_new
+        index = np.argmin(values)
+        p_g = p[index]
+        
+    return p_g
 
 
 class MC():

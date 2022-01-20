@@ -39,11 +39,92 @@ maysics includes thirteen modules:
 import numpy as np
 import pickle, csv
 from PIL import Image
+import random
 from maysics import algorithm, calculus, constant, equation, explainer, graph,\
     models, preprocess, stats, tprocess, transformation, utils
 from maysics.models import linear_r
 from maysics.preprocess import preview, preview_file, shuffle
 from maysics.utils import circle, discrete, grid_net
+
+
+def all_same(x):
+    '''
+    判断数组元素是否全相同
+    
+    参数
+    ----
+    x：数组
+    
+    返回
+    ----
+    布尔类型，True或者False
+    
+    
+    Determine whether the array elements are all the same
+    
+    Parameter
+    ---------
+    x: array
+    
+    Return
+    ------
+    bool, True or False
+    '''
+    x = np.array(x)
+    if len(x.shape) == 1:
+        x = len(set(x))
+        if x == 1:
+            return True
+        else:
+            return False
+    
+    else:
+        for i in x:
+            if i.all() != x[0].all():
+                return False
+        return True
+
+
+def choice(seq, pro=None, random_state=None):
+    '''
+    按指定概率抽取元素
+    
+    参数
+    ----
+    seq：一维列表，待抽取的元素
+    pro：一维数组，可选，抽取相应元素的概率，默认概率全部相等
+    random_state：整型，可选，随机种子
+    
+    返回
+    ----
+    seq中的元素
+    
+    
+    Choice elements according to the specified probability
+    
+    Parameters
+    ----------
+    seq: 1-D array, elements to be choiced
+    pro: 1-D array, callable, the probability of choicing each element, the probability is equal by default
+    random_state: int, callable, random seed
+    
+    Return
+    ------
+    the element in seq
+    '''
+    if not random_state is None:
+        random.seed(random_state)
+    
+    if pro is None:
+        return random.choice(seq)
+    else:
+        num_pro = len(pro)
+        for i in range(1, num_pro):
+            pro[i] += pro[i-1]
+        random_num = random.random()
+        for i in range(num_pro):
+            if pro[i] >= random_num:
+                return seq[i]
 
 
 def covs1d(a, b, n):
@@ -148,6 +229,43 @@ def covs2d(a, b, n, m):
     return result
 
 
+def load(filename, header=True):
+    '''
+    载入.pkl、.npy或.csv文件
+    
+    参数
+    ----
+    filename：字符串类型，文件名
+    header：布尔类型，可选，True表示csv文件第一行为列名，仅在读取csv文件时有效，默认为True
+    
+    
+    Load .pkl, .npy or .csv file
+    
+    Parameter
+    ---------
+    filename: str, file name
+    header: bool, callable, True means the first row of the csv file if the names of columns, effective only when reading csv files, default=True
+    '''
+    if filename[-4:] == '.pkl':
+        with open(filename, 'rb') as file:
+            data = pickle.load(file)
+        
+        return data
+    
+    elif filename[-4:] == '.npy':
+        return np.load(filename, allow_pickle=True)
+    
+    elif filename[-4:] == '.csv':
+        with open(filename, 'r', encoding='utf-8') as f:
+            reader = list(csv.reader(f))
+            if header:
+                reader = reader[1:]
+            return np.array(reader)
+    
+    else:
+        raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
+
+
 def save(filename, data, header=None):
     '''
     保存为.pkl、.npy或.csv文件
@@ -196,78 +314,3 @@ def save(filename, data, header=None):
     
     else:
         raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
-
-
-def load(filename, header=True):
-    '''
-    载入.pkl、.npy或.csv文件
-    
-    参数
-    ----
-    filename：字符串类型，文件名
-    header：布尔类型，可选，True表示csv文件第一行为列名，仅在读取csv文件时有效，默认为True
-    
-    
-    Load .pkl, .npy or .csv file
-    
-    Parameter
-    ---------
-    filename: str, file name
-    header: bool, callable, True means the first row of the csv file if the names of columns, effective only when reading csv files, default=True
-    '''
-    if filename[-4:] == '.pkl':
-        with open(filename, 'rb') as file:
-            data = pickle.load(file)
-        
-        return data
-    
-    elif filename[-4:] == '.npy':
-        return np.load(filename, allow_pickle=True)
-    
-    elif filename[-4:] == '.csv':
-        with open(filename, 'r', encoding='utf-8') as f:
-            reader = list(csv.reader(f))
-            if header:
-                reader = reader[1:]
-            return np.array(reader)
-    
-    else:
-        raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
-
-
-def all_same(x):
-    '''
-    判断数组元素是否全相同
-    
-    参数
-    ----
-    x：数组
-    
-    返回
-    ----
-    布尔类型，True或者False
-    
-    
-    Determine whether the array elements are all the same
-    
-    Parameter
-    ---------
-    x: array
-    
-    Return
-    ------
-    bool, True or False
-    '''
-    x = np.array(x)
-    if len(x.shape) == 1:
-        x = len(set(x))
-        if x == 1:
-            return True
-        else:
-            return False
-    
-    else:
-        for i in x:
-            if i.all() != x[0].all():
-                return False
-        return True
