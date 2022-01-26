@@ -6,7 +6,7 @@ This module stores Monte Carlo, Genetic Algorithm, Simulated Annealing Algorithm
 import random
 import numpy as np
 from multiprocessing import Pool, cpu_count
-from maysics.calculus import grad
+from maysics.calc import grad
 
 
 def pagerank(data, loop=5, pr=None, d=0.85, l=False):

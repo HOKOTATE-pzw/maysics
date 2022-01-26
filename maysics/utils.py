@@ -9,7 +9,7 @@ from lxml import etree
 from urllib import parse
 import string
 from matplotlib import pyplot as plt
-from maysics import transformation
+from maysics import trans
 
 
 def grid_net(*args):
@@ -254,7 +254,7 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=No
     theta = np.arange(*angle_range, acc)
     radius = radius * np.ones_like(theta)
     x = np.vstack((radius, theta)).T
-    x = transformation.ipolar(x)
+    x = trans.ipolar(x)
     plt.plot(x[:, 0] + center[0], x[:, 1] + center[1])
 
 

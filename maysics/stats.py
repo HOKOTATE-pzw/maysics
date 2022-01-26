@@ -5,7 +5,7 @@ This module is uesd for statistical analysis
 '''
 import numpy as np
 from matplotlib import pyplot as plt
-from maysics.calculus import inte
+from maysics.calc import inte
 from maysics.utils import grid_net
 from scipy.stats import chi2
 from scipy.interpolate import interp1d

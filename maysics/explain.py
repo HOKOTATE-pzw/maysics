@@ -67,6 +67,314 @@ def _image_process(data, labels, index, top, estimate):
             _image_detail(data[j], labels, index, top, estimate, num, j+1)
 
 
+def abs_error(func, data, target):
+    '''
+    绝对误差列表
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数组，绝对误差列表
+    
+    
+    Absolute Error List
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    array, absolute error list
+    '''
+    data = np.array(data)
+    target = np.array(target)
+    predict_target = func(data)
+    return abs(target - predict_target)
+
+
+def rel_error(func, data, target):
+    '''
+    相对误差列表
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数组，相对误差列表
+    
+    
+    Relative Error List
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    array, relative error list
+    '''
+    data = np.array(data)
+    target = np.array(target)
+    predict_target = func(data)
+    return abs((target - predict_target) / target)
+
+
+def abs_sort(func, data, target):
+    '''
+    绝对误差从大到小的排序
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    列表，绝对误差从大到小的排序
+    
+    
+    List of Absolute Values of Errors Sorted from Large to Small
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    list, list of absolute values of errors sorted from large to small
+    '''
+    error_index = np.arange(len(target))
+    return sorted(list(zip(abs_error(func, data, target), error_index)), reverse=True)
+
+
+def rel_sort(func, data, target):
+    '''
+    相对误差从大到小的排序
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    列表，绝对误差从大到小的排序
+    
+    
+    List of Relative Values of Errors Sorted from Large to Small
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    list, list of relative values of errors sorted from large to small
+    '''
+    error_index = np.arange(len(target))
+    return sorted(list(zip(rel_error(func, data, target), error_index)), reverse=True)
+
+
+def sse(func, data, target):
+    '''
+    残差平方和
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，残差平方和
+    
+    
+    Sum of Squared Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, sum of squared error
+    '''
+    return sum(abs_error(func, data, target)**2)
+
+
+def sae(func, data, target):
+    '''
+    绝对误差和
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，绝对误差和
+    
+    
+    Sum of Absolute Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, sum of absolute error
+    '''
+    return sum(abs_error(func, data, target))
+
+
+def mse(func, data, target):
+    '''
+    平均平方误差
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，平均平方误差
+    
+    
+    Mean Squared Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, mean squared error
+    '''
+    return sum(abs_error(func, data, target)**2) / len(target)
+
+
+def mae(func, data, target):
+    '''
+    平均绝对误差
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，平均绝对误差
+    
+    
+    Mean Absolute Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, mean absolute error
+    '''
+    return sum(abs_error(func, data, target)) / len(target)
+
+
+def rmse(func, data, target):
+    '''
+    均方根误差
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，均方根误差
+    
+    
+    Root Mean Square Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, root mean square error
+    '''
+    return (sum(abs_error(func, data, target)**2) / len(target))**0.5
+
+
+def mape(func, data, target):
+    '''
+    平均绝对百分比误差
+    
+    参数
+    ----
+    func：函数类型，模型的预测函数
+    data：ndarray，数据集的自变量
+    target：一维ndarray，数据集的因变量
+    
+    返回
+    ----
+    数类型，平均绝对百分比误差
+    
+    
+    Mean Absolute Percentage Error
+    
+    Parameters
+    ----------
+    func: function, predicting function of models
+    data: ndarray, independent variable of data set
+    target: ndarray, dependent variable of data set
+    
+    Return
+    ------
+    num, mean absolute percentage error
+    '''
+    return sum(rel_error(func, data, target)) / len(target)
+
+
 def sense(func, x0, acc=0.1):
     '''
     灵敏度分析
@@ -136,111 +444,6 @@ def sense(func, x0, acc=0.1):
             s_list.append(de)
         s_list = np.array(s_list).T
     return s_list
-
-
-class Error():
-    '''
-    误差分析
-    
-    参数
-    ----
-    func：函数类型，模型的预测函数
-    
-    属性
-    ----
-    abs_error：1-D ndarray数组，绝对误差列表
-    rel_error：1-D ndarray数组，相对误差列表
-    abs_sort：元组列表，绝对误差从大到小的排序
-    rel_sort：元组列表，相对误差从大到小的排序
-    mae：平均绝对误差
-    mape：平均绝对百分比误差
-    mse：平均平方误差
-    rmse：均方根误差
-    sae：绝对误差和
-    sse：残差平方和
-    
-    
-    Error Analysis
-    
-    Parameter
-    ---------
-    func: function, predicting function of models
-    
-    Atrributes
-    ----------
-    abs_error: 1-D ndarray, absolute error list
-    rel_error: 1-D ndarray, relative error list
-    abs_sort: 1-D ndarray, list of absolute values of errors sorted from large to small
-    rel_sort: 1-D ndarray, list of relative values of errors sorted from large to small
-    mae: mean absolute error
-    mape: mean absolute percentage error
-    mse: mean squared error
-    rmse: root mean square error
-    sae: sum of absolute error
-    sse: sum of squared error
-    '''
-    def __init__(self, func):
-        self.__func = func
-    
-    
-    def fit(self, data, target):
-        '''
-        计算误差
-        
-        参数
-        ----
-        data：ndarray，数据集的自变量
-        target：ndarray，数据集的因变量
-        
-        
-        Calculate the error
-        
-        Parameters
-        ----------
-        data: ndarray, independent variable of data set
-        target: ndarray, dependent variable of data set
-        '''
-        data = np.array(data)
-        target = np.array(target)
-        self.__num_data = len(target)
-        
-        predict_target = self.__func(data)
-        self.abs_error = abs(target - predict_target)
-        self.rel_error = abs((target - predict_target) / target)
-    
-    @property
-    def abs_sort(self):
-        error_index = np.arange(self.__num_data)
-        return sorted(list(zip(self.abs_error, error_index)), reverse=True)
-    
-    @property
-    def rel_sort(self):
-        error_index = np.arange(self.__num_data)
-        return sorted(list(zip(self.rel_error, error_index)), reverse=True)
-    
-    @property
-    def sse(self):
-        return sum(self.abs_error**2)
-    
-    @property
-    def sae(self):
-        return sum(self.abs_error)
-    
-    @property
-    def mse(self):
-        return sum(self.abs_error**2) / self.__num_data
-    
-    @property
-    def mae(self):
-        return sum(self.abs_error) / self.__num_data
-    
-    @property
-    def rmse(self):
-        return (sum(self.abs_error**2) / self.__num_data)**0.5
-    
-    @property
-    def mape(self):
-        return sum(self.rel_error) / self.__num_data
 
 
 class SHAP_and_Shapley():

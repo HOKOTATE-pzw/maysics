@@ -4,7 +4,6 @@
 This module stores some commonly used models
 '''
 import numpy as np
-from maysics import constant
 from scipy.integrate import solve_ivp
 from scipy.sparse import csr_matrix
 
@@ -66,7 +65,7 @@ def logistic(t, N0, r, K):
     数，Nt
     
     
-    Logisyic population growth models
+    Logistic population growth models
     solution: Nt = K * N0 / (N0 + (K - N0) * e**(-r * t))
     Nt is the population at time 't'
     

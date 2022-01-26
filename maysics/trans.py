@@ -4,7 +4,6 @@
 This module stores several common coordinate transformations
 '''
 import numpy as np
-from maysics import constant
 
 
 def lorentz(v, x):
@@ -33,15 +32,15 @@ def lorentz(v, x):
     ndarray, converted coordinates
     '''
     x = np.array(x, dtype=np.float)
-    γ = 1 / (1 - (v / constant.c)**2)**0.5
+    γ = 1 / (1 - (v / 299792458.0)**2)**0.5
     if len(x.shape) == 1:
         xp = γ * (x[0] - v * x[3])
-        tp = γ * (x[3] - v * x[0] / constant.c**2)
+        tp = γ * (x[3] - v * x[0] / 299792458.0**2)
         x[0], x[3] = xp, tp
     
     else:
         xp = γ * (x[:, 0] - v * x[:, 3])
-        tp = γ * (x[:, 3] - v * x[:, 0] / constant.c**2)
+        tp = γ * (x[:, 3] - v * x[:, 0] / 299792458.0**2)
         x[:, 0], x[:, 3] = xp, tp
     
     return x
@@ -73,15 +72,15 @@ def lorentz_v(v, vo):
     ndarray, converted velocity
     '''
     vo = np.array(vo, dtype=np.float)
-    γ = 1 / (1 - (v / constant.c)**2)**0.5
+    γ = 1 / (1 - (v / 299792458.0)**2)**0.5
     if len(vo.shape) == 1:
-        factor = 1 - v * vo[0] / constant.c**2
+        factor = 1 - v * vo[0] / 299792458.0**2
         vo[0] = (vo[0] - v) / factor
         vo[1] = vo[1] * γ / factor
         vo[2] = vo[2] * γ / factor
     
     else:
-        factor = 1 - v * vo[:, 0] / constant.c**2
+        factor = 1 - v * vo[:, 0] / 299792458.0**2
         vo[:, 0] = (vo[:, 0] - v) / factor
         vo[:, 1] = vo[:, 1] * γ / factor
         vo[:, 2] = vo[:, 2] * γ / factor

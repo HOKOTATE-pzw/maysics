@@ -4,59 +4,7 @@
 This module is used for digital image process
 '''
 import numpy as np
-from PIL import Image
 from matplotlib import pyplot as plt
-
-
-def save(data, filename):
-    '''
-    将张量数据保存为图片
-    
-    参数
-    ----
-    data：列表类型，张量数据，列表的元素要求是整型
-    filename：字符串类型，文件名
-    
-    
-    Save the tensor as a picture
-    
-    Parameters
-    ----------
-    data: list, tensor, the elements of the data are required to be int
-    filename: str, file name
-    '''
-    data = np.array(data, dtype='uint8')
-    image = Image.fromarray(data)
-    image.save(filename)
-
-
-def load(filename, dtype='uint8'):
-    '''
-    将图片转换为张量数据
-    
-    参数
-    ----
-    filename：字符串类型，文件名
-    dtype：可选，输出图像数据类型，默认为'uint8'
-    
-    返回
-    ----
-    ndarray，图片的张量数据
-    
-    
-    Transform the picture into tensor
-    
-    Parameters
-    ----------
-    filename: str, file name
-    dtype: callable, data format of output image, default='uint8'
-    
-    Return
-    ------
-    ndarray, the tensor of the picture
-    '''
-    x = Image.open(filename)
-    return np.asarray(x, dtype=dtype)
 
 
 def l_convert(data, dtype=float):
