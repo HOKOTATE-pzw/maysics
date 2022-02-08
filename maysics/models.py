@@ -288,6 +288,103 @@ class ED():
         return result.y
 
 
+class GM():
+    '''
+    灰色系统模型，GM(1, 1)模型
+    fit函数输入一维数组y：[y1, y2, ..., yn]
+    对应的时间数组t为：[1, 2, ..., n]
+    预测式：
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    属性
+    ----
+    C：数，调整级比范围时y数组的平移量（y + C）
+    u：二维ndarray，列矩阵[a b].T
+    predict：函数，预测函数，仅支持输入数
+    
+    
+    Grey Model, GM(1, 1)
+    The fit function inputs 1-D array y: [y1, y2, ..., yn]
+    The corresponding time array t: [1, 2, ..., n]
+    Prediction function:
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    Attributes
+    ----------
+    C: num, the translation of Y array when adjusting the range of stage ratio(y + C)
+    u: 2-D ndarray, column matrix [a b].T
+    predict: function, prediction function, only number is supported
+    '''
+    @classmethod
+    def fit(self, y, acc=1):
+        '''
+        进行GM(1, 1)拟合
+        
+        参数
+        ----
+        y：一维数组
+        acc：数，可选，调整级比的精度，默认为1
+        
+        
+        Fit with GM(1, 1)
+        
+        Parameter
+        ---------
+        y: 1-D array
+        acc: num, callable, accuracy of adjusting stage ratio, default=1
+        '''
+        # 调整级比范围
+        y = np.array(y, dtype=np.float)
+        n = len(y)
+        y_k_1 = y[:-1]
+        y_k = y[1:]
+        l_k = y_k_1 / y_k
+        theta_min = np.e**(-2 / (n + 1))
+        theta_max = np.e**(2 / (n + 2))
+
+        self.C = 0
+        while True:
+            if np.min(l_k) <= theta_min or np.max(l_k) >= theta_max:
+                self.C += acc
+                y += acc
+                y_k_1 = y[:-1]
+                y_k = y[1:]
+                l_k = y_k_1 / y_k
+            else:
+                break
+        
+        # 生成y的等权邻值生成数列
+        y1 = []
+        for i in range(len(y)):
+            y1.append(sum(y[:i+1]))
+        y1 = np.array(y1, dtype=np.float)
+        y1_k_1 = y1[:-1]
+        y1_k = y1[1:]
+        z1 = -0.5 * y1_k_1 - 0.5 * y1_k
+        
+        # 求解u矩阵
+        z1 = np.array([z1])
+        B = np.vstack((z1, np.ones_like(z1))).T
+        Y = np.array([y[1:]]).T
+        self.u = np.linalg.lstsq(B, Y, rcond=None)[0]
+        self.u = self.u.T[0]
+        
+        def predict(t):
+            t = int(t)
+            if t == 1:
+                return self.u[1] / self.u[0] - self.C
+            else:
+                result = y[0] - self.u[1] / self.u[0]
+                result *= (np.e**(-self.u[0] * (t - 1)) - np.e**(-self.u[0] * (t - 2)))
+                return result - self.C
+        
+        self.predict = predict
+
+
 class Leslie():
     '''
     Leslie模型

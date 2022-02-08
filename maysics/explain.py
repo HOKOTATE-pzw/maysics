@@ -375,7 +375,7 @@ def mape(func, data, target):
     return sum(rel_error(func, data, target)) / len(target)
 
 
-def sense(func, x0, acc=0.1):
+def sense(func, x0, acc=0.1, param={}):
     '''
     灵敏度分析
     r = (x0, x1, x2, ..., xn)
@@ -388,6 +388,7 @@ def sense(func, x0, acc=0.1):
     func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
     x0：数，1-D或2-D ndarray，与func的输入格式相同，特征的初始值
     acc：浮点数类型，可选，求导的精度，默认为0.1
+    param：字典类型，可选，当func函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -405,6 +406,7 @@ def sense(func, x0, acc=0.1):
     func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
     x0: num, 1-D or 2-D ndarray, the format is the same as the input of func, initial values of features
     acc: float, callable, accuracy of derivation, default=0.1
+    param: dict, callable, when function "func" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
@@ -412,22 +414,22 @@ def sense(func, x0, acc=0.1):
     '''
     x0 = np.array(x0, dtype=float)
     acc2 = 0.5 * acc
-    func0 = func(x0)
+    func0 = func(x0, **param)
     s_list = []
     
     if len(x0.shape) == 0:
         x0 += acc2
-        func1 = func(x0)
+        func1 = func(x0, **param)
         x0 -= acc
-        func2 = func(x0)
+        func2 = func(x0, **param)
         return (func1 - func2) / (acc * func0) * x0
     
     elif len(x0.shape) == 1:
         for i in range(x0.shape[0]):
             x0[i] += acc2
-            func1 = func(x0)
+            func1 = func(x0, **param)
             x0[i] -= acc
-            func2 = func(x0)
+            func2 = func(x0, **param)
             de = (func1 - func2) / (acc * func0) * x0[i]
             x0[i] += acc2
             s_list.append(de)
@@ -436,215 +438,14 @@ def sense(func, x0, acc=0.1):
     elif len(x0.shape) == 2:
         for i in range(x0.shape[1]):
             x0[:, i] += acc2
-            func1 = func(x0)
+            func1 = func(x0, **param)
             x0[:, i] -= acc
-            func2 = func(x0)
+            func2 = func(x0, **param)
             de = (func1 - func2) / (acc * func0) * x0[:, i]
             x0[:, i] += acc2
             s_list.append(de)
         s_list = np.array(s_list).T
     return s_list
-
-
-class SHAP_and_Shapley():
-    def __transform(self, b_list):
-        # 二进制列表转十进制数
-        d_value = 0
-        for i in range(len(b_list)):
-            d_value += b_list[i] * 2**i
-        return d_value
-    
-    
-    def _pre_fit(self, data, replace):
-        dim = data.shape[1]
-        shap_and_shapley_values = []
-        
-        # 求各个特征组合的预测值
-        prediction = []
-        for i in range(2**dim):
-            new_data = data.copy()
-            loc = np.array([i >>d & 1 for d in range(dim)][::1])
-            loc = np.where(loc==0)[0]
-            if len(loc) != 0:
-                new_data[:, loc] = replace
-            prediction_part = self.predict(new_data)
-            prediction.append(prediction_part)
-        prediction = np.array(prediction)
-        
-        # 求每个特征的SHAP值
-        for i in range(dim):
-            loc = np.array([2**i >>d & 1 for d in range(dim)][::1])
-            loc = np.where(loc==1)[0][0]
-            shap_value = 0
-            
-            # 每一层差值的加权求和
-            for j in range(2**(dim-1)):
-                b_list = [j >>d & 1 for d in range(dim)][::1]
-                b_list.insert(loc, 0)
-                b_value = self.__transform(b_list)
-                # 1 / ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))是权重
-                shap_value += (prediction[b_value + 2**i] - prediction[b_value]) / \
-                              ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))
-            shap_and_shapley_values.append(shap_value)
-        return np.array(shap_and_shapley_values)
-    
-    
-    def show(self, labels=None, index=None, top=None, estimate=None):
-        '''
-        作图并显示
-        
-        参数
-        ----
-        labels：一维列表，可选，特征名称，默认为None
-        index：一维列表，可选，特征索引，默认为None，表示全选
-        top：整型，可选，表示显示值最高的前top个特征，默认为None，表示全选
-        estimate：整型，可选，表示图示示数保留的小数位数，默认为None
-        
-        
-        Display the image
-        
-        Parameters
-        ----------
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
-        top: int, callable, display "top" features with the highest values, default=None, which means select all
-        estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
-        '''
-        _image_process(self.values, labels, index, top, estimate)
-        plt.show()
-    
-    
-    def savefig(self, filename, labels=None, index=None, top=None, estimate=None):
-        '''
-        作图并保存
-        
-        参数
-        ----
-        filename：字符串类型，文件名
-        labels：一维列表，可选，特征名称，默认为None
-        index：一维列表，可选，特征索引，默认为None，表示全选
-        top：整型，可选，表示显示值最高的前top个特征，默认为None，表示全选
-        estimate：整型，可选，表示图示示数保留的小数位数，默认为None
-        
-        
-        Save the image
-        
-        Parameters
-        ----------
-        filename: str, file name
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
-        top: int, callable, display "top" features with the highest values, default=None, which means select all
-        estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
-        '''
-        _image_process(self.values, labels, index, top, estimate)
-        plt.savefig(filename)
-
-
-class SHAP(SHAP_and_Shapley):
-    '''
-    计算局部点在模型中的SHAP值
-    
-    参数
-    ----
-    predict：函数类型，模型的预测函数
-    
-    属性
-    ----
-    values：一维ndarray，每个特征的SHAP值
-    
-    
-    Calculate the SHAP of local points in the model
-    
-    Parameter
-    ---------
-    predict: function, the predict function of the model
-    
-    Attribute
-    ---------
-    values: 1-D ndarray, SHAP of each feature
-    '''
-    def __init__(self, predict):
-        self.predict = predict
-    
-    
-    def fit(self, data, replace=0):
-        '''
-        计算SHAP值
-        
-        参数
-        ----
-        data：一维数组，局部点
-        replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
-        
-        
-        Calculate the SHAP values
-        
-        Parameters
-        ----------
-        data: 1-D array, local point
-        replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
-        '''
-        data = np.array(data)
-        # 确定替换值
-        if type(replace).__name__ == 'function':
-            replace = replace(data)
-        data = np.array([data])
-        
-        self.values = SHAP_and_Shapley._pre_fit(self, data, replace).reshape(-1)
-
-
-class Shapley(SHAP_and_Shapley):
-    '''
-    计算样本集在模型中的Shapley值
-    
-    参数
-    ----
-    predict：函数类型，模型的预测函数
-    
-    属性
-    ----
-    values：一维ndarray，每个特征的Shapley值
-    
-    
-    Calculate the Shapley values of data set in the model
-    
-    Parameter
-    ---------
-    predict: function, the predict function of the model
-    
-    Attribute
-    ---------
-    values: 1-D ndarray, Shapley value of each feature
-    '''
-    def __init__(self, predict):
-        self.predict = predict
-    
-    
-    def fit(self, data, replace=0):
-        '''
-        计算Shapley
-        
-        参数
-        ----
-        data：二维数组，数据集
-        replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
-        
-        
-        Calculate the Shapley
-        
-        Parameters
-        ----------
-        data: 2-D array, data set
-        replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
-        '''
-        data = np.array(data)
-        # 确定替换值
-        if type(replace).__name__ == 'function':
-            replace = replace(data)
-        
-        self.values = SHAP_and_Shapley._pre_fit(self, data, replace).T
-        self.values = self.values.mean(axis=0)
 
 
 class Lime():
@@ -686,7 +487,7 @@ class Lime():
         self.predict_f = predict_f
     
     
-    def fit(self, data, acc=0.1, num=100, random_state=None):
+    def fit(self, data, acc=0.1, num=100, param={}, random_state=None):
         '''
         进行Lime计算
         
@@ -694,7 +495,8 @@ class Lime():
         ----
         data：数组，局部点
         acc：浮点数类型，可选，邻域范围，默认为0.1
-        num：整型，可选，在领域抽样点的数量，默认为100
+        num：整型，可选，在邻域抽样点的数量，默认为100
+        param：字典类型，可选，当predict_f函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         random_state：整型，可选，随机种子
         
         
@@ -704,14 +506,15 @@ class Lime():
         ----------
         data: ndarray, local point
         acc: float, callable, neighborhood range， default=0.1
-        num: int, callable
+        num: int, callable, the number of sampling points in the neighborhood
+        param: dict, callable, when function "predict_f" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
         random_state: int, callable, random seed
         '''
         data = np.array(data)
         np.random.seed(random_state)
         X_set = np.random.rand(num, *data.shape) * 2 * acc - acc
         X_set += data
-        y_set = self.predict_f(X_set)
+        y_set = self.predict_f(X_set, **param)
         shape = X_set.shape
         X_set = X_set.reshape(shape[0], -1)
         X_set = np.hstack((X_set, np.ones((X_set.shape[0], 1))))
@@ -803,3 +606,208 @@ class Lime():
         '''
         _image_process(self.weight, labels, index, top, estimate)
         plt.savefig(filename)
+
+
+class SHAP_and_Shapley():
+    def __transform(self, b_list):
+        # 二进制列表转十进制数
+        d_value = 0
+        for i in range(len(b_list)):
+            d_value += b_list[i] * 2**i
+        return d_value
+    
+    
+    def _pre_fit(self, data, replace, param):
+        dim = data.shape[1]
+        shap_and_shapley_values = []
+        
+        # 求各个特征组合的预测值
+        prediction = []
+        for i in range(2**dim):
+            new_data = data.copy()
+            loc = np.array([i >> d & 1 for d in range(dim)])
+            loc = np.where(loc==0)[0]
+            if len(loc) != 0:
+                new_data[:, loc] = replace
+            prediction_part = self.predict(new_data, **param)
+            prediction.append(prediction_part)
+        prediction = np.array(prediction)
+        
+        # 求每个特征的SHAP值
+        for i in range(dim):
+            loc = np.array([2**i >> d & 1 for d in range(dim)])
+            loc = np.where(loc==1)[0][0]
+            shap_value = 0
+            
+            # 每一层差值的加权求和
+            for j in range(2**(dim-1)):
+                b_list = [j >> d & 1 for d in range(dim)]
+                b_list.insert(loc, 0)
+                b_value = self.__transform(b_list)
+                # 1 / ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))是权重
+                shap_value += (prediction[b_value + 2**i] - prediction[b_value]) / \
+                              ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))
+            shap_and_shapley_values.append(shap_value)
+        return np.array(shap_and_shapley_values)
+    
+    
+    def show(self, labels=None, index=None, top=None, estimate=None):
+        '''
+        作图并显示
+        
+        参数
+        ----
+        labels：一维列表，可选，特征名称，默认为None
+        index：一维列表，可选，特征索引，默认为None，表示全选
+        top：整型，可选，表示显示值最高的前top个特征，默认为None，表示全选
+        estimate：整型，可选，表示图示示数保留的小数位数，默认为None
+        
+        
+        Display the image
+        
+        Parameters
+        ----------
+        labels: 1-D list, callable, names of features, default=None
+        index: 1-D list, callable, index of features, default=None, which means select all
+        top: int, callable, display "top" features with the highest values, default=None, which means select all
+        estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
+        '''
+        _image_process(self.values, labels, index, top, estimate)
+        plt.show()
+    
+    
+    def savefig(self, filename, labels=None, index=None, top=None, estimate=None):
+        '''
+        作图并保存
+        
+        参数
+        ----
+        filename：字符串类型，文件名
+        labels：一维列表，可选，特征名称，默认为None
+        index：一维列表，可选，特征索引，默认为None，表示全选
+        top：整型，可选，表示显示值最高的前top个特征，默认为None，表示全选
+        estimate：整型，可选，表示图示示数保留的小数位数，默认为None
+        
+        
+        Save the image
+        
+        Parameters
+        ----------
+        filename: str, file name
+        labels: 1-D list, callable, names of features, default=None
+        index: 1-D list, callable, index of features, default=None, which means select all
+        top: int, callable, display "top" features with the highest values, default=None, which means select all
+        estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
+        '''
+        _image_process(self.values, labels, index, top, estimate)
+        plt.savefig(filename)
+
+
+class SHAP(SHAP_and_Shapley):
+    '''
+    计算局部点在模型中的SHAP值
+    
+    参数
+    ----
+    predict：函数类型，模型的预测函数
+    
+    属性
+    ----
+    values：一维ndarray，每个特征的SHAP值
+    
+    
+    Calculate the SHAP of local points in the model
+    
+    Parameter
+    ---------
+    predict: function, the predict function of the model
+    
+    Attribute
+    ---------
+    values: 1-D ndarray, SHAP of each feature
+    '''
+    def __init__(self, predict):
+        self.predict = predict
+    
+    
+    def fit(self, data, replace=0, param={}):
+        '''
+        计算SHAP值
+        
+        参数
+        ----
+        data：一维数组，局部点
+        replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
+        param：字典类型，可选，当predict函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+        
+        
+        Calculate the SHAP values
+        
+        Parameters
+        ----------
+        data: 1-D array, local point
+        replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
+        param: dict, callable, when function "predict" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
+        '''
+        data = np.array(data)
+        # 确定替换值
+        if type(replace).__name__ == 'function':
+            replace = replace(data)
+        data = np.array([data])
+        
+        self.values = SHAP_and_Shapley._pre_fit(self, data, replace, param).reshape(-1)
+
+
+class Shapley(SHAP_and_Shapley):
+    '''
+    计算样本集在模型中的Shapley值
+    
+    参数
+    ----
+    predict：函数类型，模型的预测函数
+    
+    属性
+    ----
+    values：一维ndarray，每个特征的Shapley值
+    
+    
+    Calculate the Shapley values of data set in the model
+    
+    Parameter
+    ---------
+    predict: function, the predict function of the model
+    
+    Attribute
+    ---------
+    values: 1-D ndarray, Shapley value of each feature
+    '''
+    def __init__(self, predict):
+        self.predict = predict
+    
+    
+    def fit(self, data, replace=0, param={}):
+        '''
+        计算Shapley
+        
+        参数
+        ----
+        data：二维数组，数据集
+        replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
+        param：字典类型，可选，当predict函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+        
+        
+        Calculate the Shapley
+        
+        Parameters
+        ----------
+        data: 2-D array, data set
+        replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
+        param: dict, callable, when function "predict" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
+        '''
+        data = np.array(data)
+        # 确定替换值
+        if type(replace).__name__ == 'function':
+            replace = replace(data)
+        
+        self.values = SHAP_and_Shapley._pre_fit(self, data, replace, param).T
+        self.values = self.values.mean(axis=0)

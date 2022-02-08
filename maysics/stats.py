@@ -483,7 +483,7 @@ class DFT():
         return data_list, pro_list
     
     
-    def __con_fit(self, data, func, num_data, args, acc):
+    def __con_fit(self, data, func, num_data, param, acc):
         data = sorted(data)
         
         # 从小到大按20个一组分成多个部分
@@ -503,11 +503,11 @@ class DFT():
         pro_list = []
         if self.__func_type == 'pdf':
             for i in data_list:
-                pro_list.append(inte(func, [[i[0], i[-1]]], args=args, acc=acc))
+                pro_list.append(inte(func, [[i[0], i[-1]]], param=param, acc=acc))
         
         elif self.__func_type == 'cdf':
             for i in data_list:
-                pro_list.append(func(i[-1], **args) - func(i[0], **args))
+                pro_list.append(func(i[-1], **param) - func(i[0], **param))
         
         pro_list = np.array(pro_list) * num_data
         
@@ -519,7 +519,7 @@ class DFT():
         return data_list, pro_list
     
 
-    def __dis_fit(self, data, func, num_data, args):
+    def __dis_fit(self, data, func, num_data, param):
         data = list(data)
         data_set = sorted(set(data))
 
@@ -528,7 +528,7 @@ class DFT():
         pro_list = []
         for i in data_set:
             data_list.append(data.count(i))
-            pro_list.append(func(i, **args))
+            pro_list.append(func(i, **param))
         data_list = np.array(data_list)
         pro_list = np.array(pro_list) * num_data
 
@@ -537,13 +537,13 @@ class DFT():
         return data_list, pro_list
     
     
-    def fit(self, data, func, args={}, acc=0.1):
+    def fit(self, data, func, param={}, acc=0.1):
         '''
         参数
         ----
         data：数据
         func：函数类型，分布函数或概率密度函数，函数的输入须为一个数
-        args：字典类型，可选，用于传递func中的其他参数
+        param：字典类型，可选，用于传递func中的其他参数
         acc：浮点数类型，可选，积分精度，仅func_type为'pdf'或'cdf'时有效，默认为0.1
         
         
@@ -551,18 +551,18 @@ class DFT():
         ----------
         data: data
         func: function, cumulative distribution function or probability density function, the input of func should be a number
-        args: dict, callable, pass other parameters to func
+        param: dict, callable, pass other parameters to func
         acc: float, callable, integration accuracy, it's effective only when func_type is 'pdf' or 'cdf', default=0.1
         '''
         self.__data = np.array(data, dtype=np.float)
         self.__func = func
-        self.__args = args
+        self.__param = param
         num_data = len(data)
         
         if self.__func_type != 'pmf':
-            data_list, pro_list = self.__con_fit(data, func, num_data, args, acc)
+            data_list, pro_list = self.__con_fit(data, func, num_data, param, acc)
         else:
-            data_list, pro_list = self.__dis_fit(data, func, num_data, args)
+            data_list, pro_list = self.__dis_fit(data, func, num_data, param)
         
         self.degree = len(pro_list) - 1
         self.chi2_value = sum((data_list - pro_list)**2 / pro_list)
@@ -575,7 +575,7 @@ class DFT():
         if self.__func_type == 'pmf':
             acc = 1
         x = np.arange(x_min, x_max, acc)
-        y = self.__func(x, **self.__args)
+        y = self.__func(x, **self.__param)
         
         func_type = type(y).__name__
         if func_type == 'int' or func_type == 'float':
