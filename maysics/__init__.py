@@ -43,7 +43,7 @@ from maysics import algo, calc, equa, explain, graph, image,\
     models, prep, stats, time, trans, utils
 from maysics.models import linear_r
 from maysics.prep import preview, preview_file, shuffle, standard, minmax, normalizer
-from maysics.utils import circle, discrete, grid_net
+from maysics.utils import circle, discrete, grid_net, hermit, mat_exp
 
 
 # math

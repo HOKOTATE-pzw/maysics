@@ -6,6 +6,52 @@ This module stores several common coordinate transformations
 import numpy as np
 
 
+def dirac(x, num=None, rl=0):
+    '''
+    将狄拉克算符转换为向量
+    
+    参数
+    ----
+    x：一维数组类型，数据
+    num：一维数组类型，代表每一个量子位的进制，默认均为二进制
+    rl：rl=0或rl='r'代表右矢，rl=1或rl='1'代表左矢
+    
+    返回
+    ----
+    二维ndarray，狄拉克算符的向量形式，右矢为列向量，左矢为行向量
+    
+    
+    Convert Dirac Operator to Vector
+    
+    Parameters
+    ----------
+    x: 1D-array, data
+    num: 1D-array, represents the base of each qubit, which is binary by default
+    rl: rl=0 or rl='r' means right vector, rl=1 or rl='l' means left vector
+    
+    Return
+    ------
+    2D-ndarray, the vector form of Dirac operator, the right vector is the column vector and the left vector is the row vector
+    '''
+    x = np.array(x)
+    total = x.shape[0]
+    if num is None:
+        num = np.ones_like(x) * 2
+    n = 1
+    for i in num:
+        n *= i
+    m = x[-1]
+    for i in range(1, total):
+        m += x[- i - 1] * np.prod(num[-i:])
+    if rl == 0 or rl == 'r':
+        vec = np.zeros((n, 1))
+        vec[m, 0] = 1
+    elif rl == 1 or rl == 'l':
+        vec = np.zeros((1, n))
+        vec[0, m] = 1
+    return vec
+
+
 def lorentz(v, x):
     '''
     洛伦兹坐标变换

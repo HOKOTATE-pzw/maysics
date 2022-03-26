@@ -34,6 +34,75 @@ def grid_net(*args):
     return net
 
 
+def hermit(data):
+    '''
+    求厄密共轭矩阵
+    
+    参数
+    ----
+    data：二维数组
+    
+    返回
+    ----
+    二维ndarray
+    
+    
+    Hermitian Conjugate Matrix
+    
+    Parameter
+    ---------
+    data: 2-D array
+    
+    Return
+    ------
+    2-D ndarray
+    '''
+    data = np.array(data)
+    return data.T.conj()
+
+
+def mat_exp(x, tol=0.01):
+    '''
+    矩阵的exp运算
+    求e^data
+    
+    参数
+    ----
+    x：二维数组，矩阵
+    tol：浮点数类型，可选，误差，当data^n/n!的每个矩阵元均小于tol时输出结果
+    
+    返回
+    ----
+    二维ndarray
+    
+    
+    Exp Operation of Matrix
+    
+    Parameters
+    ----------
+    x: 2-D array, matrix
+    tol: float, callable, error, output when every element of data^n/n! less than tol
+    
+    Return
+    ------
+    2-D ndarray
+    '''
+    x = np.matrix(x)
+    I_x = np.matrix(np.eye(x.shape[0]))
+    result_up = I_x.copy()
+    error = I_x.copy()
+    result = I_x.copy()
+    n = 0
+    result_down = 1
+    while (error > tol).any():
+        n += 1
+        result_up *= x
+        result_down *= n
+        error = result_up / result_down
+        result += error
+    return np.array(result)
+
+
 def e_distance(p1, p2):
     '''
     求某两个点之间的欧式距离

@@ -64,7 +64,7 @@ def pagerank(data, loop=5, pr=None, d=0.85, l=False):
     return pr_list
 
 
-def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None, param={}, random_state=None, batch=True):
+def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None, random_state=None, batch=True):
     '''
     粒子群优化算法
     
@@ -78,7 +78,6 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     phi_1：数，可选，第一个加速度常数，默认为2
     phi_2：数，可选，第二个加速度常数，默认为2
     v_max：数，可选，粒子最大速度
-    param：字典类型，可选，当select函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     random_state：整型，可选，随机种子
     batch：布尔类型，True表示评估函数为批量输入函数，False表示评估函数为非批量输入函数，默认为True
     
@@ -99,7 +98,6 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     phi_1: num, callable, the first acceleration constant, default=2
     phi_2: num, callable, the second acceleration constant, default=2
     v_max: num, callable, the maximal velocity of particles
-    param: dict, callable, when function "select" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
     random_state: int, callable, random seed
     batch: bool, callable, True means estimation function is batch-input, False means not
     
@@ -115,12 +113,12 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     p_g = p[0].copy()
     
     if batch is True:
-        values = list(select(initial, **param))
+        values = list(select(initial))
     
     else:
         values = []
         for i in initial:
-            values.append(select(i, **param))
+            values.append(select(i))
     
     for i in range(loop):
         initial_shape = initial.shape
@@ -137,14 +135,14 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
         initial += v
         
         if batch is True:
-            values_new = select(initial, **param)
+            values_new = select(initial)
             loc = np.where(np.array(values_new) < np.array(values))[0]
             p[loc] = initial[loc]
         
         else:
             values_new = []
             for i in range(initial_shape[0]):
-                value_new = select(initial[i], **param)
+                value_new = select(initial[i])
                 values_new.append(value_new)
                 if value_new < values[i]:
                     p[i] = initial[i]
@@ -633,7 +631,7 @@ class GA():
         return child_individual_1, child_individual_2, random_loc_list
     
     
-    def __st(self, parent_matrix, fitness, num_dead, param):
+    def __st(self, parent_matrix, fitness, num_dead):
         '''
         随机竞争选择
         num_dead: 整型，死亡的数量
@@ -650,14 +648,14 @@ class GA():
                 random_num_2 = random.randint(0, num_of_parents - i - 1)
                 if random_num_1 != random_num_2:
                     break
-            if fitness(parent_matrix[random_num_1], **param) <= fitness(parent_matrix[random_num_2], **param):
+            if fitness(parent_matrix[random_num_1]) <= fitness(parent_matrix[random_num_2]):
                 parent_matrix = np.delete(parent_matrix, random_num_1, axis=0)
             else:
                 parent_matrix = np.delete(parent_matrix, random_num_2, axis=0)
         return parent_matrix
     
     
-    def __rw(self, parent_matrix, fitness, num_alive, param):
+    def __rw(self, parent_matrix, fitness, num_alive):
         '''
         轮盘赌选择
         
@@ -668,7 +666,7 @@ class GA():
         child_matrix = []
         
         for parent_individual in parent_matrix:
-            fitness_list.append(fitness(parent_individual, **param))
+            fitness_list.append(fitness(parent_individual))
         max_fitness = max(fitness_list)
         
         while len(child_matrix) < num_alive:
@@ -683,7 +681,7 @@ class GA():
         return parent_matrix
     
     
-    def fit(self, length, fitness, param={}):
+    def fit(self, length, fitness):
         '''
         进行遗传算法模拟
         
@@ -691,7 +689,6 @@ class GA():
         ----
         length：整型，染色体长度
         fitness：函数类型，适应度函数
-        param：字典类型，可选，当fitness函数有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         
         
         Simulate
@@ -700,8 +697,8 @@ class GA():
         ----------
         length: int, the length of chromosome
         fitness: funtion, fitness function
-        param: dict, callable, when function "fitness" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
         '''
+        self.__fitness = fitness
         if self.random_type == 'random':
             parent_matrix = np.random.rand(self.population, length)
         elif self.random_type == 'randint':
@@ -723,9 +720,9 @@ class GA():
         for i in range(self.iteration - 1):
             # 选择
             if self.select == 'rw':
-                parent_matrix = self.__rw(parent_matrix, fitness, num_alive, param)
+                parent_matrix = self.__rw(parent_matrix, fitness, num_alive)
             elif self.select == 'st':
-                parent_matrix = self.__st(parent_matrix, fitness, num_dead, param)
+                parent_matrix = self.__st(parent_matrix, fitness, num_dead)
             elif type(self.select).__name__ == 'function':
                 parent_matrix == self.select(parent_matrix, fitness)
             
@@ -744,9 +741,9 @@ class GA():
             parent_matrix = self.__mutate_func(length, parent_matrix)
         
         if self.select == 'rw':
-            parent_matrix = self.__rw(parent_matrix, fitness, num_alive, param)
+            parent_matrix = self.__rw(parent_matrix, fitness, num_alive)
         elif self.select == 'st':
-            parent_matrix = self.__st(parent_matrix, fitness, num_dead, param)
+            parent_matrix = self.__st(parent_matrix, fitness, num_dead)
         elif type(self.select).__name__ == 'function':
             parent_matrix == self.select(parent_matrix, fitness)
         
@@ -789,7 +786,7 @@ class SA():
     step: float or function, callable
         when its type is float, it means step, each generated step length = step * a random number belonging to (-1, 1), default=1
         when its type is function, it menas update method of independent variable points
-    param: dict, callable, when step is function and has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
+    param: dict, callable, When step is function and has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     n: int, callable, isothermal iterations, default=10
     random_state: int, callable, random seed
     
@@ -825,7 +822,7 @@ class SA():
         T: float, initial temperature
         T0: float, annealing temperature
         initial: num or array, initial solution, the input value of select function
-        args: dict, callable, when function "select" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
+        args: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         loop: int, callable, when n cycles of simulated annealing are needed, loo=n, default=1
         '''
         initial = np.array(initial, dtype=float)
@@ -911,19 +908,19 @@ class GD():
         self.acc = acc
     
     
-    def fit(self, select, initial, param={}):
+    def fit(self, select, initial, args={}):
         '''
         参数
         ----
         select：函数，评估函数
         initial：数或数组，初始解，select函数的输入值
-        param：字典类型，可选，当select有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+        args：字典类型，可选，当select有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         
         Parameters
         ----------
         select: function, evaluation function
         initial: num or array, initial solution, the input value of select function
-        param: dict, callable, when function "select" has other non-default parameters, "param" needs to be input as a dictionary with parm_name as key and param_value as value, default={}
+        args: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         '''
         initial = np.array(initial, dtype=np.float)
         self.trace = [initial]
@@ -932,11 +929,129 @@ class GD():
         while f_change > self.ytol:
             d_list = grad(select, initial, self.acc)
             # 计算函数值变化量
-            f_change = select(initial, **param)
+            f_change = select(initial, **args)
             initial = initial - d_list * self.step
-            f_change = abs(select(initial, **param) - f_change)
+            f_change = abs(select(initial, **args) - f_change)
             self.trace.append(initial)
         
         self.solution = initial
         self.trace = np.array(self.trace)
-        self.value = select(initial, **param)
+        self.value = select(initial, **args)
+
+
+class GM():
+    '''
+    灰色系统模型，GM(1, 1)模型
+    fit函数输入一维数组y：[y1, y2, ..., yn]
+    对应的时间数组t为：[1, 2, ..., n]
+    预测式：
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    参数
+    ----
+    acc：数，可选，调整级比的精度，默认为1
+    
+    属性
+    ----
+    C：数，调整级比范围时y数组的平移量（y + C）
+    u：二维ndarray，列矩阵[a b].T
+    predict：函数，预测函数，仅支持输入数
+    
+    
+    Grey Model, GM(1, 1)
+    The fit function inputs 1-D array y: [y1, y2, ..., yn]
+    The corresponding time array t: [1, 2, ..., n]
+    Prediction function:
+        x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
+        t >= 2时：x(0)(t) = x(1)(t) - x(1)(t - 1)
+        t == 1时：x(0)(t) = x(1)(t)
+    
+    Parameter
+    ---------
+    acc: num, callable, accuracy of adjusting stage ratio, default=1
+    
+    Attributes
+    ----------
+    C: num, the translation of Y array when adjusting the range of stage ratio(y + C)
+    u: 2-D ndarray, column matrix [a b].T
+    predict: function, prediction function, only number is supported
+    '''
+    def __init__(self, acc=1):
+        self.acc=acc
+    
+    
+    def __transform(self, y):
+        # 调整级比范围
+        y = np.array(y, dtype=np.float)
+        n = len(y)
+        y_k_1 = y[:-1]
+        y_k = y[1:]
+        l_k = y_k_1 / y_k
+        theta_min = np.e**(-2 / (n + 1))
+        theta_max = np.e**(2 / (n + 2))
+
+        self.C = 0
+        while True:
+            if np.min(l_k) <= theta_min or np.max(l_k) >= theta_max:
+                self.C += self.acc
+                y += self.acc
+                y_k_1 = y[:-1]
+                y_k = y[1:]
+                l_k = y_k_1 / y_k
+            else:
+                break
+        return y
+    
+    
+    def __generate_z1(self, y):
+        # 生成y的等权邻值生成数列
+        y1 = []
+        for i in range(len(y)):
+            y1.append(sum(y[:i+1]))
+        y1 = np.array(y1, dtype=np.float)
+        y1_k_1 = y1[:-1]
+        y1_k = y1[1:]
+        z_1 = -0.5 * y1_k_1 - 0.5 * y1_k
+        return z_1
+    
+    
+    def __generate_u(self, z1, y):
+        # 求解u矩阵
+        z1 = np.array([z1])
+        B = np.vstack((z1, np.ones_like(z1))).T
+        Y = np.array([y]).T
+        u = np.linalg.lstsq(B, Y, rcond=None)[0]
+        return u
+    
+    
+    def fit(self, y):
+        '''
+        进行GM(1, 1)拟合
+        
+        参数
+        ----
+        y：一维数组
+        
+        
+        Fit with GM(1, 1)
+        
+        Parameter
+        ---------
+        y: 1-D array
+        '''
+        y = self.__transform(y)
+        z1 = self.__generate_z1(y)
+        self.u = self.__generate_u(z1, y[1:]).T[0]
+        
+        def predict(t):
+            t = int(t)
+            if t == 1:
+                return self.u[1] / self.u[0] - self.C
+            else:
+                result = y[0] - self.u[1] / self.u[0]
+                result *= (np.e**(-self.u[0] * (t - 1)) - np.e**(-self.u[0] * (t - 2)))
+                return result - self.C
+        
+        self.predict = predict
