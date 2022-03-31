@@ -254,9 +254,15 @@ def sample_pad(data, index=0, padding=None):
                          [3, 4],
                          [4, 5]])]
     
+    参数
+    ----
     data：元组或列表类型，数据
     index：整型，作为扩充全集的标准列的索引
     padding：填充值，可选，默认为None
+    
+    返回
+    ----
+    ndarray
     
     
     Sample filling for 2D data
@@ -280,9 +286,15 @@ def sample_pad(data, index=0, padding=None):
                            [3, 4],
                            [4, 5]])]
     
+    Parameters
+    ----------
     data: tuple or list, data
     index: int, the index of a standard column as an extended complete set
     padding: padding value, optional, default=None
+    
+    Return
+    ------
+    ndarray
     '''
     time_set = set()
     result = []
@@ -312,22 +324,19 @@ def shuffle(*arg):
     
     返回
     ----
-    一个ndarray
+    None
     
     
     Shuffle a sequence or shuffle multiple sequences in the same way
     
     Return
     ------
-    a ndarray
+    None
     '''
     state = np.random.get_state()
-    a_new_list = []
     for li in arg:
         np.random.set_state(state)
         np.random.shuffle(li)
-        a_new_list.append(li)
-    return np.array(a_new_list)
 
 
 def data_split(data, targets, train_size=None, test_size=None, shuffle=True, random_state=None):
@@ -345,7 +354,7 @@ def data_split(data, targets, train_size=None, test_size=None, shuffle=True, ran
     
     返回
     ----
-    元组，(数据测试集, 指标测试集, 数据验证集, 指标验证集)
+    元组，(数据测试集, 指标测试集, 数据验证集, 指标验证集)，元组元素与输入数据类型相同
     
     
     split the data
@@ -361,10 +370,8 @@ def data_split(data, targets, train_size=None, test_size=None, shuffle=True, ran
     
     Return
     ------
-    tuple, (train_data, train_target, validation_data, validation_target)
+    tuple, (train_data, train_target, validation_data, validation_target), the tuple element is the same as the input data type
     '''
-    data = np.array(data)
-    targets = np.array(targets)
     if not (train_size or test_size):
         train_size = 0.75
     elif test_size:
@@ -400,7 +407,7 @@ def kfold(data, targets, n, k=5):
     
     返回
     ----
-    元组，(数据测试集, 指标测试集, 数据验证集, 指标验证集)
+    元组，(数据测试集, 指标测试集, 数据验证集, 指标验证集)，元组元素与输入数据类型相同
     
     
     Parameters
@@ -412,10 +419,8 @@ def kfold(data, targets, n, k=5):
     
     Return
     ------
-    tuple, (train_data, train_target, validation_data, validation_target)
+    tuple, (train_data, train_target, validation_data, validation_target), the tuple element is the same as the input data type
     '''
-    data = np.array(data)
-    targets = np.array(targets)
     num_validation_samples = len(data) // k
     
     validation_data = data[num_validation_samples * n:
@@ -423,10 +428,18 @@ def kfold(data, targets, n, k=5):
     validation_targets = targets[num_validation_samples * n:
                                  num_validation_samples * (n + 1)]
     
-    train_data = np.concatenate([data[: num_validation_samples * n],
-                                 data[num_validation_samples * (n + 1):]])
-    train_targets = np.concatenate([targets[: num_validation_samples * n],
-                                    targets[num_validation_samples * (n + 1):]])
+    if type(data) != list:
+        loc = np.arange(0, len(data)).astype(int)
+        loc = np.delete(loc, loc[num_validation_samples * n: num_validation_samples * (n + 1)])
+        
+        train_data = data[loc]
+        train_targets = targets[loc]
+    
+    else:
+        train_data = data[: num_validation_samples * n].copy()
+        train_data.extend(data[num_validation_samples * (n + 1):])
+        train_targets = targets[: num_validation_samples * n].copy()
+        train_targets.extend(targets[num_validation_samples * (n + 1):])
     
     return train_data, train_targets, validation_data, validation_targets
 
@@ -445,7 +458,7 @@ def dataloader(data, targets, choose_rate=0.3, shuffle=True, random_state=None):
     
     返回
     ----
-    生成器
+    生成器，生成数据与输入数据类型相同
     
     
     Data Random Generator
@@ -460,11 +473,8 @@ def dataloader(data, targets, choose_rate=0.3, shuffle=True, random_state=None):
     
     Return
     ------
-    generator
+    generator, the generated data is of the same type as the input data
     '''
-    data = np.array(data)
-    targets = np.array(targets)
-    
     if shuffle:
         np.random.seed(random_state)
         state = np.random.get_state()

@@ -39,11 +39,11 @@ from scipy.special import factorial
 import pickle, csv
 from PIL import Image
 import random
-from maysics import algo, calc, equa, explain, graph, image,\
+from . import algo, calc, equa, explain, graph, image,\
     models, prep, stats, time, trans, utils
-from maysics.models import linear_r
-from maysics.prep import preview, preview_file, shuffle, standard, minmax, normalizer
-from maysics.utils import circle, discrete, grid_net, hermit, mat_exp
+from .models import linear_r
+from .prep import preview, preview_file, shuffle, standard, minmax, normalizer
+from .utils import circle, discrete, grid_net, hermit, mat_exp
 
 
 # math
