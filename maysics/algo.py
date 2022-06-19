@@ -904,7 +904,7 @@ class GD():
     '''
     def __init__(self, ytol=0.01, step=0.1, acc=0.1):
         self.ytol = ytol
-        self.step = step
+        self._step = step
         self.acc = acc
     
     
@@ -925,12 +925,13 @@ class GD():
         initial = np.array(initial, dtype=np.float)
         self.trace = [initial]
         f_change = float('inf')
+        step = self._step
         
         while f_change > self.ytol:
             d_list = grad(select, initial, self.acc)
             # 计算函数值变化量
             f_change = select(initial, **args)
-            initial = initial - d_list * self.step
+            initial = initial - d_list * step
             f_change = abs(select(initial, **args) - f_change)
             self.trace.append(initial)
         

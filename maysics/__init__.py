@@ -375,6 +375,31 @@ def save(filename, data, header=None, pic=False):
         image.save(filename)
 
 
+def lag(x, n, m):
+    '''
+    （连带）拉盖尔多项式
+    
+    参数
+    ----
+    x：数，输入值
+    n：整型，次数
+    m：整型，阶数
+    
+    
+    (Associated) Laguerre Polynomial
+    
+    Parameters
+    ----------
+    x: num, input value
+    n: int, degree
+    m: int, order
+    '''
+    result = 0
+    for i in range(n+1):
+        result += (-1)**i * factorial(n + m) / (factorial(n - i) * factorial(i + m) * factorial(i)) * x**i
+    return result
+
+
 def lpn(l):
     '''
     l阶勒让德多项式的模

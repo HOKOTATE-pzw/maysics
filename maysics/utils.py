@@ -297,7 +297,7 @@ def discrete(x, y, color=None, label=None):
         plt.vlines(x, zeros, y, color=color)
 
 
-def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=None):
+def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, c=None, label=None):
     '''
     绘制一个圆
     
@@ -307,6 +307,7 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=No
     radius：数类型，可选，半径，默认为1
     angle_range：元组类型，可选，绘制的角度范围，默认为(0, 2π)
     acc：浮点数类型，可选，绘制的精度，默认为0.01
+    c：可选，颜色
     label：字符串类型，可选，标签，默认为None
     
     
@@ -318,13 +319,14 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, label=No
     radius: num, callable, radius, default=1
     angle_range: tuple, callable, the range of angle to draw, default=(0, 2π)
     acc: float, callable, the accuracy of drawing, default=0.01
+    c: callable, color
     label: str, callable, label, default=None
     '''
     theta = np.arange(*angle_range, acc)
     radius = radius * np.ones_like(theta)
     x = np.vstack((radius, theta)).T
     x = trans.ipolar(x)
-    plt.plot(x[:, 0] + center[0], x[:, 1] + center[1])
+    plt.plot(x[:, 0] + center[0], x[:, 1] + center[1], c=c)
 
 
 class A_P():
