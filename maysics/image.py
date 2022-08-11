@@ -39,6 +39,105 @@ def l_convert(data, dtype=float):
     return np.array(data, dtype=dtype)
 
 
+def hsv(pic, dtype=float):
+    '''
+    将RGB格式转换为HSV格式
+    
+    参数
+    ----
+    data：三维ndarray，图像的RGB张量数据
+    dtype：可选，输出图像数据的数据格式，默认为float
+    
+    返回
+    ----
+    三维ndarray，HSV数据
+    
+    
+    Transform RGB into HSV
+    
+    Parameters
+    ----------
+    data: 3-D ndarray, RGB tensor of image
+    dtype: callable, data format of output image, default=float
+    
+    Return
+    ------
+    3-D ndarray, HSV data
+    '''
+    pic = np.array(pic, dtype=float)
+    v = pic.max(axis=2)
+    med_v = pic.min(axis=2)
+    s = np.zeros_like(v)
+    s[v!=0] = 1 - med_v[v!=0] / v[v!=0]
+    h = np.zeros_like(v)
+    med_v = v - med_v
+    
+    for i in range(3):
+        loc = np.where((v==pic[:, :, i]) & (med_v!=0))
+        h[loc] = (pic[:, :, (i+1)%3][loc] - pic[:, :, (i+2)%3][loc]) * 60 / med_v[loc] + i * 120
+    h[h<0] += 360
+    
+    pic = np.array([h, s, v], dtype=dtype)
+    return pic.transpose(1, 2, 0)
+
+
+def ihsv(pic, dtype=float):
+    '''
+    将HSV格式转换为RGB格式
+    
+    参数
+    ----
+    data：三维ndarray，图像的HSV张量数据
+    dtype：可选，输出图像数据的数据格式，默认为float
+    
+    返回
+    ----
+    三维ndarray，HSV数据
+    
+    
+    Transform HSV into RGB
+    
+    Parameters
+    ----------
+    data: 3-D ndarray, HSV tensor of image
+    dtype: callable, data format of output image, default=float
+    
+    Return
+    ------
+    3-D ndarray, RGB data
+    '''
+    pic = np.array(pic, dtype=float)
+    h = pic[:, :, 0] / 60
+    f = h.copy()
+    h = h.astype(int) % 6
+    f -= h
+    v = [pic[:, :, 2] * (1 - pic[:, :, 1]),
+         pic[:, :, 2] * (1 - (1 - f) * pic[:, :, 1]),
+         pic[:, :, 2],
+         pic[:, :, 2] * (1 - f * pic[:, :, 1])]
+    
+    # 初始化
+    r = np.zeros_like(h)
+    g = np.zeros_like(h)
+    b = np.zeros_like(h)
+    
+    # 分别处理h为偶数和奇数时的rgb
+    for i in range(3):
+        loc = np.where(h==2 * i)
+        r[loc] = v[(i+2)%3][loc]
+        g[loc] = v[(i+1)%3][loc]
+        b[loc] = v[i%3][loc]
+    del v[1]
+    for i in range(3):
+        loc = np.where(h==2 * i + 1)
+        r[loc] = v[(i+2)%3][loc]
+        g[loc] = v[(i+1)%3][loc]
+        b[loc] = v[i%3][loc]
+    
+    pic = np.array([r, g, b], dtype=dtype)
+    return pic.transpose(1, 2, 0)
+
+
 def hist(data):
     '''
     图像的直方图
@@ -144,7 +243,7 @@ def _pre_linear_enhancement(data, begin, end, k, center):
     return data
 
 
-def linear_enhancement(data, begin, end, k, center=None, dtype=float):
+def linear_enhance(data, begin, end, k, center=None, dtype=float):
     '''
     线性增强
     
@@ -232,7 +331,7 @@ def hist_equa(data, dtype=float):
     return np.array(data, dtype=dtype)
 
 
-def laplace(data, mode=8, dtype=float):
+def laplace(data, mode=8, strenth=1, dtype=float):
     '''
     图像的拉普拉斯算子
     
@@ -248,6 +347,7 @@ def laplace(data, mode=8, dtype=float):
          [-1, 8, -1],
          [-1, -1, -1]]
         默认为8
+    strenth：数类型，可选，对比的增强倍率，默认为1
     dtype：可选，输出图像数据的数据格式，默认为float
     
     返回
@@ -269,6 +369,7 @@ def laplace(data, mode=8, dtype=float):
          [-1, 8, -1],
          [-1, -1, -1]]
         defualt=8
+    strenth: num, callable, contrast enhancement magnification, default=1
     dtype: callable, data format of output image, default=float
     
     Return
@@ -319,6 +420,82 @@ def laplace(data, mode=8, dtype=float):
         data_new += data - data_copy
         data_copy = data
     
-    data_new = abs(data_new)
+    data_new = abs(data_new) * strenth
     data_new[data_new > 255] = 255
-    return np.array(data_new, dtype=dtype)
+    return np.around(data_new).astype(dtype)
+
+
+def saturate(data, scale=1, param={}, dtype=float):
+    '''
+    调整图片饱和度
+    
+    参数
+    ----
+    data：三维ndarray，图像的张量数据
+    scale：数或函数类型，可选，当scale为数类型时，表示饱和度调整为S*scale；当scale为函数类型时，表示饱和度调整为scale(S)，默认为1
+    param：字典类型，可选，当scale为函数类型且有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+    dtype：可选，输出图像数据的数据格式，默认为float
+    
+    返回
+    ----
+    三维ndarray，图像
+    
+    
+    Adjust the saturation
+    
+    Parameters
+    ----------
+    data: 3-D ndarray, tensor of image
+    scale: num or function, callable, when scale is num, it means adjust the saturation to S*scale; while it's function, it means adjust the saturation to scale(S), default=1
+    param: dict, callable, When step is function and has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
+    dtype: callable, data format of output image, default=float
+    
+    Return
+    ------
+    3-D ndarray, image
+    '''
+    data = np.array(data, dtype=float)
+    v = data.max(axis=2)
+    med_v = data.min(axis=2)
+    s = np.zeros_like(v)
+    s[v!=0] = 1 - med_v[v!=0] / v[v!=0]
+    h = np.zeros_like(v)
+    med_v = v - med_v
+    
+    for i in range(3):
+        loc = np.where((v==data[:, :, i]) & (med_v!=0))
+        h[loc] = (data[:, :, (i+1)%3][loc] - data[:, :, (i+2)%3][loc]) / med_v[loc] + i * 2
+    h[h<0] += 6
+    
+    # 调整饱和度s
+    if type(scale).__name__ != 'function':
+        s *= scale
+    else:
+        s = scale(s, **param)
+    s[s>1] = 1
+    
+    f = h.copy()
+    h = h.astype(int) % 6
+    f -= h
+    v = [v * (1 - s), v * (1 - (1 - f) * s), v, v * (1 - f * s)]
+    
+    # 初始化
+    r = np.zeros_like(h)
+    g = np.zeros_like(h)
+    b = np.zeros_like(h)
+    
+    # 分别处理h为偶数和奇数时的rgb
+    for i in range(3):
+        loc = np.where(h==2 * i)
+        r[loc] = v[(i+2)%3][loc]
+        g[loc] = v[(i+1)%3][loc]
+        b[loc] = v[i%3][loc]
+    del v[1]
+    for i in range(3):
+        loc = np.where(h==2 * i + 1)
+        r[loc] = v[(i+2)%3][loc]
+        g[loc] = v[(i+1)%3][loc]
+        b[loc] = v[i%3][loc]
+    
+    data = np.array([r,g,b], dtype=dtype)
+    return data.transpose(1, 2, 0)
