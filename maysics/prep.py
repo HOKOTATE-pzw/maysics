@@ -143,7 +143,7 @@ def preview_file(filename, data, value_round=3):
     Parameters
     ----------
     filename: str, file name
-    data: 2-D array, data
+    data: 2D array, data
     value_round: int, the number of digits after the decimal point retained by numeric features
     '''
     root = _preview_process(data=data, value_round=value_round)
@@ -166,7 +166,7 @@ def preview(data, value_round=3):
     
     Parameters
     ----------
-    data: 2-D array, data
+    data: 2D array, data
     value_round: int, the number of digits after the decimal point retained by numeric features
     '''
     root = _preview_process(data=data, value_round=value_round)
@@ -192,19 +192,19 @@ def length_pad(seq, maxlen=None, value=0, padding='pre', dtype=float):
     二维ndarray
     
     
-    Pad the 2-D list so that every row is 'maxlen' in length
+    Pad the 2D list so that every row is 'maxlen' in length
     
     Parameters
     ----------
-    seq: 2-D list, objects that need to be padded
-    maxlen: int, callable, the maximum length of each row, default = the maximum length of the original 2-D list
+    seq: 2D list, objects that need to be padded
+    maxlen: int, callable, the maximum length of each row, default = the maximum length of the original 2D list
     value: num, callable, padding value, default=0
     padding: str, callable, padding location, 'pre' means padding from the front and 'post' from the back, default='pre'
     dtype: callable, the element type of the output, default=float
     
     Return
     ------
-    2-D ndarray
+    2D ndarray
     '''
     seq = list(seq)
     if not maxlen:
@@ -266,7 +266,7 @@ def sample_pad(data, index=0, padding=None):
     
     
     Sample filling for 2D data
-    Values of each index column will be taken as the complete set, then each two-dimensional data of data is padded
+    Values of each index column will be taken as the complete set, then each 2D data of data is padded
     e.g. data1 = [[0, 1],
                  [1, 2],
                  [2, 3]]
@@ -500,7 +500,7 @@ def standard(data, mean=True, var=True, index=None):
     
     参数
     ----
-    data：2-D的ndarray数据
+    data：2D的ndarray数据
     mean：布尔类型或ndarray，可选，布尔类型决定是否将均值调整为0，ndarray用于设定不同的均值
     var：布尔类型或ndarray，可选，是否将方差调整为1，ndarray用于设定不同的方差
     index：列表类型，可选，需要进行标准化的列的索引，默认为全部
@@ -517,14 +517,14 @@ def standard(data, mean=True, var=True, index=None):
     
     Parameters
     ----------
-    data: 2-D ndarray
+    data: 2D ndarray
     mean: bool or ndarray, callable, bool decides if adjust the mean value to 0, ndarray is used to set different means
     var: bool or ndarray, callable, bool decides if adjust the variance to 0, ndarray is used to set different variances
     index: list, callable, index of columns need to be standardized, defalut to all
     
     Return
     ------
-    2-D ndarray
+    2D ndarray
     '''
     data=np.array(data, dtype=float)
     
@@ -585,7 +585,7 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     
     参数
     ----
-    data：2-D的ndarray数据
+    data：2D的ndarray数据
     feature_range：元组类型，可选，需要转换的范围，默认为(0, 1)
     min_max：元组类型，可选，用于设定最大最小值
     index：列表类型，可选，需要进行标准化的列的索引，默认为全部
@@ -601,7 +601,7 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     
     Parameters
     ----------
-    data: 2-D的ndarray数据
+    data: 2D的ndarray数据
     feature_range: tuple, callabel, final range of transformed data
     min_max: tuple, callable, set min and max values
     index: list, callable, index of columns need to be standardized, defalut to all
@@ -635,24 +635,24 @@ def normalizer(data, index=None):
     
     参数
     ----
-    data：2-D的ndarray数据
+    data：2D的ndarray数据
     index：列表形式，可选，需要进行标准化的列的索引，默认为全部
     
     返回
     ----
-    2-D ndarray
+    2D ndarray
     
     
     Making the moduli of data equal 1
     
     Parameters
     ----------
-    data: 2-D的ndarray数据
+    data: 2D的ndarray数据
     index: list, callable, index of columns need to be standardized, defalut to all
     
     Return
     ------
-    2-D ndarray
+    2D ndarray
     '''
     data = np.array(data, dtype=float)
     
@@ -688,7 +688,7 @@ def pca(data, n=None, eig_vector=None):
     
     Parameters
     ----------
-    data：2-D array, data
+    data：2D array, data
     n: int or float, callable, when n > = 1, it means to reduce the dimension to n; when 0 < n < 1, it means to reduce the dimension to cumulative variance ratio > = n, and it is not reduced by default
     eig_value_vector: tuple, callable, set different eigenvectors, when this parameter is set, the cumulative variance ratio is meaningless, default=None
     
@@ -761,7 +761,7 @@ class RC():
     def __init__(self, *arg):
         arg = np.array(arg, dtype=float)
         if len(arg.shape) != 2:
-            raise Exception("Input list should be 1-D.")
+            raise Exception("Input list should be 1D.")
         else:
             self.rc_mat = _rc(arg)
     

@@ -25,12 +25,12 @@ def l_convert(data, dtype=float):
     
     Parameters
     ----------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     dtype: callable, data format of output image, default=float
     
     Return
     ------
-    2-D ndarray, grey image
+    2D ndarray, grey image
     '''
     data = np.array(data, dtype=float)
     data = data[:, :, 0] * 0.299 + data[:, :, 1] * 0.587 + data[:, :, 2] * 0.114
@@ -57,12 +57,12 @@ def hsv(pic, dtype=float):
     
     Parameters
     ----------
-    data: 3-D ndarray, RGB tensor of image
+    data: 3D ndarray, RGB tensor of image
     dtype: callable, data format of output image, default=float
     
     Return
     ------
-    3-D ndarray, HSV data
+    3D ndarray, HSV data
     '''
     pic = np.array(pic, dtype=float)
     v = pic.max(axis=2)
@@ -99,12 +99,12 @@ def ihsv(pic, dtype=float):
     
     Parameters
     ----------
-    data: 3-D ndarray, HSV tensor of image
+    data: 3D ndarray, HSV tensor of image
     dtype: callable, data format of output image, default=float
     
     Return
     ------
-    3-D ndarray, RGB data
+    3D ndarray, RGB data
     '''
     pic = np.array(pic, dtype=float)
     h = pic[:, :, 0] / 60
@@ -155,11 +155,11 @@ def hist(data):
     
     Parameter
     ---------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     
     Return
     ------
-    1-D or 2-D ndarray, data of hitogram
+    1D or 2D ndarray, data of hitogram
     '''
     data = np.array(data)
     if len(data.shape) == 2:
@@ -192,7 +192,7 @@ def hist_graph(data, mode=1, save=False):
     
     Parameters
     ----------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     mode: num, 1 and 2 are optional, 1 means line graph, 2 means histogram
     save: str or bool, str type means save graph as file, False means display graph, default=False
     '''
@@ -265,7 +265,7 @@ def linear_enhance(data, begin, end, k, center=None, dtype=float):
     
     Parameters
     ----------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     begin: starting point of linear enhancement region
     end: end point of linear enhancement region
     k: slope of linear enhancement region
@@ -274,7 +274,7 @@ def linear_enhance(data, begin, end, k, center=None, dtype=float):
     
     Return
     ------
-    2-D or 3-D ndarray, tensor of image
+    2D or 3D ndarray, tensor of image
     '''
     data = np.array(data, dtype=float)
     if len(data.shape) == 2:
@@ -308,12 +308,12 @@ def hist_equa(data, dtype=float):
     
     Parameters
     ----------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     dtype: callable, data format of output image, default=float
     
     Return
     ------
-    2-D or 3-D ndarray, tensor of image
+    2D or 3D ndarray, tensor of image
     '''
     data = np.array(data, dtype=float)
     data_copy = data.copy()
@@ -359,7 +359,7 @@ def laplace(data, mode=8, strenth=1, dtype=float):
     
     Parameters
     ----------
-    data: 2-D or 3-D ndarray, tensor of image
+    data: 2D or 3D ndarray, tensor of image
     mode: num, 4 and 8 are optional, represented two masks respectively:
         [[0, -1, 0],
          [-1, 4, -1],
@@ -374,7 +374,7 @@ def laplace(data, mode=8, strenth=1, dtype=float):
     
     Return
     ------
-    2-D ndarray, grey image
+    2D ndarray, grey image
     '''
     data = np.array(data, dtype=float)
     if len(data.shape) == 3:
@@ -445,14 +445,14 @@ def saturate(data, scale=1, param={}, dtype=float):
     
     Parameters
     ----------
-    data: 3-D ndarray, tensor of image
+    data: 3D ndarray, tensor of image
     scale: num or function, callable, when scale is num, it means adjust the saturation to S*scale; while it's function, it means adjust the saturation to scale(S), default=1
     param: dict, callable, When step is function and has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     dtype: callable, data format of output image, default=float
     
     Return
     ------
-    3-D ndarray, image
+    3D ndarray, image
     '''
     data = np.array(data, dtype=float)
     v = data.max(axis=2)

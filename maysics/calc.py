@@ -1,17 +1,16 @@
 '''
-本模块储存着常用算符和积分方法
+本模块储存着常用算符、函数和积分方法
 调用模块中的算符时应注意：
-1、算符作用的多元函数的自变量需为列表(list、tuple、ndarray均可，下同)
+1、算符作用的多元函数的自变量需为数组(list、tuple、ndarray均可，下同)
 2、算符作用的标量函数的输出值需为单个值
 3、算符作用的矢量函数的输出值需为列表
 
-This module stores the common operators and integration method
+This module stores the common operators, functions and integration method
 When calling operators in the module, pay attention to:
-1. The argument of the multivariate function acted by the operators should be list (list, tuple, ndarray, the same below)
+1. The argument of the multivariate function acted by the operators should be array (list, tuple, ndarray, the same below)
 2. The output value of scalar function acted by the operators should be a single value
 3. The output value of vector function acted by the operators should be list
 '''
-
 import numpy as np
 from scipy import constants as C
 from maysics.utils import grid_net
@@ -305,7 +304,7 @@ def laplace(f, x, acc=0.1):
     Parameter
     ---------
     f: function
-    x: 1-D or 2-D array
+    x: 1D or 2D array
     acc: float, callable, accuracy of derivation, default=0.1
     
     Return
@@ -336,6 +335,144 @@ def laplace(f, x, acc=0.1):
             result += de
     
     return result
+
+
+def rect(x, x0=0, h=1, d=0.5):
+    '''
+    矩形函数
+    f(x) = h, if x∈[x0-d, x0+d]
+    f(x) = 0, else
+    
+    参数
+    ----
+    x：数或ndarray，自变量
+    x0：数类型，可选，矩形的中心点，默认为0
+    h：数类型，可选，矩形的高度，默认为1
+    d：数类型，可选，矩形的半宽，默认为0.5
+    
+    返回
+    ----
+    数或ndarray
+    
+    
+    Rectangular function
+    f(x) = h, if x∈[x0-d, x0+d]
+    f(x) = 0, else
+    
+    Parameters
+    ----------
+    x: num or array, independent variable
+    x0: num, callable, the center of the rectangle, default=0
+    h: num, callable, the height of the rectangle, default=1
+    d: num, callable, the half width of the rectangle, default=0.5
+    
+    Return
+    ------
+    num or ndarray
+    '''
+    if type(x).__name__ == 'ndarray':
+        result = x.copy()
+        result[(x<x0-d) | (x>x0+d)] = 0
+        result[(x<=x0+d) & (x>=x0-d)] = h
+        return result
+    if type(x).__name__ == 'list' or type(x).__name__ == 'tuple':
+        x = np.array(x)
+        result = x.copy()
+        result[(x<x0-d) | (x>x0+d)] = 0
+        result[(x<=x0+d) & (x>=x0-d)] = h
+        return result
+    else:
+        if x < x0 - d or x > x0 + d:
+            return 0
+        else:
+            return h
+
+
+def sigmoid(x, a=1, b=0, c=1):
+    '''
+    Sigmoid函数
+    f(x) = a / (1 + e^(b - cx))
+    
+    参数
+    ----
+    x：数或数组，自变量
+    a、b、c：数类型，可选，含义如上述公式所示，默认分别为1、0、1
+    
+    返回
+    ----
+    数或ndarray
+    
+    
+    Sigmoid function
+    f(x) = a / (1 + e^(b - cx))
+    
+    Parameters
+    ----------
+    x: num or array, independent variable
+    a, b, c: num, callable, the meanings are shown in the above formula, default=1, 0, 1
+    
+    Return
+    ------
+    num or ndarray
+    '''
+    if type(x).__name__ == 'list' or type(x).__name__ == 'tuple':
+        x = np.array(x)
+    return a / (1 + np.e**(b - c * x))
+
+
+def step(x, x0=0, h=1):
+    '''
+    阶跃函数
+    f(x) = h, if x>x0
+    f(x) = h/2, if x=x0
+    f(x) = 0, else
+    
+    参数
+    ----
+    x：数或ndarray，自变量
+    x0：数类型，可选，阶跃点，默认为0
+    h：数类型，可选，上升的高度，默认为1
+    
+    返回
+    ----
+    数或ndarray
+    
+    
+    Step function
+    f(x) = h, if x>x0
+    f(x) = h/2, if x=x0
+    f(x) = 0, else
+    
+    Parameters
+    ----------
+    x: num or array, independent variable
+    x0: num, callable, the step point, default=0
+    h: num, callable, the rising height, default=1
+    
+    Return
+    ------
+    num or ndarray
+    '''
+    if type(x).__name__ == 'ndarray':
+        result = x.copy()
+        result[x>x0] = h
+        result[x<x0] = 0
+        result[x==x0] = 0.5 * h
+        return result
+    if type(x).__name__ == 'list' or type(x).__name__ == 'tuple':
+        x = np.array(x)
+        result = x.copy()
+        result[x>x0] = h
+        result[x<x0] = 0
+        result[x==x0] = 0.5 * h
+        return result
+    else:
+        if x > x0:
+            return h
+        elif x == x0:
+            return 0.5 * h
+        else:
+            return 0
 
 
 def _mc_fit(func, condition, random_state, area, dim, args, param, loop, height):
@@ -472,13 +609,13 @@ def inte(func, area, method='rect', dim=1, args={}, condition=None, param={}, ac
     Parameters
     ----------
     func: function, integrand
-    area: 2-D list, integral region, composed of a list of upper and lower limits of independent variables
+    area: 2D list, integral region, composed of a list of upper and lower limits of independent variables
         e.g. when the integral region is [a, b], area = [[a, b]]
-             when the 2-D integral region is x1∈[a1, b1] and x2∈[a2, b2], area=[[a1, b1], [a2, b2]]
+             when the 2D integral region is x1∈[a1, b1] and x2∈[a2, b2], area=[[a1, b1], [a2, b2]]
     method: str, callable, 'rect' and 'mc' are optional, default='rect'
-    dim: int, 1 and 2 are optional, 1 means the input of integrand is 1-D list, like normal functions, 2 means the input of integrand is 2-D list, like functions need mini-batch input, default=1
+    dim: int, 1 and 2 are optional, 1 means the input of integrand is 1D list, like normal functions, 2 means the input of integrand is 2D list, like functions need mini-batch input, default=1
     args: dict, callable, when integrand function has other non-default parameters, "args" needs to be input a dictionary with parm_name as key and param_value as value, an empty dict to default
-    condition: function, callable, condition function with the input of the first parameter as 1-D list, if input if qualified, ouput True, otherwise output False
+    condition: function, callable, condition function with the input of the first parameter as 1D list, if input if qualified, ouput True, otherwise output False
     param: dict, callable, when condtition function has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     acc: float or list, callable, integration accuracy, it's effective only when method='rect', default=0.1
     loop: int, callable, the number of generated random numbers, it's effective only when method='mc', default=10000

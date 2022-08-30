@@ -3,7 +3,7 @@
 
 maysics主要包括十二个模块：<br/>
 1、algo 封装了几种算法，用于简易分析；<br/>
-2、calc 封装了常见的算符算子，辅助数学运算；<br/>
+2、calc 封装了常见的算符算子、函数、积分方法，辅助数学运算；<br/>
 3、equa 封装了部分方程求解方法；<br/>
 4、explain 用于评估和解释模型；<br/>
 5、graph 用于图论分析；<br/>
@@ -20,7 +20,7 @@ This package is used for scientific calculating and fast modeling
 
 maysics includes twelve modules:<br/>
 1. "algo" packages several algorithms for simple analysis;<br/>
-2. "calc" packaes common operatoes;<br/>
+2. "calc" packaes common operatoes, functions and integration method;<br/>
 3. "equa" packages some equation solving operation;<br/>
 4. "explain" is used for estimating and explaining models;<br/>
 5. "graph" is used for graph theory analysis;<br/>

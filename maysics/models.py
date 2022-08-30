@@ -27,12 +27,12 @@ def linear_r(x, y):
     
     Parameters
     ----------
-    x: 1-D or 2-D ndarray, independent variable
-    y: 1-D or 2-D ndarray, dependent variable
+    x: 1D or 2D ndarray, independent variable
+    y: 1D or 2D ndarray, dependent variable
     
     Return
     ------
-    1-D ndarray: coefficient row matrix
+    1D ndarray: coefficient row matrix
     loss: mean squared error: mse
     '''
     x = np.array(x)
@@ -148,7 +148,7 @@ class ED():
         
         Parameter
         ---------
-        t: num or 1-D array, time for prediction
+        t: num or 1D array, time for prediction
         
         Return
         ------
@@ -312,9 +312,9 @@ class Leslie():
     
     Parameters
     ----------
-    N0: 1-D array, initial number of individuals in each age group
-    r: 1-D array, reproductive rate of each age group
-    s: 1-D array, survival rate to next age group of each group
+    N0: 1D array, initial number of individuals in each age group
+    r: 1D array, reproductive rate of each age group
+    s: 1D array, survival rate to next age group of each group
     age_range: int, the span of age groups, default=1
     
     Attribute
@@ -347,7 +347,7 @@ class Leslie():
         
         Parameter
         ---------
-        t: num or 1-D array, time
+        t: num or 1D array, time
         
         Return
         ------

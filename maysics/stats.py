@@ -32,7 +32,7 @@ def r_moment(data, p_range=None, args={}, k=1, acc=0.1):
     
     Parameters
     ----------
-    fdata: 1-D list or function, a sample or probability density function
+    fdata: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     k: int, callable, orders, default=1
@@ -73,7 +73,7 @@ def ex(data, p_range=None, args={}, acc=0.1):
     
     Parameters
     ----------
-    fdata: 1-D list or function, a sample or probability density function
+    fdata: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
@@ -114,7 +114,7 @@ def c_moment(data, p_range=None, args={}, k=1, acc=0.1):
     
     Parameters
     ----------
-    data: 1-D list or function, a sample or probability density function
+    data: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     k: int, callable, orders, default=1
@@ -157,7 +157,7 @@ def dx(data, p_range=None, args={}, acc=0.1):
     
     Parameters
     ----------
-    data: 1-D list or function, a sample or probability density function
+    data: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
@@ -189,7 +189,7 @@ def skew(data, p_range=None, args={}, acc=0.1):
     
     Parameters
     ----------
-    data: 1-D list or function, a sample or probability density function
+    data: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
@@ -221,7 +221,7 @@ def kurt(data, p_range=None, args={}, acc=0.1):
     
     Parameters
     ----------
-    data: 1-D list or function, a sample or probability density function
+    data: 1D list or function, a sample or probability density function
     p_range：tuple, callable, lower and upper limit of calculation
     args: dict, callable, pass other parameters to func
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
@@ -249,7 +249,7 @@ def mle(func, data, p_range, acc=0.1):
     
     返回
     ----
-    1-D ndarray，最佳的参数值
+    1D ndarray，最佳的参数值
 
 
     Maximum Likelihood Estimate
@@ -259,14 +259,14 @@ def mle(func, data, p_range, acc=0.1):
     ----------
     func：function, probability density function, the form of func should be as follows：
         def func(x, param):
-        x is a number or a vector, random variable; param is 1-D ndarray, undetermined parameters
-    data：1-D or 2-D array，samples
-    p_range：2-D array, callable, value range of undetermined parameters
+        x is a number or a vector, random variable; param is 1D ndarray, undetermined parameters
+    data：1D or 2D array，samples
+    p_range：2D array, callable, value range of undetermined parameters
     acc：num, callable, accuracy, default=0.1
     
     Return
     ------
-    1-D ndarray, the best parameter value
+    1D ndarray, the best parameter value
     '''
     # 构建似然函数的相反数
     def Lmin(theta, data):
@@ -311,7 +311,7 @@ def inde_test(data):
     
     Parameter
     ---------
-    data: 2-D array
+    data: 2D array
     
     Return
     ------
@@ -338,8 +338,8 @@ class DF1d():
     
     参数
     ----
-    sample：1-D列表，样本点
-    span：1-D数组，区间间隔，如span = [a, b, c]则将区间分为[a, b]和[b, c]，并统计各区间频率
+    sample：1D列表，样本点
+    span：1D数组，区间间隔，如span = [a, b, c]则将区间分为[a, b]和[b, c]，并统计各区间频率
     kind：浮点数类型或整型，可选，将插值类型指定为字符串('linear'、'nearest'、'zero'、'slinear'、'squardic'、'previous'、'next'，其中'zero'、'slinear'、'squared'和'cubic'表示零阶、一阶、二阶或三阶样条曲线插值；'previous'和'next'只返回点的上一个或下一个值)或作为一个整数指定要使用的样条曲线插值器的顺序。默认为'linear'
     
     属性
@@ -347,13 +347,13 @@ class DF1d():
     f：概率密度函数
     
     
-    One-dimension distribution fitting
+    1D distribution fitting
     Approximation of probability density function by frequency distribution function
     
     Parameters
     ----------
-    sample: 1-D list, samples
-    span: 1-D array, span of intervals, e.g. span = [a, b, c] will divide the interval into [a, b] and [b, c], and count the frequency of each interval
+    sample: 1D list, samples
+    span: 1D array, span of intervals, e.g. span = [a, b, c] will divide the interval into [a, b] and [b, c], and count the frequency of each interval
     kind: float or int, callable, specifies the kind of interpolation as a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'previous', 'next', where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first, second or third order; 'previous' and 'next' simply return the previous or next value of the point) or as an integer specifying the order of the spline interpolator to use. default='linear'
     
     Attribution

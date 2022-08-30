@@ -146,8 +146,8 @@ def choice(seq, pro=None, random_state=None):
     
     Parameters
     ----------
-    seq: 1-D array, elements to be chooced
-    pro: 1-D array, callable, the probability of choocing each element, the probability is equal by default
+    seq: 1D array, elements to be chooced
+    pro: 1D array, callable, the probability of choocing each element, the probability is equal by default
     random_state: int, callable, random seed
     
     Return
@@ -183,12 +183,12 @@ def covs1d(a, b, n):
     ----
     数类型，a[n] * b[n]
     
-    Convolution Sum of 1-D List
+    Convolution Sum of 1D List
     
     Parameters
     ----------
-    a: 1-D array
-    b: 1-D array
+    a: 1D array
+    b: 1D array
     n: int, translation steps
     
     Return
@@ -229,12 +229,12 @@ def covs2d(a, b, n, m):
     ----
     数类型，a[n, m] * b[n, m]
     
-    Convolution Sum of 2-D List
+    Convolution Sum of 2D List
     
     Parameters
     ----------
-    a: 2-D array
-    b: 2-D array
+    a: 2D array
+    b: 2D array
     n: int, translation steps along axis=0
     m: int, translation steps along axis=1
     
@@ -335,7 +335,7 @@ def save(filename, data, header=None, pic=False):
     ----------
     filename: str, file name
     data: data
-    header: 1-D list, callable, the names of columns, effective only when writing csv files
+    header: 1D list, callable, the names of columns, effective only when writing csv files
     pic: bool, callable, True means to save as picture, default=False
     '''
     if pic is False:
@@ -540,11 +540,11 @@ def hp(x, n, li=False):
     ----------
     x: num, input value
     n: int, degree
-    li: bool, callable, True means that 0 to n order Legendre polynomials are formed into 1-D ndarray and returned, default=False
+    li: bool, callable, True means that 0 to n order Legendre polynomials are formed into 1D ndarray and returned, default=False
     
     Reuturn
     -------
-    num or 1-D ndarray
+    num or 1D ndarray
     '''
     if n <= 0:
         n = 0

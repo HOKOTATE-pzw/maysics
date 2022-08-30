@@ -32,13 +32,13 @@ def pagerank(data, loop=5, pr=None, d=0.85, l=False):
     ----------
     data: list, the link to which each connection points or, matrix L, whose L(i, j)means: if j link points to i link, L(i, j) is the sum of all links pointed to by j link; otherwise, 0
     loop: int, callable, the number of iteration, default = 5
-    pr: 1-D array, callable, the original pagerank value, by default, all the values are equal
+    pr: 1D array, callable, the original pagerank value, by default, all the values are equal
     d: num, callable, coeficient, default = 0.85
     l: bool, callable, True means data is matrix L, default = False
     
     Return
     ------
-    1-D ndarray, pagerank values, normalized to 1
+    1D ndarray, pagerank values, normalized to 1
     '''
     n_page = len(data)
     if pr is None:
@@ -91,7 +91,7 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     Parameters
     ----------
     select: function, estimation function
-    initial: 1-D or 2-D array, the initial location of particles
+    initial: 1D or 2D array, the initial location of particles
     num: int, callable, the number of particles, default=10
     loop: int, callable, the number of iteration, default=10
     omega: num or function, callable, inertia weight factor, if it is function, it should take the number of iteration as input, default=1
@@ -103,7 +103,7 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     
     Return
     ------
-    1-D ndarray, location of the optimized particle
+    1D ndarray, location of the optimized particle
     '''
     np.random.seed(random_state)
     initial = np.array(initial, dtype=float)
@@ -181,7 +181,7 @@ class MC():
     Parameters
     ----------
     loop: int, callable, loop count, default = 10000
-    random_type: str or function, callable, 'random', 'randint' and function(no parameter, output a 2-D ndarray with size length * dim) are optional, default = 'random'
+    random_type: str or function, callable, 'random', 'randint' and function(no parameter, output a 2D ndarray with size length * dim) are optional, default = 'random'
     random_state: int, callable, random seed
     begin: int, callable, beginning number of the random sequence, it's used only when random_type='randint'
     end: int, callable, end number of the random sequence, it's used only when random_type='randint'
@@ -375,7 +375,7 @@ class MC():
         ----------
         length: int, the length of random sequence
         dim: int, dimension of elements in random sequence
-        select: function or function list, select function should take 2-dimension ndarray(length * dim) as independent variable
+        select: function or function list, select function should take 2D ndarray(length * dim) as independent variable
             select function used for Identifying whether the random matrix meets the expectation, if meets, output 1, otherwise output 0
             select function can also output other values to meet the actual demand
             if select is a list, every function in the list can only output 1 or 0
@@ -464,11 +464,11 @@ class GA():
     select: string or function, callable, the method of selecting individuals, 'rw', 'st' or custom function, default = 'rw'
         'rw': Roulette Wheel Selection
         'st': Stochastic Tournament Selection
-        custom function: the function needs two parameters, the first is a two-dimensional darray, and the second is the fitness function
+        custom function: the function needs two parameters, the first is a 2D ndarray, and the second is the fitness function
     crossover: string or function, callable, the method of crossing over, 'uniform', 'point' or custom function, default = 'uniform'
         'uniform': Uniform Crossover
         'point': Multi-point Crossover
-        custom function: the function can only set one parameter with population (2-D ndarray) as input
+        custom function: the function can only set one parameter with population (2D ndarray) as input
     begin: int, callable, beginning number of the random sequence, it's used only when random_type='randint'
     end: int, callable, end number of the random sequence, it's used only when random_type='randint'
     random_state: int, callable, random seed
@@ -484,8 +484,8 @@ class GA():
     random_type: str, the method of generating random number
     select: str, the method of selecting individuals
     crossover: str, the method of crossing over
-    dom: 2-D ndarray, the dominance
-    dom_fitness: 1-D ndarray, the fitness of the dominance
+    dom: 2D ndarray, the dominance
+    dom_fitness: 1D ndarray, the fitness of the dominance
     '''
     def __init__(self, population=1000, iteration=100, random_type='random',
                  select='rw', crossover='uniform', begin=None, end=None,
@@ -962,7 +962,7 @@ class GM():
     
     
     Grey Model, GM(1, 1)
-    The fit function inputs 1-D array y: [y1, y2, ..., yn]
+    The fit function inputs 1D array y: [y1, y2, ..., yn]
     The corresponding time array t: [1, 2, ..., n]
     Prediction function:
         x(1)(t) = [x(0)(1) - b / a] * e**(- a * (t - 1)) + b / a  (t ∈ N+)
@@ -976,7 +976,7 @@ class GM():
     Attributes
     ----------
     C: num, the translation of Y array when adjusting the range of stage ratio(y + C)
-    u: 2-D ndarray, column matrix [a b].T
+    u: 2D ndarray, column matrix [a b].T
     predict: function, prediction function, only number is supported
     '''
     def __init__(self, acc=1):
@@ -1040,7 +1040,7 @@ class GM():
         
         Parameter
         ---------
-        y: 1-D array
+        y: 1D array
         '''
         y = self.__transform(y)
         z1 = self.__generate_z1(y)

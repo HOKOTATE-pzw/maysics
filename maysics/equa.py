@@ -29,12 +29,12 @@ class Scatter():
     
     
     Solving the Equation of Dissolution Point
-    Solving the intersection point of a curve composed of a series of two-dimensional scattered points
+    Solving the intersection point of a curve composed of a series of 2D scattered points
     
     Parameters
     ----------
-    x: 1-D or 2-D list, 2-D list represent multiple groups of scattered points
-    y: 1-D or 2-D list, 2-D list represent multiple groups of scattered points
+    x: 1D or 2D list, 2D list represent multiple groups of scattered points
+    y: 1D or 2D list, 2D list represent multiple groups of scattered points
     acc: float, callable, interpolation accuracy, default=0.1
     kind: float or int, callable, specifies the kind of interpolation as a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'previous', 'next', where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first, second or third order; 'previous' and 'next' simply return the previous or next value of the point) or as an integer specifying the order of the spline interpolator to use. default='linear'
     xtol: float, callable, abscissa error, default=0.1
@@ -182,12 +182,12 @@ def linear_e(A, b):
     
     Parameters
     ----------
-    A: 2-D list, coefficient matrix
-    b: 2-D list
+    A: 2D list, coefficient matrix
+    b: 2D list
     
     Return
     ------
-    2-D ndarray, the solution of the equations
+    2D ndarray, the solution of the equations
     '''
     A = np.array(A)
     b = np.array(b)

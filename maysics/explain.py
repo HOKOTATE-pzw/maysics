@@ -386,7 +386,7 @@ def sense(func, x0, acc=0.1):
     参数
     ----
     func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
-    x0：数，1-D或2-D ndarray，与func的输入格式相同，特征的初始值
+    x0：数，1D或2D ndarray，与func的输入格式相同，特征的初始值
     acc：浮点数类型，可选，求导的精度，默认为0.1
     
     返回
@@ -403,7 +403,7 @@ def sense(func, x0, acc=0.1):
     Parameters
     ----------
     func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
-    x0: num, 1-D or 2-D ndarray, the format is the same as the input of func, initial values of features
+    x0: num, 1D or 2D ndarray, the format is the same as the input of func, initial values of features
     acc: float, callable, accuracy of derivation, default=0.1
     
     Return
@@ -505,8 +505,8 @@ class SHAP_and_Shapley():
         
         Parameters
         ----------
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
+        labels: 1D list, callable, names of features, default=None
+        index: 1D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
         '''
@@ -532,8 +532,8 @@ class SHAP_and_Shapley():
         Parameters
         ----------
         filename: str, file name
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
+        labels: 1D list, callable, names of features, default=None
+        index: 1D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
         '''
@@ -562,7 +562,7 @@ class SHAP(SHAP_and_Shapley):
     
     Attribute
     ---------
-    values: 1-D ndarray, SHAP of each feature
+    values: 1D ndarray, SHAP of each feature
     '''
     def __init__(self, predict):
         self.predict = predict
@@ -582,7 +582,7 @@ class SHAP(SHAP_and_Shapley):
         
         Parameters
         ----------
-        data: 1-D array, local point
+        data: 1D array, local point
         replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
         '''
         data = np.array(data)
@@ -615,7 +615,7 @@ class Shapley(SHAP_and_Shapley):
     
     Attribute
     ---------
-    values: 1-D ndarray, Shapley value of each feature
+    values: 1D ndarray, Shapley value of each feature
     '''
     def __init__(self, predict):
         self.predict = predict
@@ -635,7 +635,7 @@ class Shapley(SHAP_and_Shapley):
         
         Parameters
         ----------
-        data: 2-D array, data set
+        data: 2D array, data set
         replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
         '''
         data = np.array(data)
@@ -679,8 +679,8 @@ class Lime():
     Attributes
     ----------
     coef: ndarray, coeficcient of linear model
-    intercept: num or 1-D ndarray, intercept of linear model
-    weight: 1-D ndarray, contribution to the prediction of each feature
+    intercept: num or 1D ndarray, intercept of linear model
+    weight: 1D ndarray, contribution to the prediction of each feature
     '''
     def __init__(self, predict_f):
         self.predict_f = predict_f
@@ -769,8 +769,8 @@ class Lime():
         
         Parameters
         ----------
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
+        labels: 1D list, callable, names of features, default=None
+        index: 1D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
         '''
@@ -796,8 +796,8 @@ class Lime():
         Parameters
         ----------
         filename: str, file name
-        labels: 1-D list, callable, names of features, default=None
-        index: 1-D list, callable, index of features, default=None, which means select all
+        labels: 1D list, callable, names of features, default=None
+        index: 1D list, callable, index of features, default=None, which means select all
         top: int, callable, display "top" features with the highest values, default=None, which means select all
         estimate: int, callable, indicating the number of decimal places reserved for the graphic display, default=None
         '''

@@ -348,7 +348,7 @@ class A_P():
         self.X = X
     
 
-    def fit(self, f):
+    def fit(self, f, param={}):
         '''
         计算频率为f时的幅度和相位
 
@@ -374,7 +374,7 @@ class A_P():
         self.f = np.array(f, np.float)
         f = self.f.astype(complex)
         if type(self.X).__name__ == 'function':
-            result = self.X(f)
+            result = self.X(f, **param)
         else:
             X = np.array(self.X)
             result = self.X[f]

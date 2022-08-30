@@ -27,7 +27,7 @@ def ek(G, ori, des):
     
     Parameters
     ----------
-    G: 2-D array, adjacency matrix(the weight(flow) of the edge between non-adjacent nodes is inf, negative or 0)
+    G: 2D array, adjacency matrix(the weight(flow) of the edge between non-adjacent nodes is inf, negative or 0)
     ori: int, origin
     des: int, destination
     
@@ -96,7 +96,7 @@ def kruskal(G):
     
     返回
     ----
-    2-D列表类型，每个一维元素为：[权值，起点，终点]
+    2D列表类型，每个一维元素为：[权值，起点，终点]
     
     
     Kruskal Algorithm
@@ -104,11 +104,11 @@ def kruskal(G):
     
     Parameter
     ---------
-    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     
     Return
     ------
-    2-D list, every element is [weight, origin, destination]
+    2D list, every element is [weight, origin, destination]
     '''
     G = np.array(G, dtype=np.float)
     n = len(G)
@@ -157,11 +157,11 @@ class Floyd():
     
     Parameter
     ---------
-    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     
     Attribute
     ---------
-    A: 2-D list, A[i, j] is the distance from node i to node j
+    A: 2D list, A[i, j] is the distance from node i to node j
     '''
     def __init__(self, G):
         self.A = np.array(G, dtype=np.float)
@@ -298,12 +298,12 @@ class Dijkstra():
     
     Parameters
     ----------
-    G: 2-D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
+    G: 2D array, adjacency matrix(the weight of the edge between non-adjacent nodes is inf or negative)
     ori: int, origin
     
     Attribute
     ---------
-    dis: 1-D list, dis[i] is the distance from the origin to node i
+    dis: 1D list, dis[i] is the distance from the origin to node i
     '''
     def __init__(self, G, ori):
         self.__ori = ori
@@ -387,7 +387,7 @@ class Markov():
     
     Parameter
     ---------
-    P: 2-D array, transition matrix
+    P: 2D array, transition matrix
     '''
     def __init__(self, P):
         self.P = np.array(P)
@@ -410,7 +410,7 @@ class Markov():
         
         Return
         ------
-        2-D ndarray, K-step transition matrix
+        2D ndarray, K-step transition matrix
         '''
         P0 = self.P
         P = P0
@@ -432,7 +432,7 @@ class Markov():
         
         Return
         ------
-        1-D ndarray, steady state distribution
+        1D ndarray, steady state distribution
         '''
         A = self.P.T - np.identity(self.P.shape[0])
         A = np.vstack((A, np.ones((1, A.shape[1]))))
