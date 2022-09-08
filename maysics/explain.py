@@ -67,7 +67,7 @@ def _image_process(data, labels, index, top, estimate):
             _image_detail(data[j], labels, index, top, estimate, num, j+1)
 
 
-def abs_error(func, data, target):
+def abs_error(func, data, target, param={}):
     '''
     绝对误差列表
     
@@ -76,6 +76,7 @@ def abs_error(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -89,6 +90,7 @@ def abs_error(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
@@ -96,11 +98,11 @@ def abs_error(func, data, target):
     '''
     data = np.array(data)
     target = np.array(target)
-    predict_target = func(data)
+    predict_target = func(data, **param)
     return abs(target - predict_target)
 
 
-def rel_error(func, data, target):
+def rel_error(func, data, target, param={}):
     '''
     相对误差列表
     
@@ -109,6 +111,7 @@ def rel_error(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -122,6 +125,7 @@ def rel_error(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
@@ -129,11 +133,11 @@ def rel_error(func, data, target):
     '''
     data = np.array(data)
     target = np.array(target)
-    predict_target = func(data)
+    predict_target = func(data, **param)
     return abs((target - predict_target) / target)
 
 
-def abs_sort(func, data, target):
+def abs_sort(func, data, target, param={}):
     '''
     绝对误差从大到小的排序
     
@@ -142,6 +146,7 @@ def abs_sort(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -155,16 +160,17 @@ def abs_sort(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     list, list of absolute values of errors sorted from large to small
     '''
     error_index = np.arange(len(target))
-    return sorted(list(zip(abs_error(func, data, target), error_index)), reverse=True)
+    return sorted(list(zip(abs_error(func, data, target, param=param), error_index)), reverse=True)
 
 
-def rel_sort(func, data, target):
+def rel_sort(func, data, target, param={}):
     '''
     相对误差从大到小的排序
     
@@ -173,6 +179,7 @@ def rel_sort(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -186,16 +193,17 @@ def rel_sort(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     list, list of relative values of errors sorted from large to small
     '''
     error_index = np.arange(len(target))
-    return sorted(list(zip(rel_error(func, data, target), error_index)), reverse=True)
+    return sorted(list(zip(rel_error(func, data, target, param=param), error_index)), reverse=True)
 
 
-def sse(func, data, target):
+def sse(func, data, target, param={}):
     '''
     残差平方和
     
@@ -204,6 +212,7 @@ def sse(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -217,15 +226,16 @@ def sse(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, sum of squared error
     '''
-    return sum(abs_error(func, data, target)**2)
+    return sum(abs_error(func, data, target, param=param)**2)
 
 
-def sae(func, data, target):
+def sae(func, data, target, param={}):
     '''
     绝对误差和
     
@@ -234,6 +244,7 @@ def sae(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -247,15 +258,16 @@ def sae(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, sum of absolute error
     '''
-    return sum(abs_error(func, data, target))
+    return sum(abs_error(func, data, target, param=param))
 
 
-def mse(func, data, target):
+def mse(func, data, target, param={}):
     '''
     平均平方误差
     
@@ -264,6 +276,7 @@ def mse(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -277,15 +290,16 @@ def mse(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, mean squared error
     '''
-    return sum(abs_error(func, data, target)**2) / len(target)
+    return sum(abs_error(func, data, target, param=param)**2) / len(target)
 
 
-def mae(func, data, target):
+def mae(func, data, target, param={}):
     '''
     平均绝对误差
     
@@ -294,6 +308,7 @@ def mae(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -307,15 +322,16 @@ def mae(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, mean absolute error
     '''
-    return sum(abs_error(func, data, target)) / len(target)
+    return sum(abs_error(func, data, target, param=param)) / len(target)
 
 
-def rmse(func, data, target):
+def rmse(func, data, target, param={}):
     '''
     均方根误差
     
@@ -324,6 +340,7 @@ def rmse(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -337,15 +354,16 @@ def rmse(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, root mean square error
     '''
-    return (sum(abs_error(func, data, target)**2) / len(target))**0.5
+    return (sum(abs_error(func, data, target, param=param)**2) / len(target))**0.5
 
 
-def mape(func, data, target):
+def mape(func, data, target, param={}):
     '''
     平均绝对百分比误差
     
@@ -354,6 +372,7 @@ def mape(func, data, target):
     func：函数类型，模型的预测函数
     data：ndarray，数据集的自变量
     target：一维ndarray，数据集的因变量
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -367,15 +386,16 @@ def mape(func, data, target):
     func: function, predicting function of models
     data: ndarray, independent variable of data set
     target: ndarray, dependent variable of data set
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
     num, mean absolute percentage error
     '''
-    return sum(rel_error(func, data, target)) / len(target)
+    return sum(rel_error(func, data, target, param=param)) / len(target)
 
 
-def sense(func, x0, acc=0.1):
+def sense(func, x0, acc=0.1, param={}):
     '''
     灵敏度分析
     r = (x0, x1, x2, ..., xn)
@@ -388,6 +408,7 @@ def sense(func, x0, acc=0.1):
     func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
     x0：数，1D或2D ndarray，与func的输入格式相同，特征的初始值
     acc：浮点数类型，可选，求导的精度，默认为0.1
+    param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
     返回
     ----
@@ -405,6 +426,7 @@ def sense(func, x0, acc=0.1):
     func: function, predicting function of models, if the function requires a list as input, the list must be ndarray
     x0: num, 1D or 2D ndarray, the format is the same as the input of func, initial values of features
     acc: float, callable, accuracy of derivation, default=0.1
+    param: dict, callable, When func has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     
     Return
     ------
@@ -412,22 +434,22 @@ def sense(func, x0, acc=0.1):
     '''
     x0 = np.array(x0, dtype=float)
     acc2 = 0.5 * acc
-    func0 = func(x0)
+    func0 = func(x0, **param)
     s_list = []
     
     if len(x0.shape) == 0:
         x0 += acc2
-        func1 = func(x0)
+        func1 = func(x0, **param)
         x0 -= acc
-        func2 = func(x0)
+        func2 = func(x0, **param)
         return (func1 - func2) / (acc * func0) * x0
     
     elif len(x0.shape) == 1:
         for i in range(x0.shape[0]):
             x0[i] += acc2
-            func1 = func(x0)
+            func1 = func(x0, **param)
             x0[i] -= acc
-            func2 = func(x0)
+            func2 = func(x0, **param)
             de = (func1 - func2) / (acc * func0) * x0[i]
             x0[i] += acc2
             s_list.append(de)
@@ -436,9 +458,9 @@ def sense(func, x0, acc=0.1):
     elif len(x0.shape) == 2:
         for i in range(x0.shape[1]):
             x0[:, i] += acc2
-            func1 = func(x0)
+            func1 = func(x0, **param)
             x0[:, i] -= acc
-            func2 = func(x0)
+            func2 = func(x0, **param)
             de = (func1 - func2) / (acc * func0) * x0[:, i]
             x0[:, i] += acc2
             s_list.append(de)
@@ -455,7 +477,7 @@ class SHAP_and_Shapley():
         return d_value
     
     
-    def _pre_fit(self, data, replace):
+    def _pre_fit(self, data, replace, param):
         dim = data.shape[1]
         shap_and_shapley_values = []
         
@@ -467,7 +489,7 @@ class SHAP_and_Shapley():
             loc = np.where(loc==0)[0]
             if len(loc) != 0:
                 new_data[:, loc] = replace
-            prediction_part = self.predict(new_data)
+            prediction_part = self.predict(new_data, **param)
             prediction.append(prediction_part)
         prediction = np.array(prediction)
         
@@ -568,7 +590,7 @@ class SHAP(SHAP_and_Shapley):
         self.predict = predict
     
     
-    def fit(self, data, replace=0):
+    def fit(self, data, replace=0, param={}):
         '''
         计算SHAP值
         
@@ -576,6 +598,7 @@ class SHAP(SHAP_and_Shapley):
         ----
         data：一维数组，局部点
         replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
+        param：字典类型，可选，当predict有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         
         
         Calculate the SHAP values
@@ -584,6 +607,7 @@ class SHAP(SHAP_and_Shapley):
         ----------
         data: 1D array, local point
         replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
+        param: dict, callable, When predict has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         '''
         data = np.array(data)
         # 确定替换值
@@ -591,7 +615,7 @@ class SHAP(SHAP_and_Shapley):
             replace = replace(data)
         data = np.array([data])
         
-        self.values = SHAP_and_Shapley._pre_fit(self, data, replace).reshape(-1)
+        self.values = SHAP_and_Shapley._pre_fit(self, data, replace, param).reshape(-1)
 
 
 class Shapley(SHAP_and_Shapley):
@@ -621,7 +645,7 @@ class Shapley(SHAP_and_Shapley):
         self.predict = predict
     
     
-    def fit(self, data, replace=0):
+    def fit(self, data, replace=0, param={}):
         '''
         计算Shapley
         
@@ -629,6 +653,7 @@ class Shapley(SHAP_and_Shapley):
         ----
         data：二维数组，数据集
         replace：数或函数类型，可选，特征的替换值，函数须以np.array(data)为输入，默认为0
+        param：字典类型，可选，当predict有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         
         
         Calculate the Shapley
@@ -637,13 +662,14 @@ class Shapley(SHAP_and_Shapley):
         ----------
         data: 2D array, data set
         replace: num or function, callable, replacement values of features, for function, np.array(data) is the input, default=0
+        param: dict, callable, When predict has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         '''
         data = np.array(data)
         # 确定替换值
         if type(replace).__name__ == 'function':
             replace = replace(data)
         
-        self.values = SHAP_and_Shapley._pre_fit(self, data, replace).T
+        self.values = SHAP_and_Shapley._pre_fit(self, data, replace, param).T
         self.values = self.values.mean(axis=0)
 
 
@@ -686,7 +712,7 @@ class Lime():
         self.predict_f = predict_f
     
     
-    def fit(self, data, acc=0.1, num=100, random_state=None):
+    def fit(self, data, acc=0.1, num=100, param={}, random_state=None):
         '''
         进行Lime计算
         
@@ -695,6 +721,7 @@ class Lime():
         data：数组，局部点
         acc：浮点数类型，可选，邻域范围，默认为0.1
         num：整型，可选，在领域抽样点的数量，默认为100
+        param：字典类型，可选，当predict_f有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
         random_state：整型，可选，随机种子
         
         
@@ -705,13 +732,14 @@ class Lime():
         data: ndarray, local point
         acc: float, callable, neighborhood range， default=0.1
         num: int, callable
+        param: dict, callable, When predict_f has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         random_state: int, callable, random seed
         '''
         data = np.array(data)
         np.random.seed(random_state)
         X_set = np.random.rand(num, *data.shape) * 2 * acc - acc
         X_set += data
-        y_set = self.predict_f(X_set)
+        y_set = self.predict_f(X_set, **param)
         shape = X_set.shape
         X_set = X_set.reshape(shape[0], -1)
         X_set = np.hstack((X_set, np.ones((X_set.shape[0], 1))))
