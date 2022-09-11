@@ -238,7 +238,7 @@ class Floyd():
         
         参数
         ----
-        point：整型或浮点数类型，节点
+        point：整型，节点
         
         返回
         ----
@@ -249,7 +249,7 @@ class Floyd():
         
         Parameter
         ---------
-        point: int or float, node
+        point: int, node
         
         Return
         ------

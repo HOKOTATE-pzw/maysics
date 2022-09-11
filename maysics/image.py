@@ -253,7 +253,7 @@ def linear_enhance(data, begin, end, k, center=None, dtype=float):
     begin：整型，线性增强区域的起点
     end：整型，线性增强区域的终点
     k：数类型，线性增强区域的斜率
-    center：线性增强区域的不变点
+    center：线性增强区域的不变点，默认为begin与end的中点
     dtype：可选，输出图像数据的数据格式，默认为float
     
     返回
@@ -269,7 +269,7 @@ def linear_enhance(data, begin, end, k, center=None, dtype=float):
     begin: starting point of linear enhancement region
     end: end point of linear enhancement region
     k: slope of linear enhancement region
-    center: invariant point of linear enhancement region
+    center: invariant point of linear enhancement region, the default is the midpoint between begin and end
     dtype: callable, data format of output image, default=float
     
     Return

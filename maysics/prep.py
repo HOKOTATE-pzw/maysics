@@ -135,7 +135,7 @@ def preview_file(filename, data, value_round=3):
     ----
     filename：字符串类型，文件名
     data：二维数组，数据
-    value_round：整型，数字特征保留的小数点后的位数
+    value_round：整型，可选，数字特征保留的小数点后的位数，默认为3
     
     
     Generate preview report with html file
@@ -144,7 +144,7 @@ def preview_file(filename, data, value_round=3):
     ----------
     filename: str, file name
     data: 2D array, data
-    value_round: int, the number of digits after the decimal point retained by numeric features
+    value_round: int, callable, the number of digits after the decimal point retained by numeric features, default=3
     '''
     root = _preview_process(data=data, value_round=value_round)
     html = etree.HTML(root)
@@ -159,7 +159,7 @@ def preview(data, value_round=3):
     参数
     ----
     data：二维数组，数据
-    value_round：整型，数字特征保留的小数点后的位数
+    value_round：整型，可选，数字特征保留的小数点后的位数，默认为3
     
     
     Display preview report in jupyter
@@ -167,7 +167,7 @@ def preview(data, value_round=3):
     Parameters
     ----------
     data: 2D array, data
-    value_round: int, the number of digits after the decimal point retained by numeric features
+    value_round: int, callable, the number of digits after the decimal point retained by numeric features, defualt=3
     '''
     root = _preview_process(data=data, value_round=value_round)
     
@@ -676,7 +676,7 @@ def pca(data, n=None, eig_vector=None):
     参数
     ----
     data：二维数组，数据
-    n：整型或浮点数类型，可选，当n >= 1时，表示降至n维，当0< n < 1时，表示降维至累计方差贡献率 >= n，默认不降维
+    n：数类型，可选，当n >= 1时，表示降至n维，当0< n < 1时，表示降维至累计方差贡献率 >= n，默认不降维
     eig_vector：元组类型，可选，用于设定不同的特征向量，当设置该参数时，累计方差贡献率无意义，默认为None
     
     返回
@@ -689,7 +689,7 @@ def pca(data, n=None, eig_vector=None):
     Parameters
     ----------
     data：2D array, data
-    n: int or float, callable, when n > = 1, it means to reduce the dimension to n; when 0 < n < 1, it means to reduce the dimension to cumulative variance ratio > = n, and it is not reduced by default
+    n: num, callable, when n > = 1, it means to reduce the dimension to n; when 0 < n < 1, it means to reduce the dimension to cumulative variance ratio > = n, and it is not reduced by default
     eig_value_vector: tuple, callable, set different eigenvectors, when this parameter is set, the cumulative variance ratio is meaningless, default=None
     
     Return

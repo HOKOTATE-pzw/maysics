@@ -58,7 +58,7 @@ def lorentz(v, x):
     
     参数
     ----
-    v：惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
+    v：数类型，惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
     x：一维或二维列表，(x, y, z, t)
     
     返回
@@ -70,7 +70,7 @@ def lorentz(v, x):
     
     Parameters
     ----------
-    v: relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
+    v: num, relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
     x: 1-D or 2-D list, (x, y, z, t)
     
     Return
@@ -98,7 +98,7 @@ def lorentz_v(v, vo):
     
     参数
     ----
-    v：惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
+    v：数类型，惯性系的相对速度，当速度方向沿着x轴正方向时（正变换）v为正
     vo：一维或二维列表，(vx, vy, vz)
     
     返回
@@ -110,7 +110,7 @@ def lorentz_v(v, vo):
     
     Parameters
     ----------
-    v: relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
+    v: num, relative velocity of inertial system, 'v' is positive when the velocity direction is along the positive direction of x-axis (positive transformation)
     vo: 1-D or 2-D list, (vx, vy, vz)
     
     Return

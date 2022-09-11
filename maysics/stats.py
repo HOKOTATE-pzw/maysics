@@ -11,15 +11,15 @@ from scipy.stats import chi2
 from scipy.interpolate import interp1d
 
 
-def r_moment(data, p_range=None, args={}, k=1, acc=0.1):
+def r_moment(data, p_range=None, param={}, k=1, acc=0.1):
     '''
     计算原点矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     k：整型，可选，阶数，默认为1
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
@@ -33,8 +33,8 @@ def r_moment(data, p_range=None, args={}, k=1, acc=0.1):
     Parameters
     ----------
     fdata: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     k: int, callable, orders, default=1
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
@@ -44,7 +44,7 @@ def r_moment(data, p_range=None, args={}, k=1, acc=0.1):
     '''
     if type(data).__name__ == 'function' or type(data).__name__ == 'method':
         def ex_func(x):
-            return x**k * data(x, **args)
+            return x**k * data(x, **param)
         
         return inte(ex_func, [p_range], acc=acc)
     
@@ -53,15 +53,15 @@ def r_moment(data, p_range=None, args={}, k=1, acc=0.1):
         return data.mean()
 
 
-def ex(data, p_range=None, args={}, acc=0.1):
+def ex(data, p_range=None, param={}, acc=0.1):
     '''
     计算数学期望，等价于一阶原点矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
     返回
@@ -74,8 +74,8 @@ def ex(data, p_range=None, args={}, acc=0.1):
     Parameters
     ----------
     fdata: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
     Return
@@ -84,7 +84,7 @@ def ex(data, p_range=None, args={}, acc=0.1):
     '''
     if type(data).__name__ == 'function' or type(data).__name__ == 'method':
         def ex_func(x):
-            return x * data(x, **args)
+            return x * data(x, **param)
         
         return inte(ex_func, [p_range], acc=acc)
     
@@ -93,15 +93,15 @@ def ex(data, p_range=None, args={}, acc=0.1):
         return data.mean()
 
 
-def c_moment(data, p_range=None, args={}, k=1, acc=0.1):
+def c_moment(data, p_range=None, param={}, k=1, acc=0.1):
     '''
     计算中心矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     k：整型，可选，阶数，默认为1
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
@@ -115,8 +115,8 @@ def c_moment(data, p_range=None, args={}, k=1, acc=0.1):
     Parameters
     ----------
     data: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     k: int, callable, orders, default=1
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
@@ -124,11 +124,11 @@ def c_moment(data, p_range=None, args={}, k=1, acc=0.1):
     ------
     num, central moment
     '''
-    raw_exp = ex(data, p_range, args)
+    raw_exp = ex(data, p_range, param)
     
     if type(data).__name__ == 'function' or type(data).__name__ == 'method':
         def ex_func(x):
-            return (x-raw_exp)**k * data(x, **args)
+            return (x-raw_exp)**k * data(x, **param)
         
         return inte(ex_func, [p_range], acc=acc)
     
@@ -137,15 +137,15 @@ def c_moment(data, p_range=None, args={}, k=1, acc=0.1):
         return r_moment(data, k=k)
 
 
-def dx(data, p_range=None, args={}, acc=0.1):
+def dx(data, p_range=None, param={}, acc=0.1):
     '''
     计算方差，等价于二阶中心矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
     返回
@@ -158,26 +158,26 @@ def dx(data, p_range=None, args={}, acc=0.1):
     Parameters
     ----------
     data: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
     Return
     ------
     num, variance
     '''
-    return c_moment(data, p_range, args, 2, acc)
+    return c_moment(data, p_range, param, 2, acc)
 
 
-def skew(data, p_range=None, args={}, acc=0.1):
+def skew(data, p_range=None, param={}, acc=0.1):
     '''
     计算偏度，等价于三阶中心矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
     返回
@@ -190,26 +190,26 @@ def skew(data, p_range=None, args={}, acc=0.1):
     Parameters
     ----------
     data: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
     Return
     ------
     num, skewness
     '''
-    return c_moment(data, p_range, args, 3, acc)
+    return c_moment(data, p_range, param, 3, acc)
 
 
-def kurt(data, p_range=None, args={}, acc=0.1):
+def kurt(data, p_range=None, param={}, acc=0.1):
     '''
     计算峰度，等价于四阶中心矩
     
     参数
     ----
     data：一维列表或函数类型，样本或概率密度函数
-    p_range：元组类型，可选，计算上下限
-    args：字典类型，可选，用于传递func中的其他参数
+    p_range：元组类型，可选，计算上下限，仅当data为函数类型时有效
+    param：字典类型，可选，用于传递func中的其他参数，仅当data为函数类型时有效，默认为空字典
     acc：浮点数类型，可选，积分精度，仅在data为函数类型时有效，默认为0.1
     
     返回
@@ -222,15 +222,15 @@ def kurt(data, p_range=None, args={}, acc=0.1):
     Parameters
     ----------
     data: 1D list or function, a sample or probability density function
-    p_range：tuple, callable, lower and upper limit of calculation
-    args: dict, callable, pass other parameters to func
+    p_range：tuple, callable, lower and upper limit of calculation, valid only when data is a function
+    param: dict, callable, pass other parameters to func, valid only when data is a function, default={}
     acc: float, callable, integration accuracy, it's effective only when data is function, default=0.1
     
     Return
     ------
     num, kurtosis
     '''
-    return c_moment(data, p_range, args, 4, acc)
+    return c_moment(data, p_range, param, 4, acc)
 
 
 def mle(func, data, p_range, acc=0.1):
@@ -241,10 +241,10 @@ def mle(func, data, p_range, acc=0.1):
     参数
     ----
     func：函数类型，密度概率函数，func的形式应如下：
-        def func(x, param):
-        其中x需输入一个数或一个向量，是随机变量；param是一维ndarray，为未确定的参数
+        def func(x, param1, param2, ...):
+        其中x需输入一个数或一个向量，是随机变量
     data：一维或二维数组，样本
-    p_range：二维数组，未确定参数的取值范围
+    p_range：二维数组，func未确定参数的取值范围
     acc：数类型，可选，精度，默认为0.1
     
     返回
@@ -258,8 +258,8 @@ def mle(func, data, p_range, acc=0.1):
     Parameters
     ----------
     func：function, probability density function, the form of func should be as follows：
-        def func(x, param):
-        x is a number or a vector, random variable; param is 1D ndarray, undetermined parameters
+        def func(x, param1, param2, ...):
+        x is a number or a vector, random variable
     data：1D or 2D array，samples
     p_range：2D array, callable, value range of undetermined parameters
     acc：num, callable, accuracy, default=0.1
@@ -272,7 +272,7 @@ def mle(func, data, p_range, acc=0.1):
     def Lmin(theta, data):
         result = 0
         for i in data:
-            single_result = func(i, theta)
+            single_result = func(i, *theta)
             if single_result <= 0:
                 return float('-inf')
             result += np.log(single_result)
@@ -338,8 +338,8 @@ class DF1d():
     
     参数
     ----
-    sample：1D列表，样本点
-    span：1D数组，区间间隔，如span = [a, b, c]则将区间分为[a, b]和[b, c]，并统计各区间频率
+    sample：一维列表，样本点
+    span：一维数组，区间间隔，如span = [a, b, c]则将区间分为[a, b]和[b, c]，并统计各区间频率
     kind：浮点数类型或整型，可选，将插值类型指定为字符串('linear'、'nearest'、'zero'、'slinear'、'squardic'、'previous'、'next'，其中'zero'、'slinear'、'squared'和'cubic'表示零阶、一阶、二阶或三阶样条曲线插值；'previous'和'next'只返回点的上一个或下一个值)或作为一个整数指定要使用的样条曲线插值器的顺序。默认为'linear'
     
     属性
@@ -483,7 +483,7 @@ class DFT():
         return data_list, pro_list
     
     
-    def __con_fit(self, data, func, num_data, args, acc):
+    def __con_fit(self, data, func, num_data, param, acc):
         data = sorted(data)
         
         # 从小到大按20个一组分成多个部分
@@ -503,11 +503,11 @@ class DFT():
         pro_list = []
         if self.__func_type == 'pdf':
             for i in data_list:
-                pro_list.append(inte(func, [[i[0], i[-1]]], args=args, acc=acc))
+                pro_list.append(inte(func, [[i[0], i[-1]]], param=param, acc=acc))
         
         elif self.__func_type == 'cdf':
             for i in data_list:
-                pro_list.append(func(i[-1], **args) - func(i[0], **args))
+                pro_list.append(func(i[-1], **param) - func(i[0], **param))
         
         pro_list = np.array(pro_list) * num_data
         
@@ -519,7 +519,7 @@ class DFT():
         return data_list, pro_list
     
 
-    def __dis_fit(self, data, func, num_data, args):
+    def __dis_fit(self, data, func, num_data, param):
         data = list(data)
         data_set = sorted(set(data))
 
@@ -528,7 +528,7 @@ class DFT():
         pro_list = []
         for i in data_set:
             data_list.append(data.count(i))
-            pro_list.append(func(i, **args))
+            pro_list.append(func(i, **param))
         data_list = np.array(data_list)
         pro_list = np.array(pro_list) * num_data
 
@@ -537,13 +537,13 @@ class DFT():
         return data_list, pro_list
     
     
-    def fit(self, data, func, args={}, acc=0.1):
+    def fit(self, data, func, param={}, acc=0.1):
         '''
         参数
         ----
         data：数据
         func：函数类型，分布函数或概率密度函数，函数的输入须为一个数
-        args：字典类型，可选，用于传递func中的其他参数
+        param：字典类型，可选，用于传递func中的其他参数，默认为空字典
         acc：浮点数类型，可选，积分精度，仅func_type为'pdf'或'cdf'时有效，默认为0.1
         
         
@@ -551,18 +551,18 @@ class DFT():
         ----------
         data: data
         func: function, cumulative distribution function or probability density function, the input of func should be a number
-        args: dict, callable, pass other parameters to func
+        param: dict, callable, pass other parameters to func, default={}
         acc: float, callable, integration accuracy, it's effective only when func_type is 'pdf' or 'cdf', default=0.1
         '''
         self.__data = np.array(data, dtype=np.float)
         self.__func = func
-        self.__args = args
+        self.__param = param
         num_data = len(data)
         
         if self.__func_type != 'pmf':
-            data_list, pro_list = self.__con_fit(data, func, num_data, args, acc)
+            data_list, pro_list = self.__con_fit(data, func, num_data, param, acc)
         else:
-            data_list, pro_list = self.__dis_fit(data, func, num_data, args)
+            data_list, pro_list = self.__dis_fit(data, func, num_data, param)
         
         self.degree = len(pro_list) - 1
         self.chi2_value = sum((data_list - pro_list)**2 / pro_list)
@@ -575,7 +575,7 @@ class DFT():
         if self.__func_type == 'pmf':
             acc = 1
         x = np.arange(x_min, x_max, acc)
-        y = self.__func(x, **self.__args)
+        y = self.__func(x, **self.__param)
         
         func_type = type(y).__name__
         if func_type == 'int' or func_type == 'float':
@@ -623,7 +623,7 @@ class DFT():
         plt.show()
     
     
-    def savefig(self,filename, acc=0.01):
+    def savefig(self, filename, acc=0.01):
         '''
         储存数据的小提琴图和假设的分布函数或概率密度图像
         

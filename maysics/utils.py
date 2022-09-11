@@ -121,8 +121,8 @@ def e_distance(p1, p2):
     
     Parameters
     ----------
-    p1: 1-D list, the location of the first point
-    p2: 1-D list, the location of the second point
+    p1: 1-D array, the location of the first point
+    p2: 1-D array, the location of the second point
     
     Return
     ------
@@ -140,7 +140,7 @@ def e_distances(data, des='o'):
     
     参数
     ----
-    data：一维或二维列表，数据
+    data：一维或二维数组，数据
     des：字符串或一维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
     返回
@@ -152,8 +152,8 @@ def e_distances(data, des='o'):
     
     Parameter
     ---------
-    data: 1-D or 2-D list, data
-    des: str or 1-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+    data: 1-D or 2-D array, data
+    des: str or 1-D array, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
     
     Return
     ------
@@ -229,7 +229,7 @@ def m_distances(data, des='o'):
     
     参数
     ----
-    data：二维列表，数据
+    data：二维数组，数据
     des：字符串或一维或二维数组，可选'o'或'O'(原点)、'mean'(均值点)及自定义数组，目标点坐标，默认为'o'
     
     返回
@@ -241,8 +241,8 @@ def m_distances(data, des='o'):
     
     Parameter
     ---------
-    data: 2-D list, data
-    des: str or 1-D or 2-D list, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
+    data: 2-D array, data
+    des: str or 1-D or 2-D array, 'o' or 'O' (origin), 'mean' (mean point) and custom array are optional, the coordinate of destination, default='o'
     
     Return
     ------
@@ -274,8 +274,8 @@ def discrete(x, y, color=None, label=None):
     
     参数
     ----
-    x：一维数组类型，自变量
-    y：一维数组类型，因变量
+    x：一维数组，自变量
+    y：一维数组，因变量
     color：字符串类型，可选，颜色
     label：字符串类型，可选，标签
     
@@ -307,7 +307,7 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, c=None, 
     radius：数类型，可选，半径，默认为1
     angle_range：元组类型，可选，绘制的角度范围，默认为(0, 2π)
     acc：浮点数类型，可选，绘制的精度，默认为0.01
-    c：可选，颜色
+    c：字符串类型，可选，颜色
     label：字符串类型，可选，标签，默认为None
     
     
@@ -319,7 +319,7 @@ def circle(center=(0, 0), radius=1, angle_range=(0, 2*np.pi), acc=0.01, c=None, 
     radius: num, callable, radius, default=1
     angle_range: tuple, callable, the range of angle to draw, default=(0, 2π)
     acc: float, callable, the accuracy of drawing, default=0.01
-    c: callable, color
+    c: str, callable, color
     label: str, callable, label, default=None
     '''
     theta = np.arange(*angle_range, acc)
@@ -354,7 +354,8 @@ class A_P():
 
         参数
         ----
-        f：数或一维数组形式，频率
+        f：函数或一维数组形式，频率
+        param：字典类型，可选，用于传递f中的其他参数，仅当f为函数类型时有效，默认为空字典
 
         返回
         ----
@@ -365,7 +366,8 @@ class A_P():
 
         Parameter
         ---------
-        f: num or 1-D array, frequency
+        f: function or 1-D array, frequency
+        param: dict, callable, pass other parameters to f, valid only when f is a function, default={}
 
         Return
         ------

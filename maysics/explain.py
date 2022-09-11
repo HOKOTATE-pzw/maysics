@@ -405,8 +405,8 @@ def sense(func, x0, acc=0.1, param={}):
     
     参数
     ----
-    func：函数类型，模型的预测函数，若函数需要输入列表，则列表须为ndarray
-    x0：数，1D或2D ndarray，与func的输入格式相同，特征的初始值
+    func：函数类型，模型的预测函数，若函数需要输入数组，则数组须为ndarray
+    x0：数，一维或二维ndarray，与func的输入格式相同，特征的初始值
     acc：浮点数类型，可选，求导的精度，默认为0.1
     param：字典类型，可选，当func有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     
@@ -485,7 +485,7 @@ class SHAP_and_Shapley():
         prediction = []
         for i in range(2**dim):
             new_data = data.copy()
-            loc = np.array([i >>d & 1 for d in range(dim)][::1])
+            loc = np.array([i >>d & 1 for d in range(dim)])
             loc = np.where(loc==0)[0]
             if len(loc) != 0:
                 new_data[:, loc] = replace
@@ -495,13 +495,13 @@ class SHAP_and_Shapley():
         
         # 求每个特征的SHAP值
         for i in range(dim):
-            loc = np.array([2**i >>d & 1 for d in range(dim)][::1])
+            loc = np.array([2**i >>d & 1 for d in range(dim)])
             loc = np.where(loc==1)[0][0]
             shap_value = 0
             
             # 每一层差值的加权求和
             for j in range(2**(dim-1)):
-                b_list = [j >>d & 1 for d in range(dim)][::1]
+                b_list = [j >>d & 1 for d in range(dim)]
                 b_list.insert(loc, 0)
                 b_value = self.__transform(b_list)
                 # 1 / ((sum(b_list) + 1) * comb(dim, (sum(b_list) + 1)))是权重

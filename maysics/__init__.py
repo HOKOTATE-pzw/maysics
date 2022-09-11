@@ -36,6 +36,7 @@ maysics includes twelve modules:
 '''
 import numpy as np
 from scipy.special import factorial
+from scipy.io import mmwrite, mmread
 import pickle, csv
 from PIL import Image
 import random
@@ -133,7 +134,7 @@ def choice(seq, pro=None, random_state=None):
     
     参数
     ----
-    seq：一维列表，待抽取的元素
+    seq：一维数组，待抽取的元素
     pro：一维数组，可选，抽取相应元素的概率，默认概率全部相等
     random_state：整型，可选，随机种子
     
@@ -273,7 +274,7 @@ def covs2d(a, b, n, m):
 
 def load(filename, header=True, pic=False, dtype='uint8'):
     '''
-    载入pkl、npy、csv文件或图片
+    载入pkl、npy、csv、mtx文件或图片
     
     参数
     ----
@@ -283,7 +284,7 @@ def load(filename, header=True, pic=False, dtype='uint8'):
     dtype：可选，输出图像数据类型，仅在pic=True时有效，默认为'uint8'
     
     
-    Load pkl, npy, csv file or picture
+    Load pkl, npy, csv, mtx file or picture
     
     Parameter
     ---------
@@ -309,8 +310,11 @@ def load(filename, header=True, pic=False, dtype='uint8'):
                     reader = reader[1:]
                 return np.array(reader)
         
+        elif filename[-4:] == '.mtx':
+            return mmread(filename)
+        
         else:
-            raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv' or 'mtx', or the file should be a picture.")
     
     else:
         x = Image.open(filename)
@@ -319,7 +323,7 @@ def load(filename, header=True, pic=False, dtype='uint8'):
 
 def save(filename, data, header=None, pic=False):
     '''
-    保存为pkl、npy、csv文件或图片
+    保存为pkl、npy、csv、mtx文件或图片
     
     参数
     ----
@@ -329,7 +333,7 @@ def save(filename, data, header=None, pic=False):
     pic：布尔类型，可选，True表示保存为图片，默认为False
     
     
-    Save as pkl, npy, csv file or picture
+    Save as pkl, npy, csv, mtx file or picture
     
     Parameters
     ----------
@@ -366,8 +370,11 @@ def save(filename, data, header=None, pic=False):
                             writer.writerow(header)
                             writer.writerows(data)
         
+        elif filename[-4:] == '.mtx':
+            mmwrite(filename, data)
+        
         else:
-            raise Exception("Suffix of filename must be '.pkl', '.npy' or '.csv'.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv' or 'mtx', or the file should be a picture.")
     
     else:
         data = np.array(data, dtype='uint8')

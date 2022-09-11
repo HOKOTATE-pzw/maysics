@@ -15,8 +15,8 @@ class Scatter():
     
     参数
     ----
-    x：一维或二维列表，二维列表表示多组散点
-    y：一维或二维列表，二维列表表示多组散点
+    x：一维或二维数组，二维列表表示多组散点
+    y：一维或二维数组，二维列表表示多组散点
     acc：浮点数类型，可选，插值精度，默认0.1
     kind：浮点数类型或整型，可选，将插值类型指定为字符串('linear'、'nearest'、'zero'、'slinear'、'squardic'、'previous'、'next'，其中'zero'、'slinear'、'squared'和'cubic'表示零阶、一阶、二阶或三阶样条曲线插值；'previous'和'next'只返回点的上一个或下一个值)或作为一个整数指定要使用的样条曲线插值器的顺序。默认为'linear'
     xtol：浮点数类型，可选，横坐标误差，默认0.1
@@ -33,8 +33,8 @@ class Scatter():
     
     Parameters
     ----------
-    x: 1D or 2D list, 2D list represent multiple groups of scattered points
-    y: 1D or 2D list, 2D list represent multiple groups of scattered points
+    x: 1D or 2D array, 2D list represent multiple groups of scattered points
+    y: 1D or 2D array, 2D list represent multiple groups of scattered points
     acc: float, callable, interpolation accuracy, default=0.1
     kind: float or int, callable, specifies the kind of interpolation as a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'previous', 'next', where 'zero', 'slinear', 'quadratic' and 'cubic' refer to a spline interpolation of zeroth, first, second or third order; 'previous' and 'next' simply return the previous or next value of the point) or as an integer specifying the order of the spline interpolator to use. default='linear'
     xtol: float, callable, abscissa error, default=0.1
@@ -130,14 +130,14 @@ class Scatter():
         
         参数
         ---
-        scatter：布尔类型，True表示显示原散点，False表示不显示
+        scatter：布尔类型，True表示显示原散点，False表示不显示，默认为False
         
         
         Display the image
         
         Parameter
         ---------
-        scatter: bool, True means display the origin scatter, False means not
+        scatter: bool, True means display the origin scatter, False means not, default=False
         '''
         self.__image_process(scatter=scatter)
         plt.show()
@@ -150,7 +150,7 @@ class Scatter():
         参数
         ----
         filename：字符串类型，保存的文件名
-        scatter：布尔类型，True表示显示原散点，False表示不显示
+        scatter：布尔类型，True表示显示原散点，False表示不显示，默认为False
         
         
         Save the image
@@ -158,7 +158,7 @@ class Scatter():
         Parameters
         ----------
         filename: str, file name
-        scatter: bool, True means display the origin scatter, False means not
+        scatter: bool, True means display the origin scatter, False means not, default=False
         '''
         self.__image_process(scatter=scatter)
         plt.savefig(filename)
@@ -170,8 +170,8 @@ def linear_e(A, b):
     
     参数
     ----
-    A: 二维列表，系数矩阵
-    b：二维列表
+    A: 二维数组，系数矩阵
+    b：二维数组，常数项组成的行（列）矩阵
     
     返回
     ----
@@ -182,8 +182,8 @@ def linear_e(A, b):
     
     Parameters
     ----------
-    A: 2D list, coefficient matrix
-    b: 2D list
+    A: 2D array, coefficient matrix
+    b: 2D array, row (column) matrix composed of constant items
     
     Return
     ------

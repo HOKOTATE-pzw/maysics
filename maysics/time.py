@@ -18,7 +18,7 @@ def before(time_list, time, itself=False, sep=True):
     time_list：列表类型，时间列表
     time：字符串类型，设定的时间点
     itself：布尔类型，寻找时是否包括设定的时间点本身
-    sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
+    sep：布尔类型，可选，time_list中的元素是否有符号将年月日分开，默认为True
     
     返回
     ----
@@ -35,7 +35,7 @@ def before(time_list, time, itself=False, sep=True):
     time_list: list, list of time
     time: str, the time point
     itself: bool, if include the time point itself when searching
-    sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    sep: bool, callable, True means elements in time_list have symbols to seperate the year, month and day, default=True
     
     Return
     ------
@@ -76,7 +76,7 @@ def after(time_list, time, itself=False, sep=True):
     time_list：列表类型，时间列表
     time：字符串类型，设定的时间点
     itself：布尔类型，寻找时是否包括设定的时间点本身
-    sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
+    sep：布尔类型，可选，time_list中的元素是否有符号将年月日分开，默认为True
     
     返回
     ----
@@ -93,7 +93,7 @@ def after(time_list, time, itself=False, sep=True):
     time_list: list, list of time
     time: str, the time point
     itself: bool, if include the time point itself when searching
-    sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    sep: bool, callable, True means elements in time_list have symbols to seperate the year, month and day, default=True
     
     Return
     ------
@@ -133,8 +133,8 @@ def equal(time_list, time, sep=True, equal=True):
     ----
     time_list：列表类型，时间列表
     time：列表类型，设定的时间点列表
-    sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
-    equal：布尔类型，True表示搜索与time相同的时间，False表示搜索与time不相同的时间
+    sep：布尔类型，可选，time_list中的元素是否有符号将年月日分开，默认为True
+    equal：布尔类型，可选，True表示搜索与time相同的时间，False表示搜索与time不相同的时间，默认为True
     
     返回
     ----
@@ -150,8 +150,8 @@ def equal(time_list, time, sep=True, equal=True):
     ----------
     time_list: list, list of time
     time: list, the time point list
-    sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
-    equal: bool, True means searching the time in "time", False means searching the time not in "time"
+    sep: bool, callable, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    equal: bool, callable, True means searching the time in "time", False means searching the time not in "time", default=True
     
     Return
     ------
@@ -201,9 +201,9 @@ def between(time_list, begin, end, begin_itself=False, end_itself=False, sep=Tru
     time_list：列表类型，时间列表
     begin：字符串类型，设定的开始时间点
     end：字符串类型，设定的结束时间点
-    begin_itself：布尔类型，寻找时是否包括设定的开始时间点本身
-    end_itself：布尔类型，寻找时是否包括设定的结束时间点本身
-    sep：布尔类型，time_list中的元素是否有符号将年月日分开，默认为True
+    begin_itself：布尔类型，可选，寻找时是否包括设定的开始时间点本身，默认为False
+    end_itself：布尔类型，可选，寻找时是否包括设定的结束时间点本身，默认为False
+    sep：布尔类型，可选，time_list中的元素是否有符号将年月日分开，默认为True
     
     返回
     ----
@@ -220,9 +220,9 @@ def between(time_list, begin, end, begin_itself=False, end_itself=False, sep=Tru
     time_list: list, list of time
     begin: str, the beginning time point
     end: str, the end time point
-    bengin_itself: bool, if include the beginning time point itself when searching
-    end_itself: bool, if include the end time point itself when searching
-    sep: bool, True means elements in time_list have symbols to seperate the year, month and day, default=True
+    bengin_itself: bool, callable, if include the beginning time point itself when searching, default=False
+    end_itself: bool, callable, if include the end time point itself when searching, default=False
+    sep: bool, callable, True means elements in time_list have symbols to seperate the year, month and day, default=True
     
     Return
     ------
@@ -413,7 +413,7 @@ def mul(time, num):
     return _time_adjust(time)
 
 
-def div(time, divisor, time_mode=False):
+def div(time, divisor):
     '''
     时间相除
     时间除以数或时间除以时间
@@ -422,7 +422,6 @@ def div(time, divisor, time_mode=False):
     ----
     time：列表形式，时间，格式为[时, 分, 秒]
     divisor：数或列表，数或时间，时间格式同上
-    time_mode：布尔类型，可选，时间模式，True表示divisor要输入时间，False表示divisor要输入数，默认为False
     
     返回
     ----
@@ -436,14 +435,13 @@ def div(time, divisor, time_mode=False):
     ----------
     time: list, time, in the form of [hour, minute, second]
     divisor: num or list, number or time, in the form of [hour, minute, second]
-    time_mode: bool, callable, time mode, True means divisor needs a time as input, while False needs a number, default=False
     
     Return
     ------
     return a number when time_mode=False, return 1-D ndarray when time_mode=True
     '''
     time = np.array(time)
-    if not time_mode:
+    if type(divisor) == int or type(divisor) == float:
         time = time / divisor
         return _time_adjust(time)
     else:
