@@ -357,18 +357,31 @@ def save(filename, data, header=None, pic=False):
                 if len(data.shape) == 1:
                     for i in range(data.shape[0]):
                         header.append(i)
-                        with open(filename, 'w', newline='') as f:
-                            writer = csv.writer(f)
-                            writer.writerow(header)
-                            writer.writerow(data)
+                    with open(filename, 'w', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(header)
+                        writer.writerow(data)
                 
                 else:
                     for i in range(data.shape[1]):
                         header.append(i)
-                        with open(filename, 'w', newline='') as f:
-                            writer = csv.writer(f)
-                            writer.writerow(header)
-                            writer.writerows(data)
+                    with open(filename, 'w', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(header)
+                        writer.writerows(data)
+            
+            else:
+                if len(data.shape) == 1:
+                    with open(filename, 'w', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(header)
+                        writer.writerow(data)
+                
+                else:
+                    with open(filename, 'w', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(header)
+                        writer.writerows(data)
         
         elif filename[-4:] == '.mtx':
             mmwrite(filename, data)
