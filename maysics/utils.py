@@ -34,6 +34,44 @@ def grid_net(*args):
     return net
 
 
+def group(data, index, f, param={}):
+    '''
+    分组处理数据
+    
+    参数
+    ----
+    data：二维ndarray，数据
+    index：整型，需要分组处理的列索引
+    f：函数类型，将分组后的每个部分的二维ndarray作为输入
+    param：字典类型，可选，用于传递f中的其他参数，默认为空字典
+    
+    返回
+    ----
+    二维ndaray
+    
+    
+    Group process data
+    
+    Paramters
+    ---------
+    data: 2D ndarray, data
+    index: int, column to be grouped
+    f: function, take 2D ndarray of each part after grouping as input
+    param: dict, callable, pass other parameters to f, default={}
+    
+    Return
+    ------
+    2D ndarray
+    '''
+    data_index = data[:, index]
+    set_ls = set(data_index)
+    for i in set_ls:
+        data_new = data[data_index==i, :]
+        data_new = f(data_new, **param)
+        data[data_index==i, :] = data_new
+    return data
+
+
 def hermit(data):
     '''
     求厄密共轭矩阵

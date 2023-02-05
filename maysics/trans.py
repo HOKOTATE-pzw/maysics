@@ -77,7 +77,7 @@ def lorentz(v, x):
     ------
     ndarray, converted coordinates
     '''
-    x = np.array(x, dtype=np.float)
+    x = np.array(x, dtype=float)
     γ = 1 / (1 - (v / 299792458.0)**2)**0.5
     if len(x.shape) == 1:
         xp = γ * (x[0] - v * x[3])
@@ -117,7 +117,7 @@ def lorentz_v(v, vo):
     ------
     ndarray, converted velocity
     '''
-    vo = np.array(vo, dtype=np.float)
+    vo = np.array(vo, dtype=float)
     γ = 1 / (1 - (v / 299792458.0)**2)**0.5
     if len(vo.shape) == 1:
         factor = 1 - v * vo[0] / 299792458.0**2
@@ -157,7 +157,7 @@ def polar(x):
     ------
     ndarray, converted coordinates
     '''
-    x = np.array(x, dtype=np.float)
+    x = np.array(x, dtype=float)
     if len(x.shape) == 1:
         r = (x[0]**2 + x[1]**2)**0.5
         if x[0] == 0:
@@ -220,7 +220,7 @@ def ipolar(x):
     ------
     ndarray, converted coordinates
     '''
-    x=np.array(x, dtype=np.float)
+    x=np.array(x, dtype=float)
     if len(x.shape) == 1:
         x0 = x[0] * np.cos(x[1])
         x1 = x[0] * np.sin(x[1])
@@ -257,7 +257,7 @@ def sphere(x):
     ------
     ndarray, converted coordinates
     '''
-    x = np.array(x, dtype=np.float)
+    x = np.array(x, dtype=float)
     if len(x.shape) == 1:
         r = (x[0]**2 + x[1]**2 + x[2]**2)**0.5
         if r == 0:
@@ -323,7 +323,7 @@ def isphere(x):
     ------
     ndarray, converted coordinates
     '''
-    x = np.array(x)
+    x = np.array(x, dtype=float)
     if len(x.shape) == 1:
         x0 = x[0] * np.sin(x[2]) * np.cos(x[1])
         x1 = x[0] * np.sin(x[2]) * np.sin(x[1])
@@ -366,7 +366,7 @@ def rotate(theta, x):
     ------
     ndarray, converted coordinates
     '''
-    x = np.array(x, dtype=np.float)
+    x = np.array(x, dtype=float)
     if len(x.shape) == 1:
         x0 = np.cos(theta) * x[0] + np.sin(theta) * x[1]
         x1 = np.cos(theta) * x[1] - np.sin(theta) * x[0]

@@ -1,38 +1,36 @@
 '''
 本库用于科学计算和快速建模
 
-maysics主要包括十二个模块：
+maysics主要包括十一个模块：
 
-1、algo 封装了几种模拟方法，用于简易模拟；
-2、calc 封装了部分常见的算符算子和积分方法，辅助数学运算；
-3、equa 封装了部分方程求解运算；
-4、explain 用于评估和解释模型；
+1、calc 封装了部分常见的算符算子和积分方法，辅助数学运算；
+2、equa 封装了部分方程求解运算；
+3、explain 用于评估和解释模型；
+4、digital 用于数字图像处理；
 5、graph 用于图论分析；
-6、image 用于数字图像处理;
-7、models 封装了几种常用的模型以便快速构建数理模型；
-8、prep 用于数据预处理；
-9、stats 用于统计分析；
-10、time 用于处理时间数据；
-11、trans 储存了常用的坐标转换及其他数学变换；
-12、utils 是额外工具箱。
+6、models 封装了几种常用的模型和算法以便快速构建数理模型；
+7、prep 用于数据预处理；
+8、stats 用于统计分析；
+9、time 用于处理时间数据；
+10、trans 储存了常用的坐标转换及其他数学变换；
+11、utils 是额外工具箱。
 
 
 This package is used for scientific calculating and fast modeling.
 
-maysics includes twelve modules:
+maysics includes eleven modules:
 
-1. "algo" packages several simulation methods for simple simulation;
-2. "calc" packages some common operators and integration method to assist in mathematical operations;
-3. "equa" packages some equation solving operation;
-4. "explain" is used for estimating and explaining model;
+1. "calc" packages some common operators and integration method to assist in mathematical operations;
+2. "equa" packages some equation solving operation;
+3. "explain" is used for estimating and explaining model;
+4. "digital" is used for digital image process;
 5. "graph" is used for graph theory analysis;
-6. "image" is used for digital image process;
-7. "models" packages several commonly used models for fast modeling;
-8. "prep" is used for data preproccessing;
-9. "stats" is uesd for statistical analysis;
-10. "time" is used for processing time data;
-11. "trans" stores common coordinate transformations and other mathematical transformations;
-12. "utils" is extra Utils.
+6. "models" packages several commonly used models and algorithmns for fast modeling;
+7. "prep" is used for data preproccessing;
+8. "stats" is uesd for statistical analysis;
+9. "time" is used for processing time data;
+10. "trans" stores common coordinate transformations and other mathematical transformations;
+11. "utils" is extra Utils.
 '''
 import numpy as np
 from scipy.special import factorial
@@ -40,7 +38,7 @@ from scipy.io import mmwrite, mmread
 import pickle, csv
 from PIL import Image
 import random
-from . import algo, calc, equa, explain, graph, image,\
+from . import calc, equa, explain, digital, graph,\
     models, prep, stats, time, trans, utils
 from .models import linear_r
 from .prep import preview, preview_file, shuffle, standard, minmax, normalizer
@@ -272,26 +270,37 @@ def covs2d(a, b, n, m):
     return result
 
 
-def load(filename, header=True, pic=False, dtype='uint8'):
+def load(filename, skip=0, pic=False, dtype='uint8'):
     '''
     载入pkl、npy、csv、mtx文件或图片
     
     参数
     ----
     filename：字符串类型，文件名
-    header：布尔类型，可选，True表示csv文件第一行为列名，仅在读取csv文件时有效，默认为True
+    skip：整型，可选，跳过的行数，仅在读取csv文件时有效，默认为0
     pic：布尔类型，可选，True表示读取图片，默认为False
     dtype：可选，输出图像数据类型，仅在pic=True时有效，默认为'uint8'
     
+    返回
+    ----
+    读取pkl文件会返回储存时的数据类型
+    读取npy文件、csv文件、txt文件和图片文件会返回ndarray
+    读取mtx文件会返回csr_matrix
     
-    Load pkl, npy, csv, mtx file or picture
+    Load pkl, npy, csv, txt, mtx file or picture
     
     Parameter
     ---------
     filename: str, file name
-    header: bool, callable, True means the first row of the csv file if the names of columns, effective only when reading csv files, default=True
+    skip: bool, callable, number of skipped rows, effective only when reading csv files, default=0
     pic: bool, callable, True means to load picture, default=False
     dtype: callable, data format of output image, effective only when pic=True, default='uint8'
+    
+    Return
+    ------
+    read pkl file will return the data type at the time of storage
+    read npy files, csv files, txt files and image files will return ndarray
+    read the mtx file will return csr_ matrix
     '''
     if pic is False:
         if filename[-4:] == '.pkl':
@@ -307,14 +316,14 @@ def load(filename, header=True, pic=False, dtype='uint8'):
             with open(filename, 'r', encoding='utf-8') as f:
                 reader = list(csv.reader(f))
                 if header:
-                    reader = reader[1:]
+                    reader = reader[skip:]
                 return np.array(reader)
         
         elif filename[-4:] == '.mtx':
             return mmread(filename)
         
         else:
-            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv' or 'mtx', or the file should be a picture.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt' or 'mtx', or the file should be a picture.")
     
     else:
         x = Image.open(filename)
@@ -323,7 +332,7 @@ def load(filename, header=True, pic=False, dtype='uint8'):
 
 def save(filename, data, header=None, pic=False):
     '''
-    保存为pkl、npy、csv、mtx文件或图片
+    保存为pkl、npy、csv或mtx文件或图片
     
     参数
     ----
@@ -387,7 +396,7 @@ def save(filename, data, header=None, pic=False):
             mmwrite(filename, data)
         
         else:
-            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv' or 'mtx', or the file should be a picture.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt' or 'mtx', or the file should be a picture.")
     
     else:
         data = np.array(data, dtype='uint8')

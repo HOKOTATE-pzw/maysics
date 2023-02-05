@@ -193,3 +193,55 @@ def linear_e(A, b):
     b = np.array(b)
     A = np.linalg.pinv(A)
     return np.dot(A, b)
+
+
+def ode(y, t_span, func, param={}, method='rk4'):
+    '''
+    求解常微分方程数值解
+    
+    参数
+    ----
+    y：一维ndarray，初始解
+    t_span：一维数组，需要求解的自变量点集
+    func：函数类型，待求解的方程表达式
+    param：字典类型，可选，用于传递func中的其他参数，默认为空字典
+    method：字符串类型，可选'rk4'和'euler'，'rk4'代表用四阶龙格-库塔法求解，'euler'代表用改进欧拉法求解
+    
+    返回
+    ----
+    一维或二维ndarray
+    
+    
+    Parameters
+    ----------
+    y: 1D ndarray, initial solution
+    t_span: 1D array, independent variable point set to be solved
+    func: function, callable, equation expression to be solved
+    param: dict, callable, pass other parameters to func, default={}
+    method: str, 'rk4' and 'euler' are optional, 'rk4' means the fourth order Runge-Kutta method, and 'euler' means the improved Euler method
+    
+    Return
+    ------
+    1D or 2D ndarray
+    '''
+    t = t_span[0]
+    result = [y.copy()]
+    if method == 'rk4':
+        for i in range(len(t_span)-1):
+            k1 = func(t_span[i], y, **param)
+            dt = t_span[i+1] - t_span[i]
+            dt_2 = 0.5 * dt
+            k2 = func(t_span[i] + dt_2, y + dt_2 * k1, **param)
+            k3 = func(t_span[i] + dt_2, y + dt_2 * k2, **param)
+            k4 = func(t_span[i] + dt, y + dt * k3, **param)
+            y += dt / 6 * (k1 + 2 * (k2 + k3) + k4)
+            result.append(y.copy())
+    
+    elif method == 'euler':
+        for i in range(len(t_span)-1):
+            dy = func(t_span[i], y, **param)
+            dt = t_span[i+1] - t_span[i]
+            yp = y + dt * dy
+            y += 0.5 * dt * (dy + func(t_span[i+1], yp, **param))
+            result.append(y.copy())
+    return np.array(result)

@@ -296,7 +296,10 @@ def mse(func, data, target, param={}):
     ------
     num, mean squared error
     '''
-    return sum(abs_error(func, data, target, param=param)**2) / len(target)
+    data = np.array(data)
+    target = np.array(target)
+    predict_target = func(data, *param)
+    return sum(abs(target - predict_target)**2) / len(target)
 
 
 def mae(func, data, target, param={}):

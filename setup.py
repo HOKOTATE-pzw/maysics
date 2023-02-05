@@ -11,7 +11,7 @@ URL = 'https://github.com/HOKOTATE-pzw/maysics.git'
 EMAIL = 'pangzewei2010@foxmail.com'
 AUTHOR = 'HOKOTATE'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.4.9'
+VERSION = '0.5.0'
 REQUIRED = [
      'matplotlib', 'numpy', 'scipy >= 1.3.0', 'lxml',
 ]

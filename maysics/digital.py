@@ -1,7 +1,7 @@
 '''
 本模块用于数字图像处理
 
-This module is used for digital image process
+This module is used for digital image process and sequence process
 '''
 import numpy as np
 from matplotlib import pyplot as plt
@@ -331,7 +331,48 @@ def hist_equa(data, dtype=float):
     return np.array(data, dtype=dtype)
 
 
-def laplace(data, mode=8, strenth=1, dtype=float):
+def laplace1d(data, strenth=1):
+    '''
+    图像的拉普拉斯算子
+    
+    参数
+    ----
+    data：一维ndarray，序列数据
+    strenth：数类型，可选，对比的增强倍率，默认为1
+    
+    返回
+    ----
+    一维ndarray，序列
+    
+    
+    Laplace Operator of Image
+    
+    Parameters
+    ----------
+    data: 1D ndarray, sequence
+    strenth: num, callable, contrast enhancement magnification, default=1
+    
+    Return
+    ------
+    1D ndarray, sequence
+    '''
+    data = np.array(data, dtype=float)
+    
+    data_copy = data.copy()
+    data_new = np.zeros_like(data)
+    
+    data_copy = np.insert(data_copy, [0], data_copy[0])[:-1]
+    data_new += data - data_copy
+    data_copy = data.copy()
+    
+    data_copy = np.append(data_copy, data_copy[-1])[1:]
+    data_new += data - data_copy
+    
+    data_new = abs(data_new) * strenth
+    return data_new
+
+
+def laplace2d(data, mode=8, strenth=1, dtype=float):
     '''
     图像的拉普拉斯算子
     
@@ -385,40 +426,39 @@ def laplace(data, mode=8, strenth=1, dtype=float):
     
     data_copy = np.hstack((data_copy[:, 0:1], data_copy[:, 0:-1]))
     data_new += data - data_copy
-    data_copy = data
+    data_copy = data.copy()
     
     data_copy = np.hstack((data_copy[:, 0:-1], data_copy[:, -1:]))
     data_new += data - data_copy
-    data_copy = data
+    data_copy = data.copy()
     
     data_copy = np.vstack((data_copy[0:1, :], data_copy[0:-1, :]))
     data_new += data - data_copy
-    data_copy = data
+    data_copy = data.copy()
     
     data_copy = np.vstack((data_copy[0:-1, :], data_copy[-1:, :]))
     data_new += data - data_copy
-    data_copy = data
     
     if mode == 8:
+        data_copy = data.copy()
         data_copy = np.hstack((data_copy[1:, 0:1], data_copy[:-1, :]))
         data_copy = np.vstack((data[0:1, :], data_copy[:, :-1]))
         data_new += data - data_copy
-        data_copy = data
+        data_copy = data.copy()
         
         data_copy = np.hstack((data_copy[:-1, 0:1], data_copy[1:, :]))
         data_copy = np.vstack((data_copy[:, :-1], data[-2:-1, :]))
         data_new += data - data_copy
-        data_copy = data
+        data_copy = data.copy()
         
         data_copy = np.hstack((data_copy[:-1, :], data_copy[1:, -2:-1]))
         data_copy = np.vstack((data[0:1, :], data_copy[:, 1:]))
         data_new += data - data_copy
-        data_copy = data
+        data_copy = data.copy()
         
         data_copy = np.hstack((data_copy[1:, :], data_copy[:-1, -2:-1]))
         data_copy = np.vstack((data_copy[:, 1:], data[-2:-1, :]))
         data_new += data - data_copy
-        data_copy = data
     
     data_new = abs(data_new) * strenth
     data_new[data_new > 255] = 255

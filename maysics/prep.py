@@ -4,7 +4,6 @@
 This module is used for data preproccessing
 '''
 import numpy as np
-from maysics.utils import e_distances
 from matplotlib import pyplot as plt
 plt.rcParams['font.sans-serif'] = ['FangSong']
 plt.rcParams['axes.unicode_minus'] = False
@@ -500,7 +499,7 @@ def standard(data, mean=True, var=True, index=None):
     
     参数
     ----
-    data：2D的ndarray数据
+    data：二维ndarray数据
     mean：布尔类型或ndarray，可选，布尔类型决定是否将均值调整为0，ndarray用于设定不同的均值
     var：布尔类型或ndarray，可选，是否将方差调整为1，ndarray用于设定不同的方差
     index：列表类型，可选，需要进行标准化的列的索引，默认为全部
@@ -585,7 +584,7 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     
     参数
     ----
-    data：2D的ndarray数据
+    data：二维ndarray数据
     feature_range：元组类型，可选，需要转换的范围，默认为(0, 1)
     min_max：元组类型，可选，用于设定最大最小值
     index：列表类型，可选，需要进行标准化的列的索引，默认为全部
@@ -610,7 +609,7 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     ------
     tuple, (Normalized data, (miniment, maximent))
     '''
-    data=np.array(data, dtype=float)
+    data = np.array(data, dtype=float)
     
     if index:
         if not min_max:
@@ -629,21 +628,80 @@ def minmax(data, feature_range=(0, 1), min_max=None, index=None):
     return data, min_max
 
 
-def normalizer(data, index=None):
+def normalizer(data, index=None, norm=2):
     '''
-    使每个数据的模为1
+    正则化数据
     
     参数
     ----
-    data：2D的ndarray数据
+    data：二维ndarray数据
     index：列表形式，可选，需要进行标准化的列的索引，默认为全部
+    norm：整型或字符串类型，可选大于0的整数或'max'
+        当norm为整数p时，表示进行lp正则化；
+        当norm='max'时，表示使用最大范数进行正则化
     
     返回
     ----
     2D ndarray
     
     
-    Making the moduli of data equal 1
+    Normalize the data
+    
+    Parameters
+    ----------
+    data: 2D的ndarray数据
+    index: list, callable, index of columns need to be standardized, defalut to all
+    norm: int or str, callabel, an integer greater than 0 or 'max' are optional
+        When norm is an integer p, it means lp normalization
+        When norm='max', it means that the maximum norm is used for normalization
+    
+    Return
+    ------
+    2D ndarray
+    '''
+    data = np.array(data, dtype=float)
+    if norm != 'max':
+        if index:
+            distance_list = abs(data[:, index])**norm
+            distance_list = distance_list.sum(axis=1)
+            distance_list = distance_list**(1 / norm)
+            distance_list[distance_list == 0] = 1
+            data[:, index] /= np.array([distance_list]).T
+        
+        else:
+            distance_list = abs(data)**norm
+            distance_list = distance_list.sum(axis=1)
+            distance_list = distance_list**(1 / norm)
+            distance_list[distance_list == 0] = 1
+            data /= np.array([distance_list]).T
+    
+    elif norm == 'max':
+        if index:
+            data[:, index] /= np.array([abs(data[:, index]).max(axis=1)]).T
+        else:
+            data /= np.array([abs(data).max(axis=1)]).T
+    
+    else:
+        raise Exception("Wrong type of paramter 'norm'.")
+            
+    return data
+
+
+def onehot(data, index=None):
+    '''
+    将数据转换为one-hot编码
+    
+    参数
+    ----
+    data：二维ndarray数据
+    index：列表形式，可选，需要进行标准化的列的索引，默认为全部
+    
+    返回
+    ----
+    元组，(onehot编码数据, 名称列表)
+    
+    
+    Transform data to one-hot encoding
     
     Parameters
     ----------
@@ -652,21 +710,21 @@ def normalizer(data, index=None):
     
     Return
     ------
-    2D ndarray
+    tuple, (one-hot data, name list)
     '''
-    data = np.array(data, dtype=float)
+    if not index:
+        index = np.arange(data.shape[1]).tolist()
     
-    if index:
-        distance_list = e_distances(data[:, index])
-        distance_list[distance_list == 0] = 1
-        data[:, index] /= np.array([distance_list]).T
+    ls_all = []
+    for i in index[::-1]:
+        ls = list(set(data[:, i]))
+        ls_all.append(ls)
+        data_new = np.zeros((data.shape[0], len(ls)))
+        for j in range(len(ls)):
+            data_new[data[:, i] == ls[j], j] = 1
+        data = np.hstack((data[:, :i], data_new, data[:, i+1:]))
     
-    else:
-        distance_list = e_distances(data)
-        distance_list[distance_list == 0] = 1
-        data /= np.array([distance_list]).T
-    
-    return data
+    return data, ls_all[::-1]
 
 
 def pca(data, n=None, eig_vector=None):
