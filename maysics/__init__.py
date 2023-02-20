@@ -6,7 +6,7 @@ maysics主要包括十一个模块：
 1、calc 封装了部分常见的算符算子和积分方法，辅助数学运算；
 2、equa 封装了部分方程求解运算；
 3、explain 用于评估和解释模型；
-4、digital 用于数字图像处理；
+4、digital 用于数字图像、序列处理；
 5、graph 用于图论分析；
 6、models 封装了几种常用的模型和算法以便快速构建数理模型；
 7、prep 用于数据预处理；
@@ -23,7 +23,7 @@ maysics includes eleven modules:
 1. "calc" packages some common operators and integration method to assist in mathematical operations;
 2. "equa" packages some equation solving operation;
 3. "explain" is used for estimating and explaining model;
-4. "digital" is used for digital image process;
+4. "digital" is used for digital image, sequence process;
 5. "graph" is used for graph theory analysis;
 6. "models" packages several commonly used models and algorithmns for fast modeling;
 7. "prep" is used for data preproccessing;

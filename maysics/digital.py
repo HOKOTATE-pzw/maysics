@@ -471,7 +471,7 @@ def saturate(data, scale=1, param={}, dtype=float):
     
     参数
     ----
-    data：三维ndarray，图像的张量数据
+    data：三维数组，图像的张量数据
     scale：数或函数类型，可选，当scale为数类型时，表示饱和度调整为S*scale；当scale为函数类型时，表示饱和度调整为scale(S)，默认为1
     param：字典类型，可选，当scale为函数类型且有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
     dtype：可选，输出图像数据的数据格式，默认为float
@@ -485,7 +485,7 @@ def saturate(data, scale=1, param={}, dtype=float):
     
     Parameters
     ----------
-    data: 3D ndarray, tensor of image
+    data: 3D array, tensor of image
     scale: num or function, callable, when scale is num, it means adjust the saturation to S*scale; while it's function, it means adjust the saturation to scale(S), default=1
     param: dict, callable, When step is function and has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
     dtype: callable, data format of output image, default=float
@@ -539,3 +539,98 @@ def saturate(data, scale=1, param={}, dtype=float):
     
     data = np.array([r,g,b], dtype=dtype)
     return data.transpose(1, 2, 0)
+
+
+def inrange(img, low, up, dtype=float):
+    '''
+    将图像中一定RGB范围的灰度增强为255，其余为灰度值0
+    
+    参数
+    ----
+    img：三维数组形式，图像数据
+    low：一维数组形式，最低的RGB值
+    up：一维数组形式，最高的RGB值
+    dtype: 可选，输出图像数据的数据格式，默认为float
+    
+    返回
+    ----
+    二维ndarray，处理后的灰度图像数据
+    
+    
+    Increase the gray level of a certain RGB range in the image to 255, and the rest to 0
+    
+    Parameters
+    ----------
+    img: 3D array, image data
+    low: 1D array, lowest RGB value
+    up: 1D array, highest RGB value
+    dtype: callable, data format of output image, default=float
+    
+    Return
+    ------
+    2D ndarray, processed grayscale image data
+    '''
+    img = np.array(img, dtype=float)
+    img_new = np.zeros((img.shape[0], img.shape[1]))
+    loc1 = []
+    loc2 = []
+    for i in range(3):
+        loc1.append((img[:, :, i]>=low[i]) & (img[:, :, i]<=up[i]))
+        loc2.append((img[:, :, i]<low[i]) | (img[:, :, i]>up[i]))
+    img_new[loc1[0] & loc1[1] & loc1[2]] = 255
+    img_new[loc2[0] | loc2[1] | loc2[2]] = 0
+    return img_new.astype(dtype)
+
+
+def restore(img, low, up, x, y):
+    '''
+    将函数图像还原为数据
+    仅适用于一元单值函数图像的复现
+    
+    参数
+    ----
+    img：三维数组，图片数据
+    low：一维数组形式，最低的RGB值
+    up：一维数组形式，最高的RGB值
+    x：一维数组形式，图像的x范围
+    y：一维数组形式，图像的y范围
+    
+    返回
+    ----
+    元组形式，分别为还原的x和y数据
+    
+    
+    Restore Function Image to Data
+    only applicable to the recurrence of univariate single-valued function image
+    
+    Parameters
+    ----------
+    img: 3D array, image data
+    low: 1D array, lowest RGB value
+    up: 1D array, highest RGB value
+    x: 1D array, x range of image
+    y: 1D array, y range of image
+    
+    Return
+    ------
+    tuple, restored x and y data respectively
+    '''
+    img = inrange(img, low, up)
+    
+    img_new = []
+    for i in range(img.shape[0]):
+        if not img[i].any() == 0:
+            img_new.append(img[i])
+    img_new = np.array(img_new)
+    
+    img = []
+    for i in range(img_new.shape[1]):
+        if not img_new[:, i].any() == 0:
+            img.append(img_new[:, i])
+    img = np.array(img).T
+    
+    x_result = np.linspace(x[0], x[1], img.shape[1])
+    y_result = []
+    for i in range(img.shape[1]):
+        y_result.append(y[1] - np.where(img[:, i]==255)[0].mean() / img.shape[0] * (y[1] - y[0]))
+    return x_result, np.array(y_result)
