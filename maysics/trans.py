@@ -134,6 +134,92 @@ def lorentz_v(v, vo):
     return vo
 
 
+def mercator(lon_lat, r=6371393, re_lon=0):
+    '''
+    墨卡托变换
+    𝑥 = 𝑅(𝜃−𝜃0)
+    𝑦 = 𝑅𝑙𝑛(𝑡𝑎𝑛(0.25𝜋+0.5𝜙))
+    
+    参数
+    ----
+    lon_lat：一维或二维数组，经度、纬度
+    r：数类型，可选，球体半径，默认为地球平均半径
+    re_lon：数类型，可选，参考经度，默认为0
+    
+    返回
+    ----
+    ndarray类型，变换后的数组
+    
+    
+    Mercator transformation
+    𝑥 = 𝑅(𝜃−𝜃0)
+    𝑦 = 𝑅𝑙𝑛(𝑡𝑎𝑛(0.25𝜋+0.5𝜙))
+    
+    Parameters
+    ----------
+    lon_lat: 1D or 2D array, longtitude and latitude
+    r: num, callable, radius of the sphere, default=the mean radius of the earth
+    re_lon: num, callable, reference longtitude, default=0
+    
+    Return
+    ------
+    ndarray, array after transformation
+    '''
+    lon_lat = np.array(lon_lat) * np.pi / 180
+    re_lon * np.pi / 180
+    if len(lon_lat.shape) == 1:
+        result = np.array([r * (lon_lat[0] - re_lon), r * np.log(np.tan(0.25 * np.pi + 0.5 * lon_lat[1]))])
+    elif len(lon_lat.shape) == 2:
+        result = np.array([r * (lon_lat[:, 0] - re_lon), r * np.log(np.tan(0.25 * np.pi + 0.5 * lon_lat[:, 1]))])
+    else:
+        raise Exception("Parameter 'lon_lat' must be 1-D or 2-D.")
+    
+    return result
+
+
+def imercator(x_y, r=6371393, re_lon=0):
+    '''
+    墨卡托逆变换
+    𝜃 = 𝑥/𝑅 + 𝜃0
+    𝜙 = 2𝑎𝑟𝑐𝑡𝑎𝑛(𝑒^(𝑦/𝑅)) − 0.5𝜋
+    
+    参数
+    ----
+    x_y: 一维或二维数组，坐标
+    r：数类型，可选，球体半径，默认为地球平均半径
+    re_lon：数类型，可选，参考经度，默认为0
+    
+    
+    返回
+    ----
+    ndarray类型，变换后的数组
+    
+    
+    Mercator inverse transformation
+    𝜃 = 𝑥/𝑅+𝜃0
+    𝜙 = 2𝑎𝑟𝑐𝑡𝑎𝑛(𝑒^(𝑦/𝑅))−0.5𝜋
+    
+    Parameters
+    ----------
+    x_y: 1D or 2D array, location
+    r: num, callable, radius of the sphere, default=the mean radius of the earth
+    re_lon: num, callable, reference longtitude, default=0
+    
+    Return
+    ------
+    ndarray, array after transformation
+    '''
+    x_y = np.array(x_y)
+    if len(x_y.shape) == 1:
+        result = [(x_y[0] / r) * 180 / np.pi + re_lon, (np.arctan(np.e**(x_y[1] / r)) - 0.25 * np.pi) * 360 / np.pi]
+    elif len(x_y.shape) == 2:
+        result = [(x_y[:, 0] / r) * 180 / np.pi + re_lon, (np.arctan(np.e**(x_y[:, 1] / r)) - 0.25 * np.pi) * 360 / np.pi]
+    else:
+        raise Exception("Parameter 'x_y' must be 1-D or 2-D.")
+    
+    return np.array(result)
+
+
 def polar(x):
     '''
     极坐标或柱坐标正变换
@@ -343,6 +429,8 @@ def rotate(theta, x):
     '''
     平面直角坐标系的旋转变换
     逆时针旋转时theta为正，顺时针旋转时theta为负
+    𝑥 = 𝑐𝑜𝑠(𝜃)𝑥 + 𝑠𝑖𝑛(𝜃)𝑦
+    𝑦 = 𝑐𝑜𝑠(𝜃)𝑥 − 𝑠𝑖𝑛(𝜃)𝑦
     
     参数
     ----
@@ -356,6 +444,8 @@ def rotate(theta, x):
     
     Rotation transformation of plane rectangular coordinate system
     'theta' is positive when rotating anticlockwise and negative when rotating clockwise
+    𝑥 = 𝑐𝑜𝑠(𝜃)𝑥 + 𝑠𝑖𝑛(𝜃)𝑦
+    𝑦 = 𝑐𝑜𝑠(𝜃)𝑥 − 𝑠𝑖𝑛(𝜃)𝑦
     
     Parameter
     ---------

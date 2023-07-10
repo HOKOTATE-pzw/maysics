@@ -219,6 +219,86 @@ def e_distances(data, des='o'):
     return result
 
 
+def earth_distance(lon_lat_1, lon_lat_2):
+    '''
+    求某地球表面上两个点之间的距离
+    𝑑 = 𝑅𝑐𝑜𝑠𝜙1𝑐𝑜𝑠𝜙2𝑐𝑜𝑠(𝜃1−𝜃2)+𝑠𝑖𝑛𝜃1𝑠𝑖𝑛𝜃2
+    
+    参数
+    ----
+    lon_lat_1：一维数组，第一个点的经度、纬度
+    lon_lat_2：一维数组，第二个点的经度、纬度
+    
+    返回
+    ---
+    浮点数类型，距离
+    
+    
+    Calculate the distance between two points on the surface of the earth
+    𝑑 = 𝑅𝑐𝑜𝑠𝜙1𝑐𝑜𝑠𝜙2𝑐𝑜𝑠(𝜃1−𝜃2)+𝑠𝑖𝑛𝜃1𝑠𝑖𝑛𝜃2
+    
+    Parameters
+    ----------
+    lon_lat_1: 1-D array, the longitude and the latitude of the first point
+    lon_lat_2: 1-D array, the longitude and the latitude of the second point
+    
+    Return
+    ------
+    float, the distance
+    '''
+    lon_lat_1 = np.array(lon_lat_1) * np.pi / 180
+    lon_lat_2 = np.array(lon_lat_2) * np.pi / 180
+    result = np.cos(lon_lat_1[1]) * np.cos(lon_lat_2[1]) * np.cos(lon_lat_1[0] - lon_lat_2[0])
+    result += np.sin(lon_lat_1[1]) * np.sin(lon_lat_2[1])
+    result = 6371393 * np.arccos(result)
+    
+    return result
+
+
+def earth_distances(lon_lat, des):
+    '''
+    求地球表面点lon_lat到目标点des的距离距离
+    𝑑 = 𝑅𝑐𝑜𝑠𝜙1𝑐𝑜𝑠𝜙2𝑐𝑜𝑠(𝜃1−𝜃2)+𝑠𝑖𝑛𝜃1𝑠𝑖𝑛𝜃2
+    
+    参数
+    ----
+    lon_lat：一维或二维数组，经度、纬度
+    des：一维数组，目标点经度、纬度
+    
+    返回
+    ----
+    ndarray类型，距离数组
+    
+    
+    Calculate the distances between lon_lat and destination on the surface of the earth
+    𝑑 = 𝑅𝑐𝑜𝑠𝜙1𝑐𝑜𝑠𝜙2𝑐𝑜𝑠(𝜃1−𝜃2)+𝑠𝑖𝑛𝜃1𝑠𝑖𝑛𝜃2
+    
+    Parameter
+    ---------
+    lon_lat: 1-D or 2-D array, the longitude and the latitude
+    des: 1-D array, the longitude and the latitude of destination
+    
+    Return
+    ------
+    ndarray, the distances
+    '''
+    lon_lat = np.array(lon_lat) * np.pi / 180
+    des = np.array(des) * np.pi / 180
+    
+    if len(lon_lat.shape) == 2:
+        result = np.cos(lon_lat[:, 1]) * np.cos(des[1]) * np.cos(lon_lat[:, 0] - des[0])
+        result += np.sin(lon_lat[:, 1]) * np.sin(des[1])
+    elif len(lon_lat.shape) == 1:
+        result = np.cos(lon_lat[1]) * np.cos(des[1]) * np.cos(lon_lat[0] - des[0])
+        result += np.sin(lon_lat[1]) * np.sin(des[1])
+    else:
+        raise Exception("Parameter 'lon_lat' must be 1-D or 2-D.")
+    
+    result = 6371393 * np.arccos(result)
+    
+    return result
+
+
 def m_distance(data, p1, p2):
     '''
     求某两个点之间的马氏距离
