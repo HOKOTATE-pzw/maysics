@@ -11,6 +11,18 @@ from scipy.stats import chi2
 from scipy.interpolate import interp1d
 
 
+def _rc(arg):
+    cov_mat = np.cov(arg)
+    var_mat = np.diagonal(cov_mat)**0.5
+    var_mat[var_mat == 0] = 1
+    
+    for i in range(cov_mat.shape[0]):
+        cov_mat[i] /= var_mat[i]
+        cov_mat[:, i] /= var_mat[i]
+    
+    return cov_mat
+
+
 def r_moment(data, p_range=None, param={}, k=1, acc=0.1):
     '''
     计算原点矩
@@ -641,4 +653,178 @@ class DFT():
         acc: float, callable, the accuracy of drawing, it's effective only when method is 'pdf' or 'cdf', default=0.01
         '''
         self.__image_process(acc)
+        plt.savefig(filename)
+
+
+class RC():
+    '''
+    相关系数
+    
+    参数
+    ----
+    *arg：列表类型
+    
+    属性
+    ----
+    rc_mat：相关系数矩阵
+    
+    
+    correlation coefficient
+    
+    Parameter
+    ---------
+    *arg: list
+    
+    Attribute
+    ---------
+    rc_mat: correlation coefficient matrix
+    '''
+    def __init__(self, *arg):
+        arg = np.array(arg, dtype=float)
+        if len(arg.shape) != 2:
+            raise Exception("Input list should be 1D.")
+        else:
+            self.rc_mat = _rc(arg)
+    
+    
+    def __img_process(self, index, cmap):
+        plt.matshow(self.rc_mat, cmap=cmap)
+        plt.colorbar()
+        if index:
+            n_list = range(len(index))
+            plt.xticks(n_list, index)
+            plt.yticks(n_list, index)
+    
+    
+    def show(self, index=None, cmap='Blues'):
+        '''
+        作图并显示
+        
+        参数
+        ----
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Display the image
+        
+        Parameters
+        ----------
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        self.__img_process(index=index, cmap=cmap)
+        plt.show()
+    
+    
+    def savefig(self, filename, index=None, cmap='Blues'):
+        '''
+        作图并保存
+        
+        参数
+        ----
+        filename：字符串形式，文件名
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Save the image
+        
+        Parameters
+        ----------
+        filename: str, file name
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        self.__img_process(index=index, cmap=cmap)
+        plt.savefig(filename)
+
+
+class PRC():
+    '''
+    偏相关系数
+    等比例的数组不能用于该函数求解偏相关系数
+    
+    参数
+    ----
+    *arg：列表类型
+    
+    属性
+    ----
+    prc_mat：偏相关系数矩阵
+    
+    
+    partial correlation coefficient
+    Equally proportional arrays cannot be used to solve partial correlation coefficients for this function.
+    
+    Parameter
+    ---------
+    *arg: list
+    
+    Attribute
+    ---------
+    prc_mat: partial correlation coefficient matrix
+    '''
+    def __init__(self, *arg):
+        arg = np.array(arg, dtype=float)
+        if len(arg.shape) != 2:
+            raise Exception("Input list should be 1D.")
+        else:
+            arg = np.linalg.inv(_rc(arg))
+            self.prc_mat = np.zeros_like(arg)
+            for i in range(self.prc_mat.shape[0]):
+                for j in range(self.prc_mat.shape[1]):
+                    self.prc_mat[i, j] = - arg[i, j] / (arg[i, i] * arg[j, j])**0.5
+    
+    
+    def __img_process(self, index, cmap):
+        plt.matshow(self.prc_mat, cmap=cmap)
+        plt.colorbar()
+        if index:
+            n_list = range(len(index))
+            plt.xticks(n_list, index)
+            plt.yticks(n_list, index)
+    
+    
+    def show(self, index=None, cmap='Blues'):
+        '''
+        作图并显示
+        
+        参数
+        ----
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Display the image
+        
+        Parameters
+        ----------
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        self.__img_process(index=index, cmap=cmap)
+        plt.show()
+    
+    
+    def savefig(self, filename, index=None, cmap='Blues'):
+        '''
+        作图并保存
+        
+        参数
+        ----
+        filename：字符串形式，文件名
+        index：列表形式，可选，各数组名称
+        cmap：字符串形式，可选，颜色板，默认为'Blues'
+        
+        
+        Save the image
+        
+        Parameters
+        ----------
+        filename: str, file name
+        index: list, callable, names of each array
+        cmap: str, callable, color board, default='Blues'
+        '''
+        self.__img_process(index=index, cmap=cmap)
         plt.savefig(filename)

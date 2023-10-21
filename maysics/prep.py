@@ -9,20 +9,9 @@ plt.rcParams['font.sans-serif'] = ['FangSong']
 plt.rcParams['axes.unicode_minus'] = False
 from io import BytesIO
 from lxml import etree
+from maysics.stats import _rc
 import base64
 import math
-
-
-def _rc(arg):
-    cov_mat = np.cov(arg)
-    var_mat = np.diagonal(cov_mat)**0.5
-    var_mat[var_mat == 0] = 1
-    
-    for i in range(cov_mat.shape[0]):
-        cov_mat[i] /= var_mat[i]
-        cov_mat[:, i] /= var_mat[i]
-    
-    return cov_mat
 
 
 def _preview_process(data, value_round):
@@ -791,87 +780,3 @@ def pca(data, n=None, eig_vector=None):
     data = np.dot(data, eig_vector)
     
     return data, (contri, eig_value, eig_ratio), eig_vector
-
-
-class RC():
-    '''
-    相关系数
-    
-    参数
-    ----
-    *arg：列表类型
-    
-    属性
-    ----
-    rc_mat：相关系数矩阵
-    
-    
-    correlation coefficient
-    
-    Parameter
-    ---------
-    *arg: list
-    
-    Attribute
-    ---------
-    rc_mat: correlation coefficient matrix
-    '''
-    def __init__(self, *arg):
-        arg = np.array(arg, dtype=float)
-        if len(arg.shape) != 2:
-            raise Exception("Input list should be 1D.")
-        else:
-            self.rc_mat = _rc(arg)
-    
-    
-    def __img_process(self, index, cmap):
-        plt.matshow(self.rc_mat, cmap=cmap)
-        plt.colorbar()
-        if index:
-            n_list = range(len(index))
-            plt.xticks(n_list, index)
-            plt.yticks(n_list, index)
-    
-    
-    def show(self, index=None, cmap='Blues'):
-        '''
-        作图并显示
-        
-        参数
-        ----
-        index：列表形式，可选，各数组名称
-        cmap：字符串形式，可选，颜色板，默认为'Blues'
-        
-        
-        Display the image
-        
-        Parameters
-        ----------
-        index: list, callable, names of each array
-        cmap: str, callable, color board, default='Blues'
-        '''
-        self.__img_process(index=index, cmap=cmap)
-        plt.show()
-    
-    
-    def savefig(self, filename, index=None, cmap='Blues'):
-        '''
-        作图并保存
-        
-        参数
-        ----
-        filename：字符串形式，文件名
-        index：列表形式，可选，各数组名称
-        cmap：字符串形式，可选，颜色板，默认为'Blues'
-        
-        
-        Save the image
-        
-        Parameters
-        ----------
-        filename: str, file name
-        index: list, callable, names of each array
-        cmap: str, callable, color board, default='Blues'
-        '''
-        self.__img_process(index=index, cmap=cmap)
-        plt.savefig(filename)

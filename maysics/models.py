@@ -235,6 +235,57 @@ def pso(select, initial, num=10, loop=10, omega=1, phi_1=2, phi_2=2, v_max=None,
     return p_g
 
 
+def simple_gd(select, initial, ytol, acc, step=-7.0, auto=True, param={}):
+    '''
+    简化版梯度下降算法
+    
+    参数
+    ----
+    select：函数类型，评估函数
+    initial：数或数组，初始解，select函数的输入值
+    ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.01
+    acc：浮点数类型，可选，求导精度，默认为0.1
+    step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，若auto=True，则步长为x*10^step，其中x为梯度的第一位有效数字，默认为0.1
+    auto：布尔类型，True使用自适应步长，默认为True
+    param：字典类型，可选，当select有其他非默认参数时，需输入以参数名为键，参数值为值的字典，默认为空字典
+    
+    返回
+    ----
+    ndarray，最优解
+    
+    
+    Simple Gradient Descent
+    
+    Parameters
+    ----------
+    select: function, evaluation function
+    initial: num or array, initial solution, the input value of select function
+    ytol:
+    acc:
+    step:
+    auto:
+    param: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
+    
+    Return
+    ------
+    ndarray, optimized solution
+    '''
+    initial = np.array(initial, dtype=float)
+    f_change = float('inf')
+    
+    while f_change > ytol:
+        d_list = grad(select, initial, acc, param=param)
+        if auto:
+            step = -1 * (np.floor(np.log(d_list) / np.log(10)).astype(float)) + step
+            step = 10**step
+        # 计算函数值变化量
+        f_change = select(initial, **param)
+        initial = initial - d_list * step
+        f_change = abs(select(initial, **param) - f_change)
+    
+    return initial
+
+
 class AR():
     '''
     自回归模型
@@ -1471,14 +1522,15 @@ class SA():
 
 class GD():
     '''
-    梯度下降法
+    梯度下降算法
     沿函数负梯度方向逐步下降进而得到函数的最优解，最优解默认为最小值
     
     参数
     ----
     ytol：浮点数类型，可选，连续两次迭代的函数值小于ytol时即停止迭代，默认为0.01
-    step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，默认为0.1
     acc：浮点数类型，可选，求导精度，默认为0.1
+    step：浮点数类型，可选，步长倍率，每次生成的步长为step * 负梯度，若auto=True，则步长为x*10^step，其中x为梯度的第一位有效数字，默认为0.1
+    auto：布尔类型，可选，True表示采取自适应步长，默认为False
     
     属性
     ----
@@ -1494,8 +1546,9 @@ class GD():
     Parameters
     ----------
     ytol: float, callable, when △f of two successive iterations is less than ytol, the iteration will stop, default=0.01
-    step: float, callable, step, each generated step length = - step * gradient, default=1
     acc: float, callable, accuracy of derivation, default=0.1
+    step: float, callable, step, each generated step length = - step * gradient, default=1
+    auto：bool, callable
     
     Attributes
     ----------
@@ -1503,10 +1556,11 @@ class GD():
     trace: ndarray, independent variable points in the iterative process
     value: float, function value of optimal solution
     '''
-    def __init__(self, ytol=0.01, step=0.1, acc=0.1):
+    def __init__(self, ytol=0.01, acc=0.1, step=0.1, auto=False):
         self.ytol = ytol
-        self._step = step
         self.acc = acc
+        self._step = step
+        self._auto = auto
     
     
     def fit(self, select, initial, param={}):
@@ -1523,12 +1577,15 @@ class GD():
         initial: num or array, initial solution, the input value of select function
         param: dict, callable, when function "select" has other non-default parameters, "param" needs to be input a dictionary with parm_name as key and param_value as value, default={}
         '''
-        initial = np.array(initial, dtype=np.float)
+        initial = np.array(initial, dtype=float)
         self.trace = [initial]
         f_change = float('inf')
         
         while f_change > self.ytol:
             d_list = grad(select, initial, self.acc)
+            if self._auto:
+                self._step = -1 * (np.floor(np.log(d_list) / np.log(10)).astype(float)) + self._step
+                self._step = 10**self._step
             # 计算函数值变化量
             f_change = select(initial, **param)
             initial = initial - d_list * self._step
