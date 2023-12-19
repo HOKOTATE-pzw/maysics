@@ -193,7 +193,7 @@ def hist_graph(data, mode=1, save=False, queue=False, minmax=True):
     data：二维或三维ndarray，图像的张量数据
     mode：数类型，可选1和2，1代表折线图，2代表直方图，默认为1
     save：字符串类型或布尔类型，若为字符串类型，表示保存图像为文件，若为False，则表示显示图像，默认为False
-    queue：
+    queue：布尔类型，可选，True表示同时输入多张图片绘制平均直方图，默认为False
     minmax：布尔类型，可选，True表示对数据进行归一化，默认为True
     
     
@@ -204,6 +204,8 @@ def hist_graph(data, mode=1, save=False, queue=False, minmax=True):
     data: 2D or 3D ndarray, tensor of image
     mode: num, 1 and 2 are optional, 1 means line graph, 2 means histogram
     save: str or bool, str type means save graph as file, False means display graph, default=False
+    queue: bool, callable, True means inputting multiple images simultaneously to draw an average histogram, default=False
+    minmax: bool, callable, True means normalizing data, default=True
     '''
     if queue is True:
         for i in range(len(data)):
