@@ -138,13 +138,14 @@ def ihsv(pic, dtype=float):
     return pic.transpose(1, 2, 0)
 
 
-def hist(data):
+def hist(data, minmax=True):
     '''
     图像的直方图
     
     参数
     ----
     data：二维或三维ndarray，图像的张量数据
+    minmax：布尔类型，可选，True表示对数据进行归一化，默认为True
     
     返回
     ----
@@ -156,6 +157,7 @@ def hist(data):
     Parameter
     ---------
     data: 2D or 3D ndarray, tensor of image
+    minmax: bool, callable, 
     
     Return
     ------
@@ -174,10 +176,15 @@ def hist(data):
             for i in range(256):
                 result[j].append(data_copy[data_copy==i].shape[0])
     
-    return np.array(result)
+    result = np.array(result)
+    if minmax is True:
+        return result / result.sum()
+    
+    elif minmax is False:
+        return result
 
 
-def hist_graph(data, mode=1, save=False):
+def hist_graph(data, mode=1, save=False, queue=False, minmax=True):
     '''
     绘制图像的直方图
     
@@ -186,6 +193,8 @@ def hist_graph(data, mode=1, save=False):
     data：二维或三维ndarray，图像的张量数据
     mode：数类型，可选1和2，1代表折线图，2代表直方图，默认为1
     save：字符串类型或布尔类型，若为字符串类型，表示保存图像为文件，若为False，则表示显示图像，默认为False
+    queue：
+    minmax：布尔类型，可选，True表示对数据进行归一化，默认为True
     
     
     Display the Histogram of Image
@@ -196,7 +205,14 @@ def hist_graph(data, mode=1, save=False):
     mode: num, 1 and 2 are optional, 1 means line graph, 2 means histogram
     save: str or bool, str type means save graph as file, False means display graph, default=False
     '''
-    data = hist(data)
+    if queue is True:
+        for i in range(len(data)):
+            data[i] = hist(data[i], minmax=minmax).astype(float)
+        data = np.mean(data, axis=0)
+    
+    if queue is False:
+        data = hist(data, minmax=minmax)
+        
     x = np.arange(0, 256, 1)
     if mode == 1 or mode == 'plot':
         if len(data.shape) == 1:

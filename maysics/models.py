@@ -294,7 +294,7 @@ class AR():
     
     属性
     ----
-    result：1维ndarray，系数数组
+    coef：1维ndarray，系数数组
     sigma：数类型，原数据与预测之间误差的方差
     
     
@@ -304,7 +304,7 @@ class AR():
     
     Attributes
     ----------
-    result: 1D array, coefficient array
+    coef: 1D array, coefficient array
     sigma: num, variance of error between original data and prediction
     '''
     @classmethod
@@ -335,7 +335,7 @@ class AR():
         
         self.sigma = []
         for i in range(self.__data[p:].shape[0]):
-            self.sigma.append(self.coef[:p+1] * self.__data[i:i+p] - self.__data[i+p])
+            self.sigma.append(self.coef[:p] * self.__data[i:i+p] - self.__data[i+p])
         self.sigma = np.array(self.sigma).std()
     
     
