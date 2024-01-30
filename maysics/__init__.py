@@ -34,7 +34,7 @@ maysics includes eleven modules:
 '''
 import numpy as np
 from scipy.special import factorial
-from scipy.io import mmwrite, mmread
+from scipy.io import mmwrite, mmread, wavfile
 import pickle, csv
 from PIL import Image
 import random
@@ -182,6 +182,7 @@ def covs1d(a, b, n):
     ----
     数类型，a[n] * b[n]
     
+    
     Convolution Sum of 1D List
     
     Parameters
@@ -228,6 +229,7 @@ def covs2d(a, b, n, m):
     ----
     数类型，a[n, m] * b[n, m]
     
+    
     Convolution Sum of 2D List
     
     Parameters
@@ -272,7 +274,7 @@ def covs2d(a, b, n, m):
 
 def load(filename, skip=0, pic=False, dtype='uint8'):
     '''
-    载入pkl、npy、csv、mtx文件或图片
+    载入pkl、npy、csv、mtx、wav文件或图片
     
     参数
     ----
@@ -286,8 +288,10 @@ def load(filename, skip=0, pic=False, dtype='uint8'):
     读取pkl文件会返回储存时的数据类型
     读取npy文件、csv文件、txt文件和图片文件会返回ndarray
     读取mtx文件会返回csr_matrix
+    读取wav文件会返回元组：(采样率, 信号)
     
-    Load pkl, npy, csv, txt, mtx file or picture
+    
+    Load pkl, npy, csv, txt, mtx, wav file or picture
     
     Parameter
     ---------
@@ -298,9 +302,10 @@ def load(filename, skip=0, pic=False, dtype='uint8'):
     
     Return
     ------
-    read pkl file will return the data type at the time of storage
-    read npy files, csv files, txt files and image files will return ndarray
-    read the mtx file will return csr_ matrix
+    reading pkl file will return the data type at the time of storage
+    reading npy files, csv files, txt files and image files will return ndarray
+    reading mtx file will return csr_ matrix
+    reading wav file will return tuple: (sampling rate, signal)
     '''
     if pic is False:
         if filename[-4:] == '.pkl':
@@ -322,33 +327,38 @@ def load(filename, skip=0, pic=False, dtype='uint8'):
         elif filename[-4:] == '.mtx':
             return mmread(filename)
         
+        elif filename[-4:] == '.wav':
+            return wavfile.read(filename)
+        
         else:
-            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt' or 'mtx', or the file should be a picture.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt', 'mtx' or 'wav', or the file should be a picture.")
     
     else:
         x = Image.open(filename)
         return np.asarray(x, dtype=dtype)
 
 
-def save(filename, data, header=None, pic=False):
+def save(filename, data, header=None, rate=None, pic=False):
     '''
-    保存为pkl、npy、csv或mtx文件或图片
+    保存为pkl、npy、csv、mtx、wav文件或图片
     
     参数
     ----
     filename：字符串类型，文件名
     data：需要保存的数据
     header：一维列表类型，可选，数据的列名称，仅在写入csv文件时有效
+    rate：整型，可选，采样率（样本/秒），仅在写入wav文件时有效
     pic：布尔类型，可选，True表示保存为图片，默认为False
     
     
-    Save as pkl, npy, csv, mtx file or picture
+    Save as pkl, npy, csv, mtx, wav file or picture
     
     Parameters
     ----------
     filename: str, file name
     data: data
     header: 1D list, callable, the names of columns, effective only when writing csv files
+    rate: int, callable, the sample rate (samples/sec)
     pic: bool, callable, True means to save as picture, default=False
     '''
     if pic is False:
@@ -395,8 +405,11 @@ def save(filename, data, header=None, pic=False):
         elif filename[-4:] == '.mtx':
             mmwrite(filename, data)
         
+        elif filename[-4:] == '.wav':
+            wavfile.write(filename, rate, data)
+        
         else:
-            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt' or 'mtx', or the file should be a picture.")
+            raise Exception("Suffix of filename must be one of 'pkl', 'npy', 'csv', 'txt', 'mtx' or 'wav', or the file should be a picture.")
     
     else:
         data = np.array(data, dtype='uint8')

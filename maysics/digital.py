@@ -652,3 +652,53 @@ def restore(img, low, up, x, y):
     for i in range(img.shape[1]):
         y_result.append(y[1] - np.where(img[:, i]==255)[0].mean() / img.shape[0] * (y[1] - y[0]))
     return x_result, np.array(y_result)
+
+
+def binarize(data, bounds=127.5, trans=[0, 255], dtype=float):
+    '''
+    图像二值化
+    
+    参数
+    ----
+    data：二维或三维ndarray，图像的张量数据
+    bounds：数类型，可选，二值化边界，灰度小于该值则置0，大于该值则置255，默认为127.5
+    trans：一维或二维数组类型，可选，转化后的灰度值或RGB值，默认为[0, 255]
+    dtype：可选，输出图像数据的数据格式，默认为float
+    
+    返回
+    ----
+    二维或三维ndarray，灰度图像或RGB图像
+    
+    
+    Image binaryzation
+    
+    Parameters
+    ----------
+    data: 2D or 3D ndarray, tensor of image
+    bounds: num, callable, binary boundary, set to 0 if grayscale is less than it, set to 255 on the opposite, default=127.5
+    trans: 1D or 2D array, callable, the converted grayscale or RGB values, default=[0, 255]
+    dtype: callable, data format of output image, default=float
+    
+    Return
+    ------
+    2D or 3D ndarray, grey image or RGB image
+    '''
+    data = np.array(data, dtype=int)
+    
+    if len(data.shape) == 3:
+        data = l_convert(data, dtype=int)
+    
+    trans = np.array(trans)
+    # 处理黑白图像
+    if len(trans.shape) == 1:
+        data[data < bounds] = trans[0]
+        data[data > bounds] = trans[1]
+    
+    # 处理彩色图像
+    else:
+        data_copy = np.empty((data.shape[0], data.shape[1], 3))
+        data_copy[data < bounds, :] = trans[0]
+        data_copy[data > bounds, :] = trans[1]
+        data = data_copy
+    
+    return data.astype(dtype)
